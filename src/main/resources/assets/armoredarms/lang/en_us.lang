@@ -1,0 +1,3 @@
+armoredarms.cfg.disableArmWear=Disable rendering of clothing with armor equipped
+armoredarms.cfg.renderBlackList=Blacklist of armor for rendering
+armoredarms.cfg.vanillaArmorModelSize=Vanilla armor model size
