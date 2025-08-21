@@ -9,6 +9,7 @@ import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
@@ -64,7 +65,7 @@ public class RenderArmManager {
 
     public ItemStack chestPlate = null;
     public ItemArmor chestPlateItem = null;
-    public ModelBiped currentArmorModel = null;
+    public ModelBase currentArmorModel = null;
     public ModelPlayer currentPlayerModel = null;
     public ResourceLocation currentArmorTex = null;
     public ResourceLocation currentPlayerTex = null;
@@ -383,11 +384,11 @@ public class RenderArmManager {
 
         ResourceLocation armorTexOv = this.currentArmorTexOv;
         ResourceLocation armorTex = this.currentArmorTex;
-        ModelBiped armorModel = this.currentArmorModel;
+        ModelBase armorModel = this.currentArmorModel;
 
         ModelRenderer playerArmsWear = this.getHand(modelPlayer, handSide, true);
         ModelRenderer playerArms = this.getHand(modelPlayer, handSide, false);
-        ModelRenderer armorArm = this.getHand(armorModel, handSide, false);
+        ModelRenderer armorArm = this.getArmorArm(armorModel, handSide);
 
         this.render(playerArms, playerTex, handSide, IOverriderRender.EnumRenderType.ARM);
         this.render(playerArmsWear, playerTex, handSide, IOverriderRender.EnumRenderType.ARM_WEAR);
@@ -401,8 +402,12 @@ public class RenderArmManager {
         this.currentRenderOverrider.render(hand, tex, handSide, this.chestPlate, this.chestPlateItem, type);
     }
 
-    public ModelBiped getArmorModel(AbstractClientPlayer player) {
+    public ModelBase getArmorModel(AbstractClientPlayer player) {
         return this.currentGetModelOverrider.getModel(player, this.chestPlateItem, this.chestPlate);
+    }
+
+    public ModelRenderer getArmorArm(ModelBase mb, EnumHandSide handSide) {
+        return this.currentGetModelOverrider.getArm(mb, handSide);
     }
 
     public ResourceLocation getArmorTex(AbstractClientPlayer player, IOverriderGetTex.EnumModelTexType type) {
@@ -580,7 +585,7 @@ public class RenderArmManager {
         private double modelSize = AAConfig.vanillaArmorModelSize;
 
         @Override
-        public ModelBiped getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
+        public ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
             ModelBiped mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, this.finalModel);
             if (mb == null) {
                 if (this.modelSize != AAConfig.vanillaArmorModelSize) {
@@ -590,6 +595,18 @@ public class RenderArmManager {
                 mb = this.defaultModel;
             }
             return mb;
+        }
+
+        @Override
+        public ModelRenderer getArm(ModelBase mb, EnumHandSide handSide) {
+            switch (handSide) {
+                case RIGHT:
+                    return ((ModelBiped) mb).bipedRightArm;
+                case LEFT:
+                    return ((ModelBiped) mb).bipedLeftArm;
+                default:
+                    return null;
+            }
         }
     }
 
