@@ -1,10 +1,12 @@
 package com.artur114.armoredarms.client.util;
 
+import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
 import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.override.IBodeThing;
 import com.artur114.armoredarms.api.override.IOverriderGetModel;
 import com.artur114.armoredarms.api.override.IOverriderGetTex;
 import galaxyspace.systems.SolarSystem.planets.overworld.render.item.ItemSpaceSuitModel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
@@ -16,14 +18,17 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 import pl.pabilo8.immersiveintelligence.client.model.TMTArmorModel;
+import pl.pabilo8.immersiveintelligence.client.model.armor.ModelLightEngineerArmor;
 import pl.pabilo8.immersiveintelligence.client.util.tmt.ModelRendererTurbo;
 import pl.pabilo8.immersiveintelligence.common.IIContent;
+import pl.pabilo8.immersiveintelligence.common.util.IIColor;
 import pl.pabilo8.immersiveintelligence.common.util.IISkinHandler;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class Overriders {
@@ -41,10 +46,10 @@ public class Overriders {
         @Override
         public ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
             ModelBase mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, null);
-            if (mb instanceof TMTArmorModel) {
+            if (mb instanceof ModelLightEngineerArmor) {
                 this.hands = new IBodeThing[] {
-                    new BoneThingModelRenderersTurbo(((TMTArmorModel) mb).bipedRightArm, ((TMTArmorModel) mb).rightArmModel, stack),
-                    new BoneThingModelRenderersTurbo(((TMTArmorModel) mb).bipedLeftArm, ((TMTArmorModel) mb).leftArmModel, stack)
+                    new BoneThingModelRenderersTurbo(((ModelLightEngineerArmor) mb).bipedRightArm, ((ModelLightEngineerArmor) mb).rightArmModel, (ModelRendererTurbo[]) this.getField("platesRightArmModel", mb), new ResourceLocation((String) this.getField("TEXTURE_PLATES", mb)), stack),
+                    new BoneThingModelRenderersTurbo(((ModelLightEngineerArmor) mb).bipedLeftArm, ((ModelLightEngineerArmor) mb).leftArmModel, (ModelRendererTurbo[]) this.getField("platesLeftArmModel", mb), new ResourceLocation((String) this.getField("TEXTURE_PLATES", mb)), stack)
                 };
             } else {
                 this.hands = null;
@@ -86,15 +91,31 @@ public class Overriders {
             return new ResourceLocation(baseName + ".png");
         }
 
+        private Object getField(String field, Object obj) {
+            try {
+                Field field1 = obj.getClass().getDeclaredField(field);
+                field1.setAccessible(true);
+                Object ret = field1.get(obj);
+                field1.setAccessible(false);
+                return ret;
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw  new RuntimeException(e);
+            }
+        }
+
         public static class BoneThingModelRenderersTurbo implements IBodeThing {
-            private final ModelRendererTurbo[] mr;
+            private final ModelRendererTurbo[] plates;
+            private final ModelRendererTurbo[] hand;
+            private final ResourceLocation plateTex;
             private final ModelRenderer biped;
             private final ItemStack stack;
 
-            public BoneThingModelRenderersTurbo(ModelRenderer biped, ModelRendererTurbo[] mr, ItemStack stack) {
+            public BoneThingModelRenderersTurbo(ModelRenderer biped, ModelRendererTurbo[] hand, ModelRendererTurbo[] plates, ResourceLocation plateTex, ItemStack stack) {
+                this.plateTex = plateTex;
+                this.plates = plates;
                 this.stack = stack;
                 this.biped = biped;
-                this.mr = mr;
+                this.hand = hand;
             }
 
             @Override
@@ -123,10 +144,41 @@ public class Overriders {
                 GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
                 GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
                 GlStateManager.scale(1.06, 1.06, 1.06);
-                for (int i = 0; i != this.mr.length; i++) {
-                    this.mr[i].render();
-                }
+                this.render();
                 GlStateManager.popMatrix();
+            }
+
+            private void render() {
+                for (int i = 0; i != this.hand.length; i++) {
+                    this.hand[i].render();
+                }
+
+                NBTTagCompound upgrades = IIContent.itemLightEngineerHelmet.getUpgrades(this.stack);
+                if (this.plateTex != null && this.plates != null && this.hasPlates(upgrades)) {
+                    int armorIncrease = upgrades.getInteger("armor_increase");
+                    if (armorIncrease > 1) {
+                        Minecraft.getMinecraft().getTextureManager().bindTexture(this.plateTex);
+                        for (int i = 0; i != this.plates.length; i++) {
+                            this.plates[i].render();
+                        }
+                    }
+                }
+            }
+
+            private boolean hasPlates(NBTTagCompound upgrades) {
+                return upgrades.hasKey("steel_plates") || upgrades.hasKey("composite_plates");
+            }
+
+            private void setColorForPlates(ItemStack stack, NBTTagCompound upgrades) {
+                if (ItemNBTHelper.hasKey(stack, "colour")) {
+                    float[] rgb = IIColor.rgbIntToRGB(ItemNBTHelper.getInt(stack, "colour"));
+                    GlStateManager.color(rgb[0], rgb[1], rgb[2]);
+                } else if (upgrades.hasKey("composite_plates")) {
+                    GlStateManager.color(0.9F, 0.9F, 1.0F);
+                } else {
+                    GlStateManager.color(1.0F, 1.0F, 1.0F);
+                }
+
             }
         }
     }
