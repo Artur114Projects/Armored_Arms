@@ -25,7 +25,7 @@ public class ArmoredArmsApi {
      * @param overrider A descendant of IOverrider must inherit from {@link IOverriderRender} or {@link IOverriderGetTex} or {@link IOverriderGetModel} otherwise it will not be applied.
      * @param replaceIfHas If true, then if there is an existing overrider with the same ResourceLocation, it will be replaced by the current overrider.
      */
-    public static void addOverrider(String modid, String itemName, IOverrider overrider, boolean replaceIfHas) {
+    public static void registerOverrider(String modid, String itemName, IOverrider overrider, boolean replaceIfHas) {
         ArmoredArms.RENDER_ARM_MANAGER.addOverrider(new ShapelessRL(modid, itemName), overrider, replaceIfHas);
     }
 }

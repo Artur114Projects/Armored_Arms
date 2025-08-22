@@ -13,5 +13,5 @@ import net.minecraft.util.EnumHandSide;
  */
 public interface IOverriderGetModel extends IOverrider {
     ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack);
-    ModelRenderer getArm(ModelBase mb, EnumHandSide handSide);
+    IBodeThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide);
 }

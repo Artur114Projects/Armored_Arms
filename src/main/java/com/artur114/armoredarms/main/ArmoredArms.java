@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.main;
 
 import com.artur114.armoredarms.client.RenderArmManager;
+import com.artur114.armoredarms.client.util.Overriders;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -13,13 +14,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @Mod(modid = ArmoredArms.MODID, name = ArmoredArms.NAME, version = ArmoredArms.VERSION, useMetadata = true)
 public class ArmoredArms {
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.0.1-release";
+    public static final String VERSION = "v1.1.0-release";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 
     @Mod.EventHandler
     public static void Init(FMLInitializationEvent event) {
         RENDER_ARM_MANAGER.addToBlackList(AAConfig.renderBlackList);
+        Overriders.init();
     }
 
     @SubscribeEvent

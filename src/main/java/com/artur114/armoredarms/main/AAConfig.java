@@ -18,7 +18,7 @@ public class AAConfig {
 
     @Config.RangeDouble(min = 0.0D, max = 10.0D)
     @Config.LangKey("armoredarms.cfg.vanillaArmorModelSize")
-    public static double vanillaArmorModelSize = 0.6D;
+    public static double vanillaArmorModelSize = 0.4D;
 
     @SubscribeEvent
     public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
