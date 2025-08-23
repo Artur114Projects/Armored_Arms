@@ -36,6 +36,7 @@ import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -149,15 +150,13 @@ public class RenderArmManager {
             }
         }
 
-        if (chestPlate == this.chestPlate) {
+        if (this.checkIsNotNew(chestPlate)) {
             return;
         }
 
         if (this.renderBlackList.contains(new ShapelessRL(chestPlate.getItem().getRegistryName()))) {
             this.chestPlate = chestPlate; this.render = false; return;
         }
-
-        System.out.println("New armor: " + chestPlate.getItem().getRegistryName());
 
         this.render = true;
         this.chestPlate = chestPlate;
@@ -267,6 +266,14 @@ public class RenderArmManager {
 
     public RenderPlayer initRenderPlayer(AbstractClientPlayer player) {
         return (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+    }
+
+    public boolean checkIsNotNew(ItemStack stack) {
+        if (AAConfig.useCheckByItem) {
+            return stack.getItem() == this.chestPlateItem;
+        } else {
+            return stack == this.chestPlate;
+        }
     }
 
     public void renderArms() {
@@ -394,9 +401,9 @@ public class RenderArmManager {
         ResourceLocation armorTex = this.currentArmorTex;
         ModelBase armorModel = this.currentArmorModel;
 
-        IBodeThing playerArmsWear = this.getHand(modelPlayer, handSide, true);
-        IBodeThing playerArms = this.getHand(modelPlayer, handSide, false);
-        IBodeThing armorArm = this.getArmorArm(armorModel, handSide);
+        IBoneThing playerArmsWear = this.getHand(modelPlayer, handSide, true);
+        IBoneThing playerArms = this.getHand(modelPlayer, handSide, false);
+        IBoneThing armorArm = this.getArmorArm(armorModel, handSide);
 
         this.render(modelPlayer.model, playerArms, playerTex, handSide, IOverriderRender.EnumRenderType.ARM);
         this.render(modelPlayer.model, playerArmsWear, playerTex, handSide, IOverriderRender.EnumRenderType.ARM_WEAR);
@@ -406,7 +413,7 @@ public class RenderArmManager {
         this.render(armorModel, armorArm, ENCHANTED_ITEM_GLINT_RES, handSide, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
     }
 
-    public void render(ModelBase model, IBodeThing hand, ResourceLocation tex, EnumHandSide handSide, IOverriderRender.EnumRenderType type) {
+    public void render(ModelBase model, IBoneThing hand, ResourceLocation tex, EnumHandSide handSide, IOverriderRender.EnumRenderType type) {
         this.currentRenderOverrider.render(model, hand, tex, handSide, this.chestPlate, this.chestPlateItem, type);
     }
 
@@ -414,7 +421,7 @@ public class RenderArmManager {
         return this.currentGetModelOverrider.getModel(player, this.chestPlateItem, this.chestPlate);
     }
 
-    public IBodeThing getArmorArm(ModelBase mb, EnumHandSide handSide) {
+    public IBoneThing getArmorArm(ModelBase mb, EnumHandSide handSide) {
         return this.currentGetModelOverrider.getArm(mb, this.chestPlateItem, this.chestPlate, handSide);
     }
 
@@ -422,7 +429,7 @@ public class RenderArmManager {
         return this.currentGetTexOverrider.getTexture(player, this.armorLayer, this.layerRenderers, this.chestPlate, this.chestPlateItem, type);
     }
 
-    public IBodeThing getHand(ModelPlayerIBone mb, EnumHandSide handSide, boolean wear) {
+    public IBoneThing getHand(ModelPlayerIBone mb, EnumHandSide handSide, boolean wear) {
         if (mb == null) {
             return null;
         }
@@ -484,7 +491,7 @@ public class RenderArmManager {
         private final Minecraft mc = Minecraft.getMinecraft();
 
         @Override
-        public void render(ModelBase model, IBodeThing hand, ResourceLocation tex, EnumHandSide handSide, ItemStack chestPlate, ItemArmor itemArmor, EnumRenderType type) {
+        public void render(ModelBase model, IBoneThing hand, ResourceLocation tex, EnumHandSide handSide, ItemStack chestPlate, ItemArmor itemArmor, EnumRenderType type) {
             if (hand == null || tex == null) {
                 return;
             }
@@ -503,7 +510,7 @@ public class RenderArmManager {
             }
         }
 
-        private void renderArmor(IBodeThing hand, ResourceLocation tex, EnumHandSide handSide, ItemStack armor, ItemArmor itemArmor) {
+        private void renderArmor(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide, ItemStack armor, ItemArmor itemArmor) {
             if (itemArmor.hasOverlay(armor)) {
                 int i = itemArmor.getColor(armor);
                 float r = (float) (i >> 16 & 255) / 255.0F;
@@ -517,13 +524,13 @@ public class RenderArmManager {
             }
         }
 
-        private void render(IBodeThing hand, ResourceLocation tex, EnumHandSide handSide) {
+        private void render(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide) {
             this.mc.getTextureManager().bindTexture(tex);
             hand.setRotation(0.0F, 0.0F, 0.1F * this.getHadSideDelta(handSide));
             hand.render(0.0625F);
         }
 
-        private void renderEnchant(IBodeThing hand, ResourceLocation tex, EnumHandSide handSide) {
+        private void renderEnchant(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide) {
             float f = (float) this.mc.player.ticksExisted;
             GlStateManager.pushMatrix();
             GlStateManager.pushAttrib();
@@ -579,7 +586,7 @@ public class RenderArmManager {
         private final ModelBiped finalModel = new ModelBiped(1.0F);
         private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
         private double modelSize = AAConfig.vanillaArmorModelSize;
-        private IBodeThing[] hands = null;
+        private IBoneThing[] hands = null;
 
         @Override
         public ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
@@ -591,7 +598,7 @@ public class RenderArmManager {
                 }
                 mb = this.defaultModel;
             }
-            this.hands = new IBodeThing[] {
+            this.hands = new IBoneThing[] {
                 new BoneThingModelRender(mb.bipedRightArm),
                 new BoneThingModelRender(mb.bipedLeftArm)
             };
@@ -599,7 +606,7 @@ public class RenderArmManager {
         }
 
         @Override
-        public IBodeThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide) {
+        public IBoneThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide) {
             switch (handSide) {
                 case RIGHT:
                     return this.hands[0];
@@ -625,7 +632,7 @@ public class RenderArmManager {
         }
     }
 
-    public static class BoneThingModelRender implements IBodeThing {
+    public static class BoneThingModelRender implements IBoneThing {
         private ModelRenderer mr;
         public BoneThingModelRender(ModelRenderer mr) {
             this.mr = mr;
@@ -646,10 +653,10 @@ public class RenderArmManager {
 
     public static class ModelPlayerIBone {
         public final ModelPlayer model;
-        public final IBodeThing bipedRightArmwear;
-        public final IBodeThing bipedLeftArmwear;
-        public final IBodeThing bipedRightArm;
-        public final IBodeThing bipedLeftArm;
+        public final IBoneThing bipedRightArmwear;
+        public final IBoneThing bipedLeftArmwear;
+        public final IBoneThing bipedRightArm;
+        public final IBoneThing bipedLeftArm;
         public ModelPlayerIBone(ModelPlayer model) {
             this.model = model;
 
