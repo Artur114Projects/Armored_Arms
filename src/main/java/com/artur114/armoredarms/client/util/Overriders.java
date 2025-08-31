@@ -172,7 +172,13 @@ public class Overriders {
                     if (armorIncrease > 1) {
                         Minecraft.getMinecraft().getTextureManager().bindTexture(this.plateTex);
                         for (int i = 0; i != this.plates.length; i++) {
+                            boolean h = this.plates[i].isHidden;
+                            boolean s = this.plates[i].showModel;
+                            this.plates[i].isHidden = false;
+                            this.plates[i].showModel = true;
                             this.plates[i].render();
+                            this.plates[i].isHidden = h;
+                            this.plates[i].showModel = s;
                         }
                     }
                 }
@@ -388,7 +394,13 @@ public class Overriders {
             public void render(float scale) {
                 GlStateManager.pushMatrix();
                 GlStateManager.scale(1.13F, 1.13F, 1.13F);
+                boolean h = this.mr.isHidden;
+                boolean s = this.mr.showModel;
+                this.mr.isHidden = false;
+                this.mr.showModel = true;
                 this.mr.render(scale);
+                this.mr.isHidden = h;
+                this.mr.showModel = s;
                 GlStateManager.popMatrix();
             }
         }

@@ -449,15 +449,15 @@ public class RenderArmManager {
         }
         if (overrider instanceof IOverriderRender && (!this.renderOverriders.containsKey(rl) || replaceIfHas)) {
             this.renderOverriders.put(rl, (IOverriderRender) overrider);
-            System.out.println("Added overrider render! " + overrider);
+            System.out.println("Added overrider render! for:" + rl);
         }
         if (overrider instanceof IOverriderGetTex && (!this.textureOverriders.containsKey(rl) || replaceIfHas)) {
             this.textureOverriders.put(rl, (IOverriderGetTex) overrider);
-            System.out.println("Added overrider get texture! " + overrider);
+            System.out.println("Added overrider get texture! for:" + rl);
         }
         if (overrider instanceof IOverriderGetModel && (!this.modelOverriders.containsKey(rl) || replaceIfHas)) {
             this.modelOverriders.put(rl, (IOverriderGetModel) overrider);
-            System.out.println("Added overrider get model! " + overrider);
+            System.out.println("Added overrider get model! for:" + rl);
         }
     }
 
@@ -647,7 +647,13 @@ public class RenderArmManager {
 
         @Override
         public void render(float scale) {
+            boolean h = this.mr.isHidden;
+            boolean s = this.mr.showModel;
+            this.mr.isHidden = false;
+            this.mr.showModel = true;
             this.mr.render(scale);
+            this.mr.isHidden = h;
+            this.mr.showModel = s;
         }
     }
 

@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-String v = 'v1.2.0-release'
+String v = 'v1.2.1-release'
 
 version = v
 group = 'com.artur114.armoredarms'
