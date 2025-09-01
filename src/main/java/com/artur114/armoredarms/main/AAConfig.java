@@ -12,9 +12,12 @@ public class AAConfig {
     @Config.LangKey("armoredarms.cfg.disableArmWear")
     public static boolean disableArmWear = true;
 
+    @Config.LangKey("armoredarms.cfg.enableArmWearWithVanillaM")
+    public static boolean enableArmWearWithVanillaM = true;
+
     @Config.RequiresMcRestart
     @Config.LangKey("armoredarms.cfg.renderBlackList")
-    public static String[] renderBlackList = new String[] {"minecraft:*"};
+    public static String[] renderBlackList = new String[0];
 
     @Config.RangeDouble(min = 0.0D, max = 10.0D)
     @Config.LangKey("armoredarms.cfg.vanillaArmorModelSize")

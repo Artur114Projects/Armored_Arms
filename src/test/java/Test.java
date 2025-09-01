@@ -1,4 +1,9 @@
 import com.artur114.armoredarms.client.util.ShapelessRL;
+import com.hbm.render.model.ModelArmorAJR;
+import com.hbm.render.model.ModelB92;
+import net.machinemuse.powersuits.client.model.item.armor.HighPolyArmor;
+import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -7,19 +12,13 @@ import java.util.List;
 import java.util.Set;
 
 public class Test {
-    public static List<ResourceLocation> renderBlackList = new ArrayList<>();
     public static void main(String[] args) {
-        renderBlackList.add(new ShapelessRL("minecraft:*"));
-        renderBlackList.add(new ShapelessRL("*:aaa"));
+        ModelBase model = new HighPolyArmor();
+        ModelBase model1 = new ModelBiped(0);
 
-        System.out.println(renderBlackList.contains(new ShapelessRL(new ResourceLocation("minecraft:air"))));
-        System.out.println(renderBlackList.contains(new ShapelessRL(new ResourceLocation("sfgsfgf:aaa"))));
-        System.out.println(renderBlackList.contains(new ShapelessRL(new ResourceLocation("sfgsfgf:eee"))));
-
-        renderBlackList.clear();
-
-        renderBlackList.add(new ShapelessRL("*:*"));
-
-        System.out.println(renderBlackList.contains(new ShapelessRL(new ResourceLocation("sfgsfgf:wfwfefw"))));
+        System.out.println(model.getClass());
+        System.out.println(model.getClass() == ModelBiped.class);
+        System.out.println(model1.getClass());
+        System.out.println(model1.getClass() == ModelBiped.class);
     }
 }

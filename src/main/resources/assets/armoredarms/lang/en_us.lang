@@ -2,6 +2,7 @@ armoredarms.cfg.disableArmWear=Disable rendering of arm wear with armor equipped
 armoredarms.cfg.renderBlackList=Blacklist of armor for rendering
 armoredarms.cfg.vanillaArmorModelSize=Vanilla armor model size
 armoredarms.cfg.useCheckByItem=Use check by item
+armoredarms.cfg.enableArmWearWithVanillaM=Enable rendering arm wear for vanilla armor model
 ##
 armoredarms.error.fatal.tryRender=A fatal error occurred while trying to render! The armor on the hands will not be rendered!
 armoredarms.error.fatal.tryTick=A fatal error occurred while trying to update! The armor on hands will not be rendered!

@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client;
 import com.artur114.armoredarms.api.override.*;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
+import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -36,7 +37,6 @@ import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -506,13 +506,20 @@ public class RenderArmManager {
                     if (chestPlate.hasEffect()) this.renderEnchant(hand, tex, handSide);
                     break;
                 case ARM_WEAR:
-                    if (!AAConfig.disableArmWear) this.render(hand, tex, handSide);
+                    this.renderArmWear(hand, tex, handSide);
                     break;
                 case ARMOR:
                     this.renderArmor(hand, tex, handSide, chestPlate, itemArmor);
                     break;
                 default:
                     this.render(hand, tex, handSide);
+            }
+        }
+
+        private void renderArmWear(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide) {
+            ModelBase modelArmor = ArmoredArms.RENDER_ARM_MANAGER.currentArmorModel;
+            if ((!AAConfig.disableArmWear) || (AAConfig.enableArmWearWithVanillaM && modelArmor.getClass() == ModelBiped.class)) {
+                this.render(hand, tex, handSide);
             }
         }
 
