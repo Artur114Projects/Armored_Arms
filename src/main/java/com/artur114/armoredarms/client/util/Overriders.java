@@ -5,11 +5,15 @@ import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.override.IBoneThing;
 import com.artur114.armoredarms.api.override.IOverriderGetModel;
 import com.artur114.armoredarms.api.override.IOverriderGetTex;
+import com.artur114.armoredarms.api.override.IOverriderRender;
 import com.artur114.armoredarms.client.RenderArmManager;
+import com.artur114.armoredarms.main.AAConfig;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.loader.ModelRendererObj;
 import com.hbm.render.model.ModelT45Chest;
 import galaxyspace.systems.SolarSystem.planets.overworld.render.item.ItemSpaceSuitModel;
+import net.machinemuse.powersuits.client.model.item.armor.IArmorModel;
+import net.machinemuse.powersuits.common.utils.nbt.MPSNBTUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
@@ -34,6 +38,9 @@ import pl.pabilo8.immersiveintelligence.common.util.IISkinHandler;
 import java.lang.reflect.Field;
 import java.util.List;
 
+/**
+ * Here i ultrashitcoding
+ */
 public class Overriders {
     public static void init() {
         ArmoredArmsApi.registerOverrider("immersiveintelligence", "light_engineer_armor_chestplate", new LightEngineerArmorOverrider(), false);
@@ -47,6 +54,7 @@ public class Overriders {
         ArmoredArmsApi.registerOverrider("hbm", "rpa_plate", new HBMOverrider("rightArm", "leftArm", "rpa_arm"), false);
         ArmoredArmsApi.registerOverrider("hbm", "fau_plate", new HBMOverrider("rightArm", "leftArm", "fau_arm"), false);
         ArmoredArmsApi.registerOverrider("hbm", "dns_plate", new HBMOverrider("rightArm", "leftArm", "dnt_arm"), false);
+        ArmoredArmsApi.registerOverrider("powersuits", "powerarmor_torso", new PowerArmorOverrider(), false);
     }
 
     /**
@@ -402,6 +410,136 @@ public class Overriders {
                 this.mr.isHidden = h;
                 this.mr.showModel = s;
                 GlStateManager.popMatrix();
+            }
+        }
+    }
+
+    /**
+     * for powersuits:powerarmor_torso
+     */
+    public static class PowerArmorOverrider implements IOverriderGetModel, IOverriderRender {
+        private final Minecraft mc = Minecraft.getMinecraft();
+        private IBoneThing[] hands = null;
+
+        @Override
+        public ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
+            if (stack == null || stack.isEmpty() || itemArmor == null ) {
+                return null;
+            }
+            ModelBiped mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, null);
+            if (this.hands == null) {
+                this.hands = new IBoneThing[]{
+                    new RenderArmManager.BoneThingModelRender(mb.bipedRightArm),
+                    new RenderArmManager.BoneThingModelRender(mb.bipedLeftArm)
+                };
+            }
+            return mb;
+        }
+
+        @Override
+        public IBoneThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide) {
+            switch (handSide) {
+                case RIGHT:
+                    return this.hands[0];
+                case LEFT:
+                    return this.hands[1];
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void render(ModelBase model, IBoneThing hand, ResourceLocation tex, EnumHandSide handSide, ItemStack chestPlate, ItemArmor itemArmor, EnumRenderType type) {
+            if (hand == null || tex == null || chestPlate == null || itemArmor == null || chestPlate.isEmpty() || model == null) {
+                return;
+            }
+            if (type == EnumRenderType.ARMOR || type == EnumRenderType.ARMOR_OVERLAY) {
+                ((IArmorModel) model).setRenderSpec(MPSNBTUtils.getMuseRenderTag(chestPlate, EntityEquipmentSlot.CHEST));
+                ((IArmorModel) model).setVisibleSection(EntityEquipmentSlot.CHEST);
+            }
+            switch (type) {
+                case ARMOR_ENCHANT:
+                    if (chestPlate.hasEffect()) this.renderEnchant(hand, tex, handSide);
+                    break;
+                case ARM_WEAR:
+                    if (!AAConfig.disableArmWear) this.render(hand, tex, handSide);
+                    break;
+                case ARMOR:
+                    this.renderArmor(hand, tex, handSide, chestPlate, itemArmor);
+                    break;
+                default:
+                    this.render(hand, tex, handSide);
+            }
+        }
+
+        private void renderArmor(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide, ItemStack armor, ItemArmor itemArmor) {
+            if (itemArmor.hasOverlay(armor)) {
+                int i = itemArmor.getColor(armor);
+                float r = (float) (i >> 16 & 255) / 255.0F;
+                float g = (float) (i >> 8 & 255) / 255.0F;
+                float b = (float) (i & 255) / 255.0F;
+                GlStateManager.color(r, g, b, 1.0F);
+                this.render(hand, tex, handSide);
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            } else {
+                this.render(hand, tex, handSide);
+            }
+        }
+
+        private void render(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide) {
+            this.mc.getTextureManager().bindTexture(tex);
+            hand.setRotation(0.0F, 0.0F, 0.1F * this.getHadSideDelta(handSide));
+            hand.render(0.0625F);
+        }
+
+        private void renderEnchant(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide) {
+            float f = (float) this.mc.player.ticksExisted;
+            GlStateManager.pushMatrix();
+            GlStateManager.pushAttrib();
+            this.mc.getTextureManager().bindTexture(tex);
+            this.mc.entityRenderer.setupFogColor(true);
+            GlStateManager.enableBlend();
+            GlStateManager.depthFunc(514);
+            GlStateManager.depthMask(false);
+            GlStateManager.color(0.5F, 0.5F, 0.5F, 1.0F);
+
+            for (int i = 0; i < 2; ++i) {
+                GlStateManager.disableLighting();
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
+                GlStateManager.color(0.38F, 0.19F, 0.608F, 1.0F);
+                GlStateManager.matrixMode(5890);
+                GlStateManager.loadIdentity();
+                GlStateManager.scale(0.33333334F, 0.33333334F, 0.33333334F);
+                GlStateManager.rotate(30.0F - (float)i * 60.0F, 0.0F, 0.0F, 1.0F);
+                GlStateManager.translate(0.0F, f * (0.001F + (float)i * 0.003F) * 20.0F, 0.0F);
+                GlStateManager.matrixMode(5888);
+                hand.setRotation(0.0F, 0.0F, 0.1F * this.getHadSideDelta(handSide));
+                hand.render(0.0625F);
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            }
+
+            GlStateManager.matrixMode(5890);
+            GlStateManager.loadIdentity();
+            GlStateManager.matrixMode(5888);
+            GlStateManager.enableLighting();
+            GlStateManager.depthMask(true);
+            GlStateManager.depthFunc(515);
+            GlStateManager.disableBlend();
+            this.mc.entityRenderer.setupFogColor(false);
+            GlStateManager.popMatrix();
+            GlStateManager.popAttrib();
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        }
+
+        private int getHadSideDelta(EnumHandSide handSide) {
+            switch (handSide) {
+                case RIGHT:
+                    return 1;
+                case LEFT:
+                    return -1;
+                default:
+                    return 0;
             }
         }
     }

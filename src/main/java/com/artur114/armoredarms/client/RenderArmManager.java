@@ -139,7 +139,10 @@ public class RenderArmManager {
         ItemStack chestPlate = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
 
         if (this.died || this.killingArmor.contains(chestPlate.getItem()) || !(chestPlate.getItem() instanceof ItemArmor)) {
-            this.render = false; return;
+            this.chestPlate = ItemStack.EMPTY;
+            this.chestPlateItem = null;
+            this.render = false;
+            return;
         }
 
         if (this.initTick) {
@@ -155,7 +158,10 @@ public class RenderArmManager {
         }
 
         if (this.renderBlackList.contains(new ShapelessRL(chestPlate.getItem().getRegistryName()))) {
-            this.chestPlate = chestPlate; this.render = false; return;
+            this.chestPlateItem = (ItemArmor) chestPlate.getItem();
+            this.chestPlate = chestPlate;
+            this.render = false;
+            return;
         }
 
         this.render = true;
@@ -449,15 +455,15 @@ public class RenderArmManager {
         }
         if (overrider instanceof IOverriderRender && (!this.renderOverriders.containsKey(rl) || replaceIfHas)) {
             this.renderOverriders.put(rl, (IOverriderRender) overrider);
-            System.out.println("Added overrider render! for:" + rl);
+            System.out.println("Added overrider render! for " + "[" + rl + "]");
         }
         if (overrider instanceof IOverriderGetTex && (!this.textureOverriders.containsKey(rl) || replaceIfHas)) {
             this.textureOverriders.put(rl, (IOverriderGetTex) overrider);
-            System.out.println("Added overrider get texture! for:" + rl);
+            System.out.println("Added overrider get texture! for " + "[" + rl + "]");
         }
         if (overrider instanceof IOverriderGetModel && (!this.modelOverriders.containsKey(rl) || replaceIfHas)) {
             this.modelOverriders.put(rl, (IOverriderGetModel) overrider);
-            System.out.println("Added overrider get model! for:" + rl);
+            System.out.println("Added overrider get model! for " + "[" + rl + "]");
         }
     }
 
@@ -633,7 +639,7 @@ public class RenderArmManager {
     }
 
     public static class BoneThingModelRender implements IBoneThing {
-        private ModelRenderer mr;
+        private final ModelRenderer mr;
         public BoneThingModelRender(ModelRenderer mr) {
             this.mr = mr;
         }
