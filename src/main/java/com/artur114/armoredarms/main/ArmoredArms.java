@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @Mod(modid = ArmoredArms.MODID, name = ArmoredArms.NAME, version = ArmoredArms.VERSION, useMetadata = true)
 public class ArmoredArms {
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.2.3-release";
+    public static final String VERSION = "v1.2.4-release";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 

@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.util;
 
 import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
+import c4.conarm.client.models.ModelConstructsArmor;
 import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.override.IBoneThing;
 import com.artur114.armoredarms.api.override.IOverriderGetModel;
@@ -55,6 +56,7 @@ public class Overriders {
         ArmoredArmsApi.registerOverrider("hbm", "fau_plate", new HBMOverrider("rightArm", "leftArm", "fau_arm"), false);
         ArmoredArmsApi.registerOverrider("hbm", "dns_plate", new HBMOverrider("rightArm", "leftArm", "dnt_arm"), false);
         ArmoredArmsApi.registerOverrider("powersuits", "powerarmor_torso", new PowerArmorOverrider(), false);
+        ArmoredArmsApi.registerOverrider("conarm", "*", new ConstructedArmorOverrider(), false);
     }
 
     /**
@@ -540,6 +542,44 @@ public class Overriders {
                     return -1;
                 default:
                     return 0;
+            }
+        }
+    }
+
+    /**
+     * for conarm:*
+     */
+    public static class ConstructedArmorOverrider implements IOverriderGetModel {
+        private IBoneThing[] hands = null;
+
+        @Override
+        public ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
+            ModelBiped mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, null);
+            if (mb == null) {
+                return null;
+            }
+            if (mb instanceof ModelConstructsArmor && mb.bipedRightArm != ((ModelConstructsArmor) mb).armRightAnchor) {
+                mb.bipedRightArm = ((ModelConstructsArmor) mb).armRightAnchor;
+                mb.bipedLeftArm = ((ModelConstructsArmor) mb).armLeftAnchor;
+                mb.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F / 16.0F, player);
+            }
+            this.hands = new IBoneThing[] {
+                new RenderArmManager.BoneThingModelRender(mb.bipedRightArm),
+                new RenderArmManager.BoneThingModelRender(mb.bipedLeftArm)
+            };
+
+            return mb;
+        }
+
+        @Override
+        public IBoneThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide) {
+            switch (handSide) {
+                case RIGHT:
+                    return this.hands[0];
+                case LEFT:
+                    return this.hands[1];
+                default:
+                    return null;
             }
         }
     }
