@@ -12,6 +12,7 @@ import com.artur114.armoredarms.main.AAConfig;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.loader.ModelRendererObj;
 import com.hbm.render.model.ModelT45Chest;
+import epicsquid.mysticallib.client.model.ModelArmorBase;
 import galaxyspace.systems.SolarSystem.planets.overworld.render.item.ItemSpaceSuitModel;
 import net.machinemuse.powersuits.client.model.item.armor.IArmorModel;
 import net.machinemuse.powersuits.common.utils.nbt.MPSNBTUtils;
@@ -57,6 +58,7 @@ public class Overriders {
         ArmoredArmsApi.registerOverrider("hbm", "dns_plate", new HBMOverrider("rightArm", "leftArm", "dnt_arm"), false);
         ArmoredArmsApi.registerOverrider("powersuits", "powerarmor_torso", new PowerArmorOverrider(), false);
         ArmoredArmsApi.registerOverrider("conarm", "*", new ConstructedArmorOverrider(), false);
+        ArmoredArmsApi.registerOverrider("roots", "*", new RootsOverrider(), false);
     }
 
     /**
@@ -581,6 +583,27 @@ public class Overriders {
                 default:
                     return null;
             }
+        }
+    }
+
+    /**
+     * for roots:*
+     */
+    public static class RootsOverrider extends RenderArmManager.DefaultModelGetter {
+        public RootsOverrider() {
+            this.setArmsExtractor(((modelBase, handSide) -> {
+                if (!(modelBase instanceof ModelArmorBase)) {
+                    return null;
+                }
+                switch (handSide) {
+                    case RIGHT:
+                        return Reflector.getPrivateField(ModelArmorBase.class, modelBase, "armR");
+                    case LEFT:
+                        return Reflector.getPrivateField(ModelArmorBase.class, modelBase, "armL");
+                    default:
+                        return null;
+                }
+            }));
         }
     }
 }

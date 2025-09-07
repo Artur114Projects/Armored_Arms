@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client;
 
 import com.artur114.armoredarms.api.override.*;
+import com.artur114.armoredarms.client.util.Function2;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
@@ -41,6 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 @SideOnly(Side.CLIENT)
 public class RenderArmManager {
@@ -596,10 +598,24 @@ public class RenderArmManager {
     }
 
     public static class DefaultModelGetter implements IOverriderGetModel {
-        private final ModelBiped finalModel = new ModelBiped(1.0F);
         private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
+        private final ModelBiped finalModel = new ModelBiped(1.0F);
+        private Function2<ModelBase, EnumHandSide, ModelRenderer> extractor;
         private double modelSize = AAConfig.vanillaArmorModelSize;
         private IBoneThing[] hands = null;
+
+        public DefaultModelGetter() {
+            this.extractor = ((modelBase, handSide) -> {
+                switch (handSide) {
+                    case RIGHT:
+                        return ((ModelBiped) modelBase).bipedRightArm;
+                    case LEFT:
+                        return ((ModelBiped) modelBase).bipedLeftArm;
+                    default:
+                        return null;
+                }
+            });
+        }
 
         @Override
         public ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
@@ -612,8 +628,8 @@ public class RenderArmManager {
                 mb = this.defaultModel;
             }
             this.hands = new IBoneThing[] {
-                new BoneThingModelRender(mb.bipedRightArm),
-                new BoneThingModelRender(mb.bipedLeftArm)
+                new BoneThingModelRender(this.extractor.apply(mb, EnumHandSide.RIGHT)),
+                new BoneThingModelRender(this.extractor.apply(mb, EnumHandSide.LEFT))
             };
             return mb;
         }
@@ -628,6 +644,10 @@ public class RenderArmManager {
                 default:
                     return null;
             }
+        }
+
+        protected void setArmsExtractor(Function2<ModelBase, EnumHandSide, ModelRenderer> extractor) {
+            this.extractor = extractor;
         }
     }
 
