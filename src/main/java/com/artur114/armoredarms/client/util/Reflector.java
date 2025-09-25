@@ -11,8 +11,10 @@ public class Reflector {
     public static <T> T getPrivateField(Class<?> clazz, Object obj, String name) {
         try {
             Field field = clazz.getDeclaredField(name);
+            boolean isAcc = field.isAccessible();
             field.setAccessible(true);
             Object ret = field.get(obj);
+            field.setAccessible(isAcc);
             return (T) ret;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             Class<?> superC = clazz.getSuperclass();

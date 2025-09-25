@@ -25,7 +25,7 @@ public class AAConfig {
 
     @Config.LangKey("armoredarms.cfg.useCheckByItem")
     @Config.Comment("will be more optimized, but in theory may cause visual bugs")
-    public static boolean useCheckByItem = true;
+    public static boolean useCheckByItem = false;
 
     @SubscribeEvent
     public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {

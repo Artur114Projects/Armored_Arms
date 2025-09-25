@@ -1,10 +1,9 @@
 package com.artur114.armoredarms.client;
 
-import com.artur114.armoredarms.api.override.*;
+import com.artur114.armoredarms.client.util.Api;
 import com.artur114.armoredarms.client.util.Function2;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
-import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -39,14 +38,16 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
+@Deprecated
+@Api.Legacy(alternative = com.artur114.armoredarms.client.core.RenderArmManager.class)
 @SideOnly(Side.CLIENT)
 public class RenderArmManager {
-    protected static final ResourceLocation ENCHANTED_ITEM_GLINT_RES = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+    public static final ResourceLocation ENCHANTED_ITEM_GLINT_RES = new ResourceLocation("textures/misc/enchanted_item_glint.png");
     public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
     public final DefaultTextureGetter defaultTextureGetter = new DefaultTextureGetter();
     public final DefaultModelGetter defaultModelGetter = new DefaultModelGetter();
@@ -60,7 +61,6 @@ public class RenderArmManager {
     public Set<Item> killingArmor = new HashSet<>();
     public LayerBipedArmor armorLayer = null;
     public RenderPlayer renderPlayer = null;
-    public ModelBiped armorDefault = null;
     public boolean initTick = true;
     public boolean render = false;
     public boolean died = false;
@@ -233,7 +233,6 @@ public class RenderArmManager {
         this.renderPlayer = this.initRenderPlayer(player);
         this.layerRenderers = this.initLayerRenderers(player);
         this.armorLayer = this.findArmorLayer();
-        this.armorDefault = new ModelBiped(1.0F);
     }
 
     @SuppressWarnings("unchecked")
@@ -519,8 +518,8 @@ public class RenderArmManager {
         }
 
         private void renderArmWear(IBoneThing hand, ResourceLocation tex, EnumHandSide handSide) {
-            ModelBase modelArmor = ArmoredArms.RENDER_ARM_MANAGER.currentArmorModel;
-            if ((!AAConfig.disableArmWear) || (AAConfig.enableArmWearWithVanillaM && modelArmor.getClass() == ModelBiped.class)) {
+            ModelBase modelArmor = null;
+            if ((!AAConfig.disableArmWear) || (AAConfig.enableArmWearWithVanillaM && modelArmor != null && modelArmor.getClass() == ModelBiped.class)) {
                 this.render(hand, tex, handSide);
             }
         }
@@ -636,6 +635,9 @@ public class RenderArmManager {
 
         @Override
         public IBoneThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide) {
+            if (mb == null) {
+                return null;
+            }
             switch (handSide) {
                 case RIGHT:
                     return this.hands[0];
@@ -703,6 +705,56 @@ public class RenderArmManager {
             this.bipedLeftArmwear = new BoneThingModelRender(model.bipedLeftArmwear);
             this.bipedRightArm = new BoneThingModelRender(model.bipedRightArm);
             this.bipedLeftArm = new BoneThingModelRender(model.bipedLeftArm);
+        }
+    }
+
+
+    /**
+     * @see BoneThingModelRender
+     */
+    public interface IBoneThing {
+        void setRotation(float x, float y, float z);
+        void render(float scale);
+    }
+
+    /**
+     * The base class from which the other overriders are inherited is not used directly!
+     * @see IOverriderRender
+     */
+    public interface IOverrider {}
+
+    /**
+     * Overrider responsible for obtaining armor model
+     * @see DefaultModelGetter
+     */
+    public interface IOverriderGetModel extends IOverrider {
+        ModelBase getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack);
+        IBoneThing getArm(ModelBase mb, ItemArmor itemArmor, ItemStack stack, EnumHandSide handSide);
+    }
+
+    /**
+     * Overrider responsible for obtaining armor textures
+     * @see DefaultTextureGetter
+     */
+    public interface IOverriderGetTex extends IOverrider {
+
+        ResourceLocation getTexture(AbstractClientPlayer player, LayerBipedArmor armorLayer, List<LayerRenderer<AbstractClientPlayer>> layerRenderers, ItemStack chestPlate, ItemArmor itemArmor, EnumModelTexType type);
+
+        enum EnumModelTexType {
+            NULL, OVERLAY;
+        }
+
+    }
+
+    /**
+     * Overrider responsible for rendering
+     * @see DefaultRender
+     */
+    public interface IOverriderRender extends IOverrider {
+        void render(ModelBase model, @Nullable IBoneThing hand, @Nullable ResourceLocation tex, EnumHandSide handSide, ItemStack chestPlate, ItemArmor itemArmor, EnumRenderType type);
+
+        enum EnumRenderType {
+            ARM, ARM_WEAR, ARMOR, ARMOR_OVERLAY, ARMOR_ENCHANT
         }
     }
 }
