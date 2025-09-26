@@ -5,11 +5,27 @@ import c4.conarm.client.models.ModelConstructsArmor;
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.client.core.ArmRenderLayerArmor;
 import com.artur114.armoredarms.main.AAConfig;
+import com.gildedgames.the_aether.api.AetherAPI;
+import com.gildedgames.the_aether.api.player.IPlayerAether;
+import com.gildedgames.the_aether.api.player.util.IAccessoryInventory;
+import com.gildedgames.the_aether.items.ItemsAether;
+import com.gildedgames.the_aether.items.accessories.ItemAccessory;
+import com.gildedgames.the_aether.items.accessories.ItemAccessoryDyable;
+import com.gildedgames.the_aether.player.PlayerAether;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.loader.ModelRendererObj;
 import com.hbm.render.model.ModelT45Chest;
 import epicsquid.mysticallib.client.model.ModelArmorBase;
+import galaxyspace.core.GSItems;
 import galaxyspace.systems.SolarSystem.planets.overworld.render.item.ItemSpaceSuitModel;
+import micdoodle8.mods.galacticraft.api.item.IItemThermal;
+import micdoodle8.mods.galacticraft.api.world.IGalacticraftWorldProvider;
+import micdoodle8.mods.galacticraft.core.GalacticraftCore;
+import micdoodle8.mods.galacticraft.core.client.render.entities.RenderPlayerGC;
+import micdoodle8.mods.galacticraft.core.client.render.entities.layer.LayerThermalPadding;
+import micdoodle8.mods.galacticraft.core.wrappers.PlayerGearData;
+import micdoodle8.mods.galacticraft.planets.asteroids.items.AsteroidsItems;
+import micdoodle8.mods.galacticraft.planets.venus.VenusItems;
 import net.machinemuse.powersuits.client.model.item.armor.IArmorModel;
 import net.machinemuse.powersuits.common.utils.nbt.MPSNBTUtils;
 import net.minecraft.client.Minecraft;
@@ -18,10 +34,15 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -60,6 +81,12 @@ public class Overriders {
         e.registerOverrider("roots", "*", new RootsOverrider(), false);
 
         e.addArmorToBlackList(AAConfig.renderBlackList);
+    }
+
+    @SubscribeEvent
+    public static void initRenderLayers(ArmoredArmsApi.InitRenderLayersEvent e) {
+        e.addLayerIfModLoad(ThermalPaddingRenderLayer.class, "galacticraftcore");
+        e.addLayerIfModLoad(AetherGlovesRenderLayer.class, "aether_legacy");
     }
 
     /**
@@ -239,6 +266,9 @@ public class Overriders {
         }
     }
 
+    /**
+     *  for hbm
+     */
     public static class HBMOverrider implements IOverriderGetModel, IOverriderGetTex {
         private final String rightArm;
         private final String leftArm;
@@ -434,236 +464,270 @@ public class Overriders {
      */
     public static class RootsOverrider extends ArmRenderLayerArmor.DefaultModelGetter {
         public RootsOverrider() {
-            this.setArmsExtractor(((modelBase, handSide) -> {
-                if (!(modelBase instanceof ModelArmorBase)) {
-                    return null;
+            this.setFactory((modelBiped -> {
+                if (modelBiped instanceof ModelArmorBase) {
+                    return new RootsModelOnlyArms((ModelArmorBase) modelBiped);
                 }
-                switch (handSide) {
-                    case RIGHT:
-                        return Reflector.getPrivateField(ModelArmorBase.class, modelBase, "armR");
-                    case LEFT:
-                        return Reflector.getPrivateField(ModelArmorBase.class, modelBase, "armL");
-                    default:
-                        return null;
-                }
+                return null;
             }));
+        }
+
+        public static class RootsModelOnlyArms implements IModelOnlyArms {
+            public final ModelRenderer[] armsB;
+            public final ModelRenderer[] arms;
+            public final ModelArmorBase mb;
+
+            public RootsModelOnlyArms(ModelArmorBase mb) {
+                this.arms = new ModelRenderer[] {Reflector.getPrivateField(ModelArmorBase.class, mb, "armL"), Reflector.getPrivateField(ModelArmorBase.class, mb, "armR")};
+                this.armsB = new ModelRenderer[] {mb.bipedLeftArm, mb.bipedRightArm};
+                this.mb = mb;
+            }
+
+            @Override
+            public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
+                ModelRenderer armB = this.armsB[side.ordinal()];
+                ModelRenderer arm = this.arms[side.ordinal()];
+                armB.rotateAngleX = 0.0F;
+                armB.rotateAngleY = 0.0F;
+                armB.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(side);
+                this.mb.setChestRotation(player);
+                boolean h = arm.isHidden;
+                boolean s = arm.showModel;
+                arm.isHidden = false;
+                arm.showModel = true;
+                arm.render((1.0F / 16.0F) * 1.05F);
+                arm.isHidden = h;
+                arm.showModel = s;
+            }
+
+            @Override
+            public ModelBiped original() {
+                return mb;
+            }
         }
     }
 
-//    public static class ThermalPaddingRender implements IRenderManager {
-//        private LayerThermalPadding render;
-//        private RenderPlayer renderPlayer;
-//        private boolean initTick = true;
-//
-//        @Override
-//        public boolean update(AbstractClientPlayer player) {
-//            if (this.initTick) {
-//                this.init(player); this.initTick = false;
-//            }
-//            if (true) {
-//                return true;
-//            }
-//            PlayerGearData gearData = GalacticraftCore.proxy.getGearData(player);
-//            boolean flag = gearData.getThermalPadding(1) != -1;
-//            System.out.println(flag);
-//            return flag;
-//        }
-//
-//        @Override
-//        public void renderArm(AbstractClientPlayer player, EnumHandSide handSide) {
-//            ItemStack itemstack = this.render.getItemStackFromSlot(player, EntityEquipmentSlot.CHEST);
-//            float scale = 1.0F / 16.0F;
-//            if (itemstack != null) {
-//                ModelBiped model = this.render.getModelFromSlot(EntityEquipmentSlot.CHEST);
-//                ModelRenderer renderer = this.getHand(model, handSide);
-//                this.renderPlayer.bindTexture(itemstack.getItem() instanceof ItemThermalPaddingTier2 ? RenderPlayerGC.thermalPaddingTexture1_T2 : RenderPlayerGC.thermalPaddingTexture1);
-//                boolean h = renderer.isHidden;
-//                boolean s = renderer.showModel;
-//                renderer.isHidden = false;
-//                renderer.showModel = true;
-//                renderer.rotateAngleX = 0.0F;
-//                renderer.rotateAngleY = 0.0F;
-//                renderer.rotateAngleZ = 0.1F * this.getHadSideDelta(handSide);
-//                renderer.render(scale);
-//                renderer.isHidden = h;
-//                renderer.showModel = s;
-//                GlStateManager.disableLighting();
-//                Minecraft.getMinecraft().renderEngine.bindTexture(RenderPlayerGC.thermalPaddingTexture0);
-//                GlStateManager.enableAlpha();
-//                GlStateManager.enableBlend();
-//                GlStateManager.blendFunc(770, 771);
-//                float time = (float)player.ticksExisted / 10.0F;
-//                float sTime = (float)Math.sin(time) * 0.5F + 0.5F;
-//                float r = 0.2F * sTime;
-//                float g = 1.0F * sTime;
-//                float b = 0.2F * sTime;
-//                if (player.world.provider instanceof IGalacticraftWorldProvider) {
-//                    float modifier = ((IGalacticraftWorldProvider) player.world.provider).getThermalLevelModifier();
-//                    if (modifier > 0.0F) {
-//                        b = g;
-//                        g = r;
-//                    } else if (modifier < 0.0F) {
-//                        r = g;
-//                        g = b;
-//                    }
-//                }
-//
-//                GlStateManager.color(r, g, b, 0.4F * sTime);
-//                h = renderer.isHidden;
-//                s = renderer.showModel;
-//                renderer.isHidden = false;
-//                renderer.showModel = true;
-//                renderer.rotateAngleX = 0.0F;
-//                renderer.rotateAngleY = 0.0F;
-//                renderer.rotateAngleZ = 0.1F * this.getHadSideDelta(handSide);
-//                renderer.render(scale);
-//                renderer.isHidden = h;
-//                renderer.showModel = s;
-//                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-//                GlStateManager.disableBlend();
-//                GlStateManager.enableAlpha();
-//                GlStateManager.enableLighting();
-//            }
-//        }
-//
-//        private void init(AbstractClientPlayer player) {
-//            this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
-//            this.render = new LayerThermalPadding(this.renderPlayer);
-//        }
-//
-//
-//        public ModelRenderer getHand(ModelBiped mb, EnumHandSide handSide) {
-//            if (mb == null) {
-//                return null;
-//            }
-//            switch (handSide) {
-//                case RIGHT:
-//                    return mb.bipedRightArm;
-//                case LEFT:
-//                    return mb.bipedLeftArm;
-//                default:
-//                    return null;
-//            }
-//        }
-//
-//        private int getHadSideDelta(EnumHandSide handSide) {
-//            switch (handSide) {
-//                case RIGHT:
-//                    return 1;
-//                case LEFT:
-//                    return -1;
-//                default:
-//                    return 0;
-//            }
-//        }
-//    }
-//
-//    public static class AetherGlovesRender implements IRenderManager {
-//        public ModelBiped modelMisc = null;
-//        private double modelSize = -1.0D;
-//
-//        @Override
-//        public boolean update(AbstractClientPlayer player) {
-//            IPlayerAether playerAether = AetherAPI.getInstance().get(player);
-//            IAccessoryInventory accessories = playerAether.getAccessoryInventory();
-//            boolean flag = !accessories.getStackInSlot(6).isEmpty() && ((PlayerAether)playerAether).shouldRenderGloves;
-//            if (flag && this.modelSize != AAConfig.vanillaArmorModelSize) {
-//                this.modelMisc = new ModelBiped(((float) AAConfig.vanillaArmorModelSize + 0.01F));
-//                this.modelSize = AAConfig.vanillaArmorModelSize;
-//            }
-//            return flag;
-//        }
-//
-//        @Override
-//        public void renderArm(AbstractClientPlayer player, EnumHandSide handSide) {
-//            RenderManager manager = Minecraft.getMinecraft().getRenderManager();
-//            IPlayerAether playerAether = AetherAPI.getInstance().get(player);
-//            IAccessoryInventory accessories = playerAether.getAccessoryInventory();
-//            ModelRenderer renderer = this.getHand(this.modelMisc, handSide);
-//
-//            float scale = 1.0F / 16.0F;
-//
-//            GlStateManager.pushMatrix();
-//
-//            if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessory.class && ((PlayerAether)playerAether).shouldRenderGloves) {
-//                ItemAccessory shield = (ItemAccessory)accessories.getStackInSlot(6).getItem();
-//                manager.renderEngine.bindTexture(shield.texture);
-//                int j = shield.getColorFromItemStack(accessories.getStackInSlot(6), 0);
-//                float red = (float)(j >> 16 & 255) / 255.0F;
-//                float green = (float)(j >> 8 & 255) / 255.0F;
-//                red = (float)(j & 255) / 255.0F;
-//                if (player.hurtTime > 0) {
-//                    GlStateManager.color(1.0F, 0.5F, 0.5F);
-//                } else if (shield != ItemsAether.phoenix_gloves) {
-//                    GlStateManager.color(red, green, red);
-//                }
-//
-//                boolean h = renderer.isHidden;
-//                boolean s = renderer.showModel;
-//                renderer.isHidden = false;
-//                renderer.showModel = true;
-//                renderer.rotateAngleX = 0.0F;
-//                renderer.rotateAngleY = 0.0F;
-//                renderer.rotateAngleZ = 0.1F * this.getHadSideDelta(handSide);
-//                renderer.render(scale);
-//                renderer.isHidden = h;
-//                renderer.showModel = s;
-//
-//                GlStateManager.color(1.0F, 1.0F, 1.0F);
-//            } else if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessoryDyable.class && ((PlayerAether)playerAether).shouldRenderGloves) {
-//                ItemAccessoryDyable gloves = (ItemAccessoryDyable)accessories.getStackInSlot(6).getItem();
-//                manager.renderEngine.bindTexture(gloves.texture);
-//                int j = gloves.getColor(accessories.getStackInSlot(6));
-//                float red = (float)(j >> 16 & 255) / 255.0F;
-//                float green = (float)(j >> 8 & 255) / 255.0F;
-//                red = (float)(j & 255) / 255.0F;
-//                if (player.hurtTime > 0) {
-//                    GlStateManager.color(1.0F, 0.5F, 0.5F);
-//                } else {
-//                    GlStateManager.color(red, green, red);
-//                }
-//
-//                boolean h = renderer.isHidden;
-//                boolean s = renderer.showModel;
-//                renderer.isHidden = false;
-//                renderer.showModel = true;
-//                renderer.rotateAngleX = 0.0F;
-//                renderer.rotateAngleY = 0.0F;
-//                renderer.rotateAngleZ = 0.1F * this.getHadSideDelta(handSide);
-//                renderer.render(scale);
-//                renderer.isHidden = h;
-//                renderer.showModel = s;
-//
-//                GlStateManager.color(1.0F, 1.0F, 1.0F);
-//            }
-//
-//            GlStateManager.popMatrix();
-//        }
-//
-//
-//        public ModelRenderer getHand(ModelBiped mb, EnumHandSide handSide) {
-//            if (mb == null) {
-//                return null;
-//            }
-//            switch (handSide) {
-//                case RIGHT:
-//                    return mb.bipedRightArm;
-//                case LEFT:
-//                    return mb.bipedLeftArm;
-//                default:
-//                    return null;
-//            }
-//        }
-//
-//        private int getHadSideDelta(EnumHandSide handSide) {
-//            switch (handSide) {
-//                case RIGHT:
-//                    return 1;
-//                case LEFT:
-//                    return -1;
-//                default:
-//                    return 0;
-//            }
-//        }
-//    }
+    /**
+     * for thermal padding from galactic craft
+     */
+    public static class ThermalPaddingRenderLayer implements IArmRenderLayer {
+        private final ResourceLocation texture_t3 = new ResourceLocation("galaxyspace", "textures/model/armor/thermal_padding_t3_1.png");
+        private final ResourceLocation texture_t4 = new ResourceLocation("galaxyspace", "textures/model/armor/thermal_padding_t4_1.png");
+        private LayerThermalPadding renderTermal;
+        private RenderPlayer renderPlayer;
+        private boolean render = false;
+
+        @Override
+        public void update(AbstractClientPlayer player) {
+            PlayerGearData gearData = GalacticraftCore.proxy.getGearData(player);
+            if (gearData != null) {
+                this.render = gearData.getThermalPadding(1) != -1;
+            }
+        }
+
+        @Override
+        public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+            Item item = this.getItemStackFromSlot(player, EntityEquipmentSlot.CHEST);
+            float scale = 1.0F / 16.0F;
+            if (item != null) {
+                ModelBiped model = this.renderTermal.getModelFromSlot(EntityEquipmentSlot.CHEST);
+                ModelRenderer renderer = MiscUtils.handFromModelBiped(model, handSide);
+                if (item instanceof IItemThermal) {
+                    IItemThermal itemT = (IItemThermal) item;
+                    switch (itemT.getThermalStrength()) {
+                        case 1:
+                            this.renderPlayer.bindTexture(RenderPlayerGC.thermalPaddingTexture1);
+                            break;
+                        case 2:
+                            this.renderPlayer.bindTexture(RenderPlayerGC.thermalPaddingTexture1_T2);
+                            break;
+                        case 3:
+                            this.renderPlayer.bindTexture(this.texture_t3);
+                            break;
+                        case 4:
+                            this.renderPlayer.bindTexture(this.texture_t4);
+                            break;
+                    }
+                }
+                boolean h = renderer.isHidden;
+                boolean s = renderer.showModel;
+                renderer.isHidden = false;
+                renderer.showModel = true;
+                renderer.rotateAngleX = 0.0F;
+                renderer.rotateAngleY = 0.0F;
+                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
+                renderer.render(scale);
+                renderer.isHidden = h;
+                renderer.showModel = s;
+                GlStateManager.disableLighting();
+                Minecraft.getMinecraft().renderEngine.bindTexture(RenderPlayerGC.thermalPaddingTexture0);
+                GlStateManager.enableAlpha();
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(770, 771);
+                float time = (float)player.ticksExisted / 10.0F;
+                float sTime = (float)Math.sin(time) * 0.5F + 0.5F;
+                float r = 0.2F * sTime;
+                float g = 1.0F * sTime;
+                float b = 0.2F * sTime;
+                if (player.world.provider instanceof IGalacticraftWorldProvider) {
+                    float modifier = ((IGalacticraftWorldProvider) player.world.provider).getThermalLevelModifier();
+                    if (modifier > 0.0F) {
+                        b = g;
+                        g = r;
+                    } else if (modifier < 0.0F) {
+                        r = g;
+                        g = b;
+                    }
+                }
+                GlStateManager.color(r, g, b, 0.4F * sTime);
+                h = renderer.isHidden;
+                s = renderer.showModel;
+                renderer.isHidden = false;
+                renderer.showModel = true;
+                renderer.rotateAngleX = 0.0F;
+                renderer.rotateAngleY = 0.0F;
+                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
+                renderer.render(scale);
+                renderer.isHidden = h;
+                renderer.showModel = s;
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                GlStateManager.disableBlend();
+                GlStateManager.enableAlpha();
+                GlStateManager.enableLighting();
+            }
+        }
+
+        @Override
+        public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {
+            return this.render;
+        }
+
+        @Override
+        public void init(AbstractClientPlayer player) {
+            this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+            this.renderTermal = new LayerThermalPadding(this.renderPlayer);
+        }
+
+        public Item getItemStackFromSlot(EntityLivingBase living, EntityEquipmentSlot slotIn) {
+            PlayerGearData gearData = GalacticraftCore.proxy.getGearData((EntityPlayer)living);
+            if (gearData != null) {
+                int padding = gearData.getThermalPadding(1);
+                if (padding != -1) {
+                    switch (padding) {
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                            return AsteroidsItems.thermalPadding;
+                        case 10:
+                        case 11:
+                        case 12:
+                        case 13:
+                            return VenusItems.thermalPaddingTier2;
+                        case 45:
+                        case 46:
+                        case 47:
+                        case 48:
+                            return GSItems.THERMAL_PADDING_3;
+                        case 49:
+                        case 50:
+                        case 51:
+                        case 52:
+                            return GSItems.THERMAL_PADDING_4;
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * for all gloves from the aether
+     */
+    public static class AetherGlovesRenderLayer implements IArmRenderLayer {
+        public ModelBiped modelMisc = null;
+        private double modelSize = -1.0D;
+        private boolean render = false;
+
+        @Override
+        public void update(AbstractClientPlayer player) {
+            IPlayerAether playerAether = AetherAPI.getInstance().get(player);
+            IAccessoryInventory accessories = playerAether.getAccessoryInventory();
+            boolean flag = !accessories.getStackInSlot(6).isEmpty() && ((PlayerAether)playerAether).shouldRenderGloves;
+            if (flag && this.modelSize != AAConfig.vanillaArmorModelSize) {
+                this.modelMisc = new ModelBiped(((float) AAConfig.vanillaArmorModelSize + 0.01F));
+                this.modelSize = AAConfig.vanillaArmorModelSize;
+            }
+            this.render = flag;
+        }
+
+        @Override
+        public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+            RenderManager manager = Minecraft.getMinecraft().getRenderManager();
+            IPlayerAether playerAether = AetherAPI.getInstance().get(player);
+            IAccessoryInventory accessories = playerAether.getAccessoryInventory();
+            ModelRenderer renderer = MiscUtils.handFromModelBiped(this.modelMisc, handSide);
+
+            float scale = 1.0F / 16.0F;
+
+            GlStateManager.pushMatrix();
+
+            if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessory.class && ((PlayerAether)playerAether).shouldRenderGloves) {
+                ItemAccessory shield = (ItemAccessory)accessories.getStackInSlot(6).getItem();
+                manager.renderEngine.bindTexture(shield.texture);
+                int j = shield.getColorFromItemStack(accessories.getStackInSlot(6), 0);
+                float red = (float)(j >> 16 & 255) / 255.0F;
+                float green = (float)(j >> 8 & 255) / 255.0F;
+                red = (float)(j & 255) / 255.0F;
+                if (shield != ItemsAether.phoenix_gloves) {
+                    GlStateManager.color(red, green, red);
+                }
+
+                boolean h = renderer.isHidden;
+                boolean s = renderer.showModel;
+                renderer.isHidden = false;
+                renderer.showModel = true;
+                renderer.rotateAngleX = 0.0F;
+                renderer.rotateAngleY = 0.0F;
+                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
+                renderer.render(scale);
+                renderer.isHidden = h;
+                renderer.showModel = s;
+
+                GlStateManager.color(1.0F, 1.0F, 1.0F);
+            } else if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessoryDyable.class && ((PlayerAether)playerAether).shouldRenderGloves) {
+                ItemAccessoryDyable gloves = (ItemAccessoryDyable)accessories.getStackInSlot(6).getItem();
+                manager.renderEngine.bindTexture(gloves.texture);
+                int j = gloves.getColor(accessories.getStackInSlot(6));
+                float red = (float)(j >> 16 & 255) / 255.0F;
+                float green = (float)(j >> 8 & 255) / 255.0F;
+                red = (float)(j & 255) / 255.0F;
+                GlStateManager.color(red, green, red);
+
+                boolean h = renderer.isHidden;
+                boolean s = renderer.showModel;
+                renderer.isHidden = false;
+                renderer.showModel = true;
+                renderer.rotateAngleX = 0.0F;
+                renderer.rotateAngleY = 0.0F;
+                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
+                renderer.render(scale);
+                renderer.isHidden = h;
+                renderer.showModel = s;
+
+                GlStateManager.color(1.0F, 1.0F, 1.0F);
+            }
+
+            GlStateManager.popMatrix();
+        }
+
+        @Override
+        public void init(AbstractClientPlayer player) {}
+
+        @Override
+        public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {
+            return this.render;
+        }
+    }
 }

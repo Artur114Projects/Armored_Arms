@@ -1,13 +1,11 @@
 package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
-import com.artur114.armoredarms.client.RenderArmManager;
 import com.artur114.armoredarms.client.util.Api;
 import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
@@ -20,11 +18,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Api.Unstable
 @SideOnly(Side.CLIENT)
 public class ArmRenderLayerVanilla implements IArmRenderLayer {
     public ResourceLocation currentPlayerTex = null;
-    public boolean currentArmorModelBiped = false;
+    public boolean currentArmorModelBiped = true;
     public ModelPlayer currentPlayerModel = null;
     public ModelBiped baseArmorModel = null;
     public RenderPlayer renderPlayer = null;
@@ -42,7 +39,7 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
 
             if (chestPlate.getItem() instanceof ItemArmor) {
                 ModelBiped armor = chestPlate.getItem().getArmorModel(player, chestPlate, EntityEquipmentSlot.CHEST, this.baseArmorModel);
-                if (armor != null) this.currentArmorModelBiped = armor.getClass() == ModelBiped.class;
+                this.currentArmorModelBiped = armor == null || armor.getClass() == ModelBiped.class;
             }
         }
     }
@@ -73,7 +70,7 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     }
 
     public ModelRenderer handFromModelPlayer(ModelPlayer mb, EnumHandSide handSide, boolean wear) {
-        if (wear && AAConfig.disableArmWear && !(AAConfig.enableArmWearWithVanillaM && this.currentArmorModelBiped)) {
+        if (wear && (AAConfig.disableArmWear && (!AAConfig.enableArmWearWithVanillaM || !this.currentArmorModelBiped))) {
             return null;
         }
         switch (handSide) {

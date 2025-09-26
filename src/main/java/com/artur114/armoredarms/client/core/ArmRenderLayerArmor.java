@@ -3,6 +3,8 @@ package com.artur114.armoredarms.client.core;
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.client.util.*;
 import com.artur114.armoredarms.main.AAConfig;
+import lain.mods.cos.api.CosArmorAPI;
+import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
@@ -21,14 +23,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
-@Api.Unstable
 @SideOnly(Side.CLIENT)
 public class ArmRenderLayerArmor implements IArmRenderLayer {
     public static final ResourceLocation ENCHANTED_ITEM_GLINT_RES = new ResourceLocation("textures/misc/enchanted_item_glint.png");
@@ -63,11 +66,11 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         } catch (RMException rm) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
-            throw rm;
+            throw rm.setMessage("armoredarms.error.layer.armor");
         } catch (Throwable tr) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
-            throw new RMException(tr);
+            throw new RMException(tr).setMessage("armoredarms.error.layer.armor");
         }
     }
 
@@ -78,11 +81,11 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         } catch (RMException rm) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
-            throw rm;
+            throw rm.setMessage("armoredarms.error.layer.armor");
         } catch (Throwable tr) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
-            throw new RMException(tr);
+            throw new RMException(tr).setMessage("armoredarms.error.layer.armor");
         }
     }
 
@@ -101,7 +104,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public void tryTick(AbstractClientPlayer player) {
-        ItemStack chestPlate = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+        ItemStack chestPlate = this.itemStackArmor(player);
 
         if (this.killingArmor.contains(chestPlate.getItem()) || !(chestPlate.getItem() instanceof ItemArmor)) {
             this.chestPlate = ItemStack.EMPTY;
@@ -141,6 +144,25 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         this.render(armorModel, armorTex, handSide, IOverriderRender.EnumRenderType.ARMOR);
 
         this.render(armorModel, ENCHANTED_ITEM_GLINT_RES, handSide, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
+    }
+
+    public ItemStack itemStackArmor(AbstractClientPlayer player) {
+        if (Loader.isModLoaded("cosmeticarmorreworked")) {
+            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
+            int chestId = EntityEquipmentSlot.CHEST.getIndex();
+
+            if (stacks.isSkinArmor(chestId)) {
+                return ItemStack.EMPTY;
+            }
+
+            ItemStack stack = stacks.getStackInSlot(chestId);
+
+            if (!stack.isEmpty()) {
+                return stack;
+            }
+        }
+
+        return player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
     }
 
     private void initEvent() {
@@ -334,20 +356,22 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 
     public static class DefaultModelGetter implements IOverriderGetModel {
         private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
-        private Function2<ModelBase, EnumHandSide, ModelRenderer> extractor;
+        private Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor;
         private double modelSize = AAConfig.vanillaArmorModelSize;
+        private Function<ModelBiped, IModelOnlyArms> factory;
 
         public DefaultModelGetter() {
             this.extractor = ((modelBase, handSide) -> {
                 switch (handSide) {
                     case RIGHT:
-                        return ((ModelBiped) modelBase).bipedRightArm;
+                        return modelBase.bipedRightArm;
                     case LEFT:
-                        return ((ModelBiped) modelBase).bipedLeftArm;
+                        return modelBase.bipedLeftArm;
                     default:
                         return null;
                 }
             });
+            this.factory = (modelBiped -> new DefaultModelOnlyArms(modelBiped, this.extractor()));
         }
 
         @Override
@@ -360,11 +384,19 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
                 }
                 mb = this.defaultModel;
             }
-            return new DefaultModelOnlyArms(mb, this.extractor);
+            return this.factory.apply(mb);
         }
 
-        protected void setArmsExtractor(Function2<ModelBase, EnumHandSide, ModelRenderer> extractor) {
+        private Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor() {
+            return this.extractor;
+        }
+
+        protected void setArmsExtractor(Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor) {
             this.extractor = extractor;
+        }
+
+        protected void setFactory(Function<ModelBiped, IModelOnlyArms> factory) {
+            this.factory = factory;
         }
     }
 
@@ -391,7 +423,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             this.mb = mb;
         }
 
-        public DefaultModelOnlyArms(ModelBiped mb, Function2<ModelBase, EnumHandSide, ModelRenderer> armsExtractor) {
+        public DefaultModelOnlyArms(ModelBiped mb, Function2<ModelBiped, EnumHandSide, ModelRenderer> armsExtractor) {
             this.arms = new ModelRenderer[] {armsExtractor.apply(mb, EnumHandSide.LEFT), armsExtractor.apply(mb, EnumHandSide.RIGHT)};
             this.mb = mb;
         }

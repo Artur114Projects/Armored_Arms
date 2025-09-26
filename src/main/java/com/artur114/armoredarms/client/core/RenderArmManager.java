@@ -17,6 +17,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -30,7 +31,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Set;
 
-@Api.Unstable
 @SideOnly(Side.CLIENT)
 public class RenderArmManager {
     public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
@@ -127,7 +127,7 @@ public class RenderArmManager {
                 throw new RMException(tr).setFatalLayer(layer);
             }
 
-            render |= layer.needRender(player, this.render);
+            render |= layer.needRender(player, render);
         }
 
         this.render = render;
@@ -159,10 +159,8 @@ public class RenderArmManager {
             this.renderLayers.remove(exception.fatalLayer());
         }
 
-        exception.compileMessage();
-
-        for (String message : exception.messageForPlayer()) {
-            this.mc.player.sendMessage(new TextComponentTranslation(message).setStyle(new Style().setColor(TextFormatting.RED)));
+        for (ITextComponent message : exception.messageForPlayer()) {
+            this.mc.player.sendMessage(message.setStyle(new Style().setColor(TextFormatting.RED)));
         }
 
         exception.printStackTrace(System.err);
@@ -288,7 +286,13 @@ public class RenderArmManager {
     public void renderArm(AbstractClientPlayer player, EnumHandSide handSide) {
         for (IArmRenderLayer layer : this.renderLayers) {
             if (layer.needRender(player, this.render)) {
-                layer.renderTransformed(player, handSide);
+                try {
+                    layer.renderTransformed(player, handSide);
+                } catch (RMException rm) {
+                    throw rm;
+                } catch (Throwable tr) {
+                    throw new RMException(tr).setFatalLayer(layer);
+                }
             }
         }
     }

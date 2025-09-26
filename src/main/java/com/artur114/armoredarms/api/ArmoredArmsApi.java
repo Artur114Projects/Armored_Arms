@@ -9,40 +9,93 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.*;
 
-@Api.Unstable
 public class ArmoredArmsApi {
+    /**
+     * InitRenderLayersEvent fires when {@link com.artur114.armoredarms.client.core.RenderArmManager} is initialized.
+     * During this event, you can register your own IArmRenderLayer implementations.
+     * {@link #addLayer(Class)} and {@link #addLayerIfModLoad(Class, String)}, or remove a registered one {@link #removeLayer(Class)}.<br>
+     * <br>
+     * {@link #renderLayers} Map of registered layers.<br>
+     * <br>
+     * This event can't be canceled. {@link net.minecraftforge.fml.common.eventhandler.Cancelable}.<br>
+     * <br>
+     * This event has no result. {@link HasResult}<br>
+     * <br>
+     * This event uses {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}.<br>
+     * <br>
+     * @see com.artur114.armoredarms.client.util.Overriders#initRenderLayers(InitRenderLayersEvent)
+     */
     @SideOnly(Side.CLIENT)
     public static class InitRenderLayersEvent extends Event {
         private final Map<Class<? extends IArmRenderLayer>, IArmRenderLayer> renderLayers = new HashMap<>();
 
-        public void removeLayer(Class<? extends IArmRenderLayer> renderLayer) {
-            this.renderLayers.remove(renderLayer);
+        /**
+         * @param renderLayer The class of the rendering layer to be removed.
+         * @return Is having class in map.
+         */
+        public boolean removeLayer(Class<? extends IArmRenderLayer> renderLayer) {
+            return this.renderLayers.remove(renderLayer) != null;
         }
 
+
+        /**
+         * @param renderLayer The rendering layer class to register.
+         * @param modId The mod ID for which the rendering layer is intended; if the mod is not loaded, the rendering layer will not be created.
+         */
         public void addLayerIfModLoad(Class<? extends IArmRenderLayer> renderLayer, String modId) {
             if (Loader.isModLoaded(modId)) {
                 this.addLayer(renderLayer);
             }
         }
 
+        /**
+         * @param renderLayer The rendering layer class to register.<br>
+         * <br>
+         * If the passed IArmRenderLayer implementation class does not contain an empty constructor, the layer will not be registered.<br>
+         * <br>
+         * @see #addLayerIfModLoad(Class, String)
+         */
         public void addLayer(Class<? extends IArmRenderLayer> renderLayer) {
             try {
+                System.out.println("Registered render layer: " + renderLayer.getName());
                 this.renderLayers.put(renderLayer, renderLayer.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
                 new RuntimeException("Failed to create an object", e).printStackTrace(System.err);
             }
         }
 
+        /**
+         * @return Copy of the list of values from the map.
+         */
         public Set<IArmRenderLayer> renderLayers() {
             return new HashSet<>(this.renderLayers.values());
         }
     }
 
+    /**
+     * InitRenderLayersEvent fires when {@link com.artur114.armoredarms.client.core.ArmRenderLayerArmor} are initialized.
+     * During this event, you can register your own IOverrider implementation {@link #registerOverrider(String, String, IOverrider, boolean)},
+     * add armor IDs to the blacklist {@link #addArmorToBlackList(String, String)}, {@link #addArmorToBlackList(String[])},
+     * and also remove a registered IOverrider or remove an armor ID from the blacklist {@link #removeOverrider(String, String)}, {@link #removeFromBlackList(String, String)}.<br>
+     * <br>
+     * {@link #modelOverriders} Map of registered IOverriderGetModel.<br>
+     * {@link #textureOverriders} Map of registered IOverriderGetTex.<br>
+     * {@link #renderOverriders} Map of registered IOverriderRender.<br>
+     * {@link #renderBlackList} Blacklist.<br>
+     * <br>
+     * This event can't be canceled. {@link net.minecraftforge.fml.common.eventhandler.Cancelable}. <br>
+     * <br>
+     * This event has no result. {@link HasResult}<br>
+     * <br>
+     * This event uses {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}.<br>
+     * <br>
+     * @see com.artur114.armoredarms.client.util.Overriders#initArmorRenderLayer(InitArmorRenderLayerEvent)
+     */
     public static class InitArmorRenderLayerEvent extends Event {
         private final Map<ShapelessRL, IOverriderGetModel> modelOverriders = new HashMap<>();
         private final Map<ShapelessRL, IOverriderGetTex> textureOverriders = new HashMap<>();
         private final Map<ShapelessRL, IOverriderRender> renderOverriders = new HashMap<>();
-        private final List<ShapelessRL> renderBlackList = new ArrayList<>();
+        private final Set<ShapelessRL> renderBlackList = new HashSet<>();
 
         /**
          * @param modid Mod identifier for armor from which overrider will be applied, if the value is equals("*") overrider will be applied to armor from all mods with itemName specified below.<br>
@@ -76,15 +129,21 @@ public class ArmoredArmsApi {
         }
 
         /**
-         * If modid and itemName values are equals("*"), then all armor will be blacklisted.
-         * @param modid Identifier of the mod, the armor from which will be in the blacklist, if the value is equals("*") then the armor from all mods with the itemName specified below will be in the blacklist.
-         * @param itemName Identifier of armor that will be in the blacklist, if the value is equals("*") then all armor with the modid specified earlier will be added to the blacklist.
+         * @param modid Identifier of the mod, the armor from which will be in the blacklist, if the value is equals("*") then the armor from all mods with the itemName specified below will be in the blacklist.<br>
+         * @param itemName Identifier of armor that will be in the blacklist, if the value is equals("*") then all armor with the modid specified earlier will be added to the blacklist.<br>
+         * <br>
+         * If modid and itemName values are equals("*"), then all armor will be blacklisted. :(
          */
         public void addArmorToBlackList(String modid, String itemName) {
             ShapelessRL rl = new ShapelessRL(modid, itemName);
             if (!rl.isEmpty()) this.renderBlackList.add(rl);
         }
 
+        /**
+         * Adds all specified strings to the blacklist.
+         * @param rls An array of strings containing armor IDs in the format "modid:armor"
+         * @see #addArmorToBlackList(String, String)
+         */
         public void addArmorToBlackList(String[] rls) {
             if (rls == null) {
                 return;
@@ -102,6 +161,15 @@ public class ArmoredArmsApi {
             }
         }
 
+        /**
+         * @param modid Resource domain.
+         * @param itemName Resource path.
+         * @return Removal success.
+         * <br><br>
+         * Formlessness doesn't work in this case.
+         * If you pass "minecraft:*", then only the Overrider with the identifier "minecraft:*" will be deleted,
+         * and the Overrider with the identifier "minecraft:armor" will not be affected.
+         */
         public boolean removeOverrider(String modid, String itemName) {
             ShapelessRL rl = new ShapelessRL(modid, itemName);
             boolean flag = false;
@@ -113,23 +181,40 @@ public class ArmoredArmsApi {
             return flag;
         }
 
+        /**
+         * @param modid Resource domain.
+         * @param itemName Resource path.
+         * @return Removal success.
+         */
         public boolean removeFromBlackList(String modid, String itemName) {
             ShapelessRL rl = new ShapelessRL(modid, itemName);
             return this.renderBlackList.remove(rl);
         }
 
+        /**
+         * @return Copy of the black list.
+         */
         public List<ShapelessRL> renderBlackList() {
             return new ArrayList<>(this.renderBlackList);
         }
 
+        /**
+         * @return Copy of the list of values from the IOverriderGetModel map.
+         */
         public Map<ShapelessRL, IOverriderGetModel> modelOverriders() {
             return new HashMap<>(this.modelOverriders);
         }
 
+        /**
+         * @return Copy of the list of values from the IOverriderGetTex map.
+         */
         public Map<ShapelessRL, IOverriderGetTex> textureOverriders() {
             return new HashMap<>(this.textureOverriders);
         }
 
+        /**
+         * @return Copy of the list of values from the IOverriderRender map.
+         */
         public Map<ShapelessRL, IOverriderRender> renderOverriders() {
             return new HashMap<>(this.renderOverriders);
         }

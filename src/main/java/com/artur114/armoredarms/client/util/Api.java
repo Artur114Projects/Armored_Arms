@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *Non-functional annotation intended for developers.
+ * Non-functional annotation intended for developers.
  */
 public @interface Api {
 

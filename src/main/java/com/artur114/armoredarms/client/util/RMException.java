@@ -1,10 +1,16 @@
 package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+
+import java.util.ArrayList;
 
 
-public class RMException extends RuntimeException { // TODO: 26.09.2025 Доделать
+public class RMException extends RuntimeException {
     private IArmRenderLayer fatalOnLayer = null;
+    private String messageForPlayer = null;
     private boolean isFatal = false;
     private Method method = null;
 
@@ -35,6 +41,7 @@ public class RMException extends RuntimeException { // TODO: 26.09.2025 Доде
     private void processCause(Throwable cause) {
         if (cause instanceof RMException) {
             this.isFatal |= ((RMException) cause).isFatal;
+            this.messageForPlayer = this.nonNull(((RMException) cause).messageForPlayer, this.messageForPlayer);
             this.fatalOnLayer = this.nonNull(((RMException) cause).fatalOnLayer, this.fatalOnLayer);
             this.method = this.nonNull(((RMException) cause).method, this.method);
         }
@@ -59,6 +66,10 @@ public class RMException extends RuntimeException { // TODO: 26.09.2025 Доде
         this.method = method; return this;
     }
 
+    public RMException setMessage(String message) {
+        this.messageForPlayer = message; return this;
+    }
+
     public boolean isFatal() {
         return this.isFatal;
     }
@@ -75,12 +86,24 @@ public class RMException extends RuntimeException { // TODO: 26.09.2025 Доде
         return this.method;
     }
 
-    public String[] messageForPlayer() {
-        return new String[0];
-    }
+    public ITextComponent[] messageForPlayer() {
+        ArrayList<ITextComponent> list = new ArrayList<>(4);
+        if (this.messageForPlayer != null) {
+            list.add(0, new TextComponentTranslation(this.messageForPlayer + "." + this.method.nameString()));
+        }
+        if (this.isFatal) {
+            list.add(0, new TextComponentTranslation("armoredarms.error.fatal." + this.method.nameString()));
+        }
+        if (this.isFatalOnLayer()) {
+            list.add(0, new TextComponentTranslation("armoredarms.error.layer.fatal." + this.method.nameString()));
 
-    public void compileMessage() {
-
+            list.add(new TextComponentString("Layer: " + this.fatalOnLayer.getClass().getName()));
+        }
+        if (list.isEmpty()) {
+            list.add(new TextComponentTranslation("armoredarms.error.unknown." + this.method.nameString()));
+        }
+        list.add(new TextComponentString("Message: " + this.getMessage()));
+        return list.toArray(new ITextComponent[0]);
     }
 
     public enum Method {

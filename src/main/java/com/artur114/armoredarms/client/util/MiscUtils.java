@@ -24,7 +24,7 @@ public class MiscUtils {
             case LEFT:
                 return mb.bipedLeftArm;
             default:
-                return null;
+                throw new NullPointerException();
         }
     }
 
@@ -35,7 +35,7 @@ public class MiscUtils {
             case LEFT:
                 return wear ? mb.bipedLeftArmwear : mb.bipedLeftArm;
             default:
-                return null;
+                throw new NullPointerException();
         }
     }
 }
