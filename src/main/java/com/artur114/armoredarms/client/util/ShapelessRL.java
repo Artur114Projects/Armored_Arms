@@ -37,10 +37,10 @@ public class ShapelessRL extends ResourceLocation {
                 flag = true;
             }
             if ((this.resourceDomain.equals("*") || ((ShapelessRL) rl).resourceDomain.equals("*"))) {
-                flag |= this.resourcePath.equals(((ResourceLocation) rl).getResourcePath());;
+                flag |= this.resourcePath.equals(((ResourceLocation) rl).getResourcePath());
             }
             if ((this.resourcePath.equals("*") || ((ShapelessRL) rl).resourcePath.equals("*"))) {
-                flag |= this.resourceDomain.equals(((ResourceLocation) rl).getResourceDomain());;
+                flag |= this.resourceDomain.equals(((ResourceLocation) rl).getResourceDomain());
             }
         }
         return flag || super.equals(rl);

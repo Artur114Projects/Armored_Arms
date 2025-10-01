@@ -77,6 +77,7 @@ public class Overriders {
         e.registerOverrider("hbm", "fau_plate", new HBMOverrider("rightArm", "leftArm", "fau_arm"), false);
         e.registerOverrider("hbm", "dns_plate", new HBMOverrider("rightArm", "leftArm", "dnt_arm"), false);
         e.registerOverrider("powersuits", "powerarmor_torso", new PowerArmorOverrider(), false);
+        e.registerOverrider("cqrepoured", "chestplate_slime", new SlimeArmorOverrider(), false);
         e.registerOverrider("conarm", "*", new ConstructedArmorOverrider(), false);
         e.registerOverrider("roots", "*", new RootsOverrider(), false);
 
@@ -503,6 +504,26 @@ public class Overriders {
             @Override
             public ModelBiped original() {
                 return mb;
+            }
+        }
+    }
+
+    public static class SlimeArmorOverrider extends ArmRenderLayerArmor.DefaultModelGetter {
+        public SlimeArmorOverrider() {
+            this.setFactory((modelBiped -> new SlimeModelOnlyArms(modelBiped, modelBiped.bipedRightArm, modelBiped.bipedLeftArm)));
+        }
+
+        public static class SlimeModelOnlyArms extends ArmRenderLayerArmor.DefaultModelOnlyArms {
+            public SlimeModelOnlyArms(ModelBiped mb, ModelRenderer right, ModelRenderer left) {
+                super(mb, right, left);
+            }
+
+            @Override
+            public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                super.renderArm(player, itemArmor, stackArmor, side);
+                GlStateManager.disableBlend();
             }
         }
     }

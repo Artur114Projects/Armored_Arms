@@ -19,6 +19,10 @@ public class AAConfig {
     @Config.LangKey("armoredarms.cfg.renderBlackList")
     public static String[] renderBlackList = new String[0];
 
+    @Config.RequiresMcRestart
+    @Config.LangKey("armoredarms.cfg.renderArmWearList")
+    public static String[] renderArmWearList = new String[] {"cqrepoured:*"};
+
     @Config.RangeDouble(min = 0.0D, max = 10.0D)
     @Config.LangKey("armoredarms.cfg.vanillaArmorModelSize")
     public static double vanillaArmorModelSize = 0.4D;

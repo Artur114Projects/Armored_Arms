@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.core;
 import com.artur114.armoredarms.api.IArmRenderLayer;
 import com.artur114.armoredarms.client.util.Api;
 import com.artur114.armoredarms.client.util.MiscUtils;
+import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -18,11 +19,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @SideOnly(Side.CLIENT)
 public class ArmRenderLayerVanilla implements IArmRenderLayer {
-    public ResourceLocation currentPlayerTex = null;
+    public List<ShapelessRL> renderArmWearList = null;
     public boolean currentArmorModelBiped = true;
-    public ModelPlayer currentPlayerModel = null;
     public ModelBiped baseArmorModel = null;
     public RenderPlayer renderPlayer = null;
     public ItemStack chestPlate = null;
@@ -34,12 +38,9 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
         if (this.chestPlate != chestPlate) {
             this.chestPlate = chestPlate;
 
-            this.currentPlayerTex = this.renderPlayer.getEntityTexture(player);
-            this.currentPlayerModel = this.renderPlayer.getMainModel();
-
             if (chestPlate.getItem() instanceof ItemArmor) {
                 ModelBiped armor = chestPlate.getItem().getArmorModel(player, chestPlate, EntityEquipmentSlot.CHEST, this.baseArmorModel);
-                this.currentArmorModelBiped = armor == null || armor.getClass() == ModelBiped.class;
+                this.currentArmorModelBiped = this.renderArmWearList.contains(new ShapelessRL(chestPlate.getItem().getRegistryName())) || armor == null || armor.getClass() == ModelBiped.class;
             }
         }
     }
@@ -50,10 +51,12 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
             return;
         }
 
-        ModelRenderer armWear = this.handFromModelPlayer(this.currentPlayerModel, handSide, true);
-        ModelRenderer arm = this.handFromModelPlayer(this.currentPlayerModel, handSide, false);
+        ModelPlayer playerModel = this.renderPlayer.getMainModel();
 
-        this.renderPlayer.bindTexture(this.currentPlayerTex);
+        ModelRenderer armWear = this.handFromModelPlayer(playerModel, handSide, true);
+        ModelRenderer arm = this.handFromModelPlayer(playerModel, handSide, false);
+
+        this.renderPlayer.bindTexture(player.getLocationSkin());
         this.render(armWear, handSide);
         this.render(arm, handSide);
     }
@@ -67,6 +70,19 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     public void init(AbstractClientPlayer player) {
         this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
         this.baseArmorModel = new ModelBiped(1.0F);
+        this.renderArmWearList = this.initRenderArmWearList();
+    }
+
+    public List<ShapelessRL> initRenderArmWearList() {
+        List<ShapelessRL> ret = new ArrayList<>(AAConfig.renderArmWearList.length);
+        for (String id : AAConfig.renderArmWearList) {
+            ShapelessRL rl = new ShapelessRL(id);
+
+            if (!rl.isEmpty()) {
+                ret.add(rl);
+            }
+        }
+        return ret;
     }
 
     public ModelRenderer handFromModelPlayer(ModelPlayer mb, EnumHandSide handSide, boolean wear) {

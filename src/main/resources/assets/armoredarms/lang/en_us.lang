@@ -1,5 +1,6 @@
 armoredarms.cfg.disableArmWear=Disable rendering of arm wear with armor equipped
 armoredarms.cfg.renderBlackList=Blacklist of armor for rendering
+armoredarms.cfg.renderArmWearList=List of armors that require arm wear render
 armoredarms.cfg.vanillaArmorModelSize=Vanilla armor model size
 armoredarms.cfg.useCheckByItem=Use check by item
 armoredarms.cfg.enableArmWearWithVanillaM=Enable rendering arm wear for vanilla armor model

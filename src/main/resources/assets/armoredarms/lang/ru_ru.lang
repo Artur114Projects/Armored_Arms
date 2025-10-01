@@ -1,5 +1,6 @@
 armoredarms.cfg.disableArmWear=Отключить отрисовку одежды с надетой бронёй
 armoredarms.cfg.renderBlackList=Чёрный список брони для отрисовки
+armoredarms.cfg.renderArmWearList=Список брони для которой нужно рендерить одежду на руке
 armoredarms.cfg.vanillaArmorModelSize=Размер ванильной модели брони
 armoredarms.cfg.useCheckByItem=Использовать проверку по предмету
 armoredarms.cfg.enableArmWearWithVanillaM=Включить отрисовку одежды на руке для ванильной модели брони
@@ -11,4 +12,4 @@ armoredarms.error.layer.fatal.tryTick=При попытке обновления
 armoredarms.error.fatal.tryRender=При попытке рендера произошла фатальная ошибка! Броня на руках не будет отрисооватся! Подробности:
 armoredarms.error.fatal.tryTick=При попытке обновления произошла фатальная ошибка! Броня на руках не будет отрисооватся! Подробности:
 armoredarms.error.layer.armor.tryRender=При попытке рендера произошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:
-armoredarms.error.layer.armor.tryTick=При попытке обновления про изошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:
+armoredarms.error.layer.armor.tryTick=При попытке обновления произошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:
