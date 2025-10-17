@@ -29,4 +29,12 @@ public class Reflector {
         }
     }
 
+    public static boolean isClassExists(String name) {
+        try {
+            Class.forName(name);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 }

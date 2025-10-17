@@ -76,6 +76,13 @@ public class Overriders {
         e.registerOverrider("hbm", "rpa_plate", new HBMOverrider("rightArm", "leftArm", "rpa_arm"), false);
         e.registerOverrider("hbm", "fau_plate", new HBMOverrider("rightArm", "leftArm", "fau_arm"), false);
         e.registerOverrider("hbm", "dns_plate", new HBMOverrider("rightArm", "leftArm", "dnt_arm"), false);
+        e.registerOverrider("hbm", "steamsuit_plate", new HBMOverrider("rightArm", "leftArm", "steamsuit_arm"), false);
+        e.registerOverrider("hbm", "trenchmaster_plate", new HBMOverrider("rightArm", "leftArm", "trenchmaster_arm"), false);
+        e.registerOverrider("hbm", "taurun_plate", new HBMOverrider("rightArm", "leftArm", "taurun_arm"), false);
+        e.registerOverrider("hbm", "dieselsuit_plate", new HBMOverrider("rightArm", "leftArm", "dieselsuit_arm"), false);
+        e.registerOverrider("hbm", "envsuit_plate", new HBMOverrider("rightArm", "leftArm", "envsuit_arm"), false);
+        e.registerOverrider("hbm", "bismuth_plate", new HBMOverrider("rightArm", "leftArm", "bismuth_arm"), false);
+        e.registerOverrider("hbm", "t51_plate", new HBMOverrider("rightArm", "leftArm", "t51_arm"), false);
         e.registerOverrider("powersuits", "powerarmor_torso", new PowerArmorOverrider(), false);
         e.registerOverrider("cqrepoured", "chestplate_slime", new SlimeArmorOverrider(), false);
         e.registerOverrider("conarm", "*", new ConstructedArmorOverrider(), false);
@@ -286,7 +293,7 @@ public class Overriders {
             ModelBiped mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, null);
             Object r = Reflector.getPrivateField(mb, this.rightArm);
             Object l = Reflector.getPrivateField(mb, this.leftArm);
-            if (mb instanceof ModelT45Chest) {
+            if (Reflector.isClassExists("com.hbm.render.model.ModelT45Chest") && mb instanceof ModelT45Chest) {
                 return new ModelOnlyArmsT45(mb, (ModelRenderer) r, (ModelRenderer) l);
             } else if (r instanceof ModelRenderer) {
                 return new ArmRenderLayerArmor.DefaultModelOnlyArms(mb, (ModelRenderer) r, (ModelRenderer) l);
