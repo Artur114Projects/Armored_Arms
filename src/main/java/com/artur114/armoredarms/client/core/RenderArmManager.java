@@ -29,13 +29,14 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Map;
 import java.util.Set;
 
 @SideOnly(Side.CLIENT)
 public class RenderArmManager {
     public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
+    public Map<Class<? extends IArmRenderLayer>, IArmRenderLayer> renderLayers = null;
     public final Minecraft mc = Minecraft.getMinecraft();
-    public Set<IArmRenderLayer> renderLayers = null;
     public boolean initTick = true;
     public boolean render = false;
     public boolean died = false;
@@ -117,7 +118,7 @@ public class RenderArmManager {
 
         boolean render = false;
 
-        for (IArmRenderLayer layer : this.renderLayers) {
+        for (IArmRenderLayer layer : this.renderLayers.values()) {
 
             try {
                 layer.update(player);
@@ -133,6 +134,11 @@ public class RenderArmManager {
         this.render = render;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends IArmRenderLayer> T getLayer(Class<T> tClass) {
+        return (T) this.renderLayers.get(tClass);
+    }
+
     public void init(AbstractClientPlayer player) {
         ArmoredArmsApi.InitRenderLayersEvent event = new ArmoredArmsApi.InitRenderLayersEvent();
         event.addLayer(ArmRenderLayerVanilla.class);
@@ -140,7 +146,7 @@ public class RenderArmManager {
         MinecraftForge.EVENT_BUS.post(event);
         this.renderLayers = event.renderLayers();
 
-        for (IArmRenderLayer layer : this.renderLayers) {
+        for (IArmRenderLayer layer : this.renderLayers.values()) {
             try {
                 layer.init(player);
             } catch (RMException rm) {
@@ -156,7 +162,7 @@ public class RenderArmManager {
             this.died = true;
         }
         if (exception.isFatalOnLayer()) {
-            this.renderLayers.remove(exception.fatalLayer());
+            this.renderLayers.remove(exception.fatalLayer().getClass());
         }
 
         for (ITextComponent message : exception.messageForPlayer()) {
@@ -284,7 +290,7 @@ public class RenderArmManager {
     }
 
     public void renderArm(AbstractClientPlayer player, EnumHandSide handSide) {
-        for (IArmRenderLayer layer : this.renderLayers) {
+        for (IArmRenderLayer layer : this.renderLayers.values()) {
             if (layer.needRender(player, this.render)) {
                 try {
                     layer.renderTransformed(player, handSide);

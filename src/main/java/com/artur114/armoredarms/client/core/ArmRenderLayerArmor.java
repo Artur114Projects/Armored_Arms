@@ -436,9 +436,15 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         @Override
         public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
             ModelRenderer arm = this.arms[side.ordinal()];
+            arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+            arm.rotationPointY = 2.0F;
+            arm.rotationPointZ = 0.0F;
             arm.rotateAngleX = 0.0F;
             arm.rotateAngleY = 0.0F;
             arm.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(side);
+            arm.offsetX = 0.0F;
+            arm.offsetY = 0.0F;
+            arm.offsetZ = 0.0F;
             boolean h = arm.isHidden;
             boolean s = arm.showModel;
             arm.isHidden = false;
