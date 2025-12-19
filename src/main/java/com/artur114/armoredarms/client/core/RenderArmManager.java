@@ -294,7 +294,16 @@ public class RenderArmManager {
     }
 
     public void renderArm(AbstractClientPlayer player, EnumHandSide handSide) {
+        IArmRenderLayer vanilla = this.getLayer(ArmRenderLayerVanilla.class); // spaghetti!
+
+        if (vanilla.needRender(player, this.render)) {
+            vanilla.renderTransformed(player, handSide);
+        }
+
         for (IArmRenderLayer layer : this.renderLayers.values()) {
+            if (layer == vanilla) {
+                continue;
+            }
             if (layer.needRender(player, this.render)) {
                 try {
                     layer.renderTransformed(player, handSide);

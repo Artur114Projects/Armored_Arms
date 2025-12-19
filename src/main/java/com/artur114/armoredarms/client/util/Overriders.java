@@ -130,6 +130,7 @@ public class Overriders {
         }
 
         public static class ModelLightEngineerArmorOnlyArms implements IModelOnlyArms {
+            public final ModelRenderer[] playerArms = MiscUtils.playerArms();
             private final ModelLightEngineerArmor model;
             private final ModelRendererTurbo[][] plates;
             private final ModelRendererTurbo[][] hand;
@@ -148,9 +149,10 @@ public class Overriders {
             public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
                 ModelRenderer biped = this.biped[side.ordinal()];
                 float scale = 1.0F / 16.0F;
-                biped.rotateAngleX = 0.0F;
-                biped.rotateAngleY = 0.0F;
-                biped.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(side);
+                biped.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+                biped.rotationPointY = 2.0F;
+                biped.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(biped, this.playerArms[side.ordinal()]);
 
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(biped.rotationPointX * scale, biped.rotationPointY * scale, biped.rotationPointZ * scale);
@@ -239,6 +241,7 @@ public class Overriders {
         }
 
         public static class ModelOnlyArmsOBJArmor implements IModelOnlyArms {
+            public final ModelRenderer[] playerArms = MiscUtils.playerArms();
             public final float[] colors;
             public float x;
             public float y;
@@ -252,9 +255,10 @@ public class Overriders {
             public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
                 GlStateManager.pushMatrix();
                 int glList = side == EnumHandSide.RIGHT ? ItemSpaceSuitModel.rightArmList : ItemSpaceSuitModel.leftArmList;
-                this.x = 0.0F;
-                this.y = 0.0F;
-                this.z = 0.1F * MiscUtils.handSideDelta(side);
+                ModelRenderer pArm = this.playerArms[side.ordinal()];
+                this.x = pArm.rotateAngleX;
+                this.y = pArm.rotateAngleY;
+                this.z = pArm.rotateAngleZ;
                 GlStateManager.rotate(this.z * 57.295776F, 0.0F, 0.0F, 1.0F);
                 GlStateManager.rotate(this.y * 57.295776F, 0.0F, 1.0F, 0.0F);
                 GlStateManager.rotate(this.x * 57.295776F, 1.0F, 0.0F, 0.0F);
@@ -318,6 +322,7 @@ public class Overriders {
         }
 
         public static class ModelOnlyArmsOBJ implements IModelOnlyArms {
+            public final ModelRenderer[] playerArms = MiscUtils.playerArms();
             public final ModelRendererObj[] arms;
             public final ModelBiped mb;
 
@@ -329,9 +334,16 @@ public class Overriders {
             @Override
             public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
                 ModelRendererObj arm = this.arms[side.ordinal()];
-                arm.rotateAngleX = 0.0F;
-                arm.rotateAngleY = 0.0F;
-                arm.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(side);
+                ModelRenderer pArm = this.playerArms[side.ordinal()];
+                arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+                arm.rotationPointY = 2.0F;
+                arm.rotationPointZ = 0.0F;
+                arm.rotateAngleX = pArm.rotateAngleX;
+                arm.rotateAngleY = pArm.rotateAngleY;
+                arm.rotateAngleZ = pArm.rotateAngleZ;
+                arm.offsetX = pArm.offsetX;
+                arm.offsetY = pArm.offsetY;
+                arm.offsetZ = pArm.offsetZ;
                 arm.render(1.0F / 16.0F);
             }
 
@@ -481,6 +493,7 @@ public class Overriders {
         }
 
         public static class RootsModelOnlyArms implements IModelOnlyArms {
+            public final ModelRenderer[] playerArms = MiscUtils.playerArms();
             public final ModelRenderer[] armsB;
             public final ModelRenderer[] arms;
             public final ModelArmorBase mb;
@@ -495,9 +508,10 @@ public class Overriders {
             public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
                 ModelRenderer armB = this.armsB[side.ordinal()];
                 ModelRenderer arm = this.arms[side.ordinal()];
-                armB.rotateAngleX = 0.0F;
-                armB.rotateAngleY = 0.0F;
-                armB.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(side);
+                armB.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+                armB.rotationPointY = 2.0F;
+                armB.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(armB, this.playerArms[side.ordinal()]);
                 this.mb.setChestRotation(player);
                 boolean h = arm.isHidden;
                 boolean s = arm.showModel;
@@ -577,13 +591,16 @@ public class Overriders {
                             break;
                     }
                 }
+
+                renderer.rotationPointX = -5.0F * MiscUtils.handSideDelta(handSide);
+                renderer.rotationPointY = 2.0F;
+                renderer.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(renderer, MiscUtils.handFromModelBiped(this.renderPlayer.getMainModel(), handSide));
+
                 boolean h = renderer.isHidden;
                 boolean s = renderer.showModel;
                 renderer.isHidden = false;
                 renderer.showModel = true;
-                renderer.rotateAngleX = 0.0F;
-                renderer.rotateAngleY = 0.0F;
-                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
                 renderer.render(scale);
                 renderer.isHidden = h;
                 renderer.showModel = s;
@@ -612,9 +629,6 @@ public class Overriders {
                 s = renderer.showModel;
                 renderer.isHidden = false;
                 renderer.showModel = true;
-                renderer.rotateAngleX = 0.0F;
-                renderer.rotateAngleY = 0.0F;
-                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
                 renderer.render(scale);
                 renderer.isHidden = h;
                 renderer.showModel = s;
@@ -674,6 +688,7 @@ public class Overriders {
      * for all gloves from the aether
      */
     public static class AetherGlovesRenderLayer implements IArmRenderLayer {
+        private RenderPlayer renderPlayer;
         public ModelBiped modelMisc = null;
         private double modelSize = -1.0D;
         private boolean render = false;
@@ -712,13 +727,15 @@ public class Overriders {
                     GlStateManager.color(red, green, red);
                 }
 
+                renderer.rotationPointX = -5.0F * MiscUtils.handSideDelta(handSide);
+                renderer.rotationPointY = 2.0F;
+                renderer.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(renderer, MiscUtils.handFromModelBiped(this.renderPlayer.getMainModel(), handSide));
+
                 boolean h = renderer.isHidden;
                 boolean s = renderer.showModel;
                 renderer.isHidden = false;
                 renderer.showModel = true;
-                renderer.rotateAngleX = 0.0F;
-                renderer.rotateAngleY = 0.0F;
-                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
                 renderer.render(scale);
                 renderer.isHidden = h;
                 renderer.showModel = s;
@@ -733,13 +750,15 @@ public class Overriders {
                 red = (float)(j & 255) / 255.0F;
                 GlStateManager.color(red, green, red);
 
+                renderer.rotationPointX = -5.0F * MiscUtils.handSideDelta(handSide);
+                renderer.rotationPointY = 2.0F;
+                renderer.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(renderer, MiscUtils.handFromModelBiped(this.renderPlayer.getMainModel(), handSide));
+
                 boolean h = renderer.isHidden;
                 boolean s = renderer.showModel;
                 renderer.isHidden = false;
                 renderer.showModel = true;
-                renderer.rotateAngleX = 0.0F;
-                renderer.rotateAngleY = 0.0F;
-                renderer.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
                 renderer.render(scale);
                 renderer.isHidden = h;
                 renderer.showModel = s;
@@ -751,7 +770,9 @@ public class Overriders {
         }
 
         @Override
-        public void init(AbstractClientPlayer player) {}
+        public void init(AbstractClientPlayer player) {
+            this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+        }
 
         @Override
         public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {

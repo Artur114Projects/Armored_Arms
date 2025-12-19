@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.util;
 
+import com.artur114.armoredarms.client.core.ArmRenderLayerVanilla;
+import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
@@ -37,5 +39,19 @@ public class MiscUtils {
             default:
                 throw new NullPointerException();
         }
+    }
+
+    public static ModelRenderer[] playerArms() {
+        ModelPlayer player = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class).renderPlayer.getMainModel();
+        return new ModelRenderer[] {player.bipedLeftArm, player.bipedRightArm};
+    }
+
+    public static void setPlayerArmDataToArm(ModelRenderer arm, ModelRenderer playerArm) {
+        arm.rotateAngleX = playerArm.rotateAngleX;
+        arm.rotateAngleY = playerArm.rotateAngleY;
+        arm.rotateAngleZ = playerArm.rotateAngleZ;
+        arm.offsetX = playerArm.offsetX;
+        arm.offsetY = playerArm.offsetY;
+        arm.offsetZ = playerArm.offsetZ;
     }
 }

@@ -26,6 +26,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import vazkii.quark.vanity.client.emotes.EmoteHandler;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -415,6 +416,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public static class DefaultModelOnlyArms implements IModelOnlyArms {
+        public final ModelRenderer[] playerArms = MiscUtils.playerArms();
         public final ModelRenderer[] arms;
         public final ModelBiped mb;
 
@@ -439,12 +441,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
             arm.rotationPointY = 2.0F;
             arm.rotationPointZ = 0.0F;
-            arm.rotateAngleX = 0.0F;
-            arm.rotateAngleY = 0.0F;
-            arm.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(side);
-            arm.offsetX = 0.0F;
-            arm.offsetY = 0.0F;
-            arm.offsetZ = 0.0F;
+            MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
             boolean h = arm.isHidden;
             boolean s = arm.showModel;
             arm.isHidden = false;
