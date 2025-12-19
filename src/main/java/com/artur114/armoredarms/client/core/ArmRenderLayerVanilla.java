@@ -1,26 +1,24 @@
 package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
-import com.artur114.armoredarms.client.util.Api;
-import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
@@ -51,14 +49,8 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
             return;
         }
 
-        ModelPlayer playerModel = this.renderPlayer.getMainModel();
-
-        ModelRenderer armWear = this.handFromModelPlayer(playerModel, handSide, true);
-        ModelRenderer arm = this.handFromModelPlayer(playerModel, handSide, false);
-
         this.renderPlayer.bindTexture(player.getLocationSkin());
-        this.render(armWear, handSide);
-        this.render(arm, handSide);
+        this.renderArm(player, handSide);
     }
 
     @Override
@@ -85,27 +77,125 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
         return ret;
     }
 
-    public ModelRenderer handFromModelPlayer(ModelPlayer mb, EnumHandSide handSide, boolean wear) {
-        if (wear && (AAConfig.disableArmWear && (!AAConfig.enableArmWearWithVanillaM || !this.currentArmorModelBiped))) {
-            return null;
-        }
-        switch (handSide) {
+    public void renderArm(AbstractClientPlayer player, EnumHandSide side) {
+        switch (side) {
             case RIGHT:
-                return wear ? mb.bipedRightArmwear : mb.bipedRightArm;
+                this.renderRightArmMC(player, !AAConfig.disableArmWear || (AAConfig.enableArmWearWithVanillaM && this.currentArmorModelBiped));
+            break;
             case LEFT:
-                return wear ? mb.bipedLeftArmwear : mb.bipedLeftArm;
-            default:
-                return null;
+                this.renderLeftArmMC(player, !AAConfig.disableArmWear || (AAConfig.enableArmWearWithVanillaM && this.currentArmorModelBiped));
+            break;
         }
     }
 
-    private void render(ModelRenderer arm, EnumHandSide handSide) {
-        if (arm == null) {
-            return;
+    public void renderRightArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
+        GlStateManager.color(1.0F, 1.0F, 1.0F);
+        ModelPlayer modelplayer = this.renderPlayer.getMainModel();
+        this.setModelVisibilitiesMC(clientPlayer);
+        GlStateManager.enableBlend();
+        modelplayer.swingProgress = 0.0F;
+        modelplayer.isSneak = false;
+        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
+        modelplayer.bipedRightArm.rotateAngleX = 0.0F;
+        modelplayer.bipedRightArm.render(0.0625F);
+        if (renderWear) {
+            modelplayer.bipedRightArmwear.rotateAngleX = 0.0F;
+            modelplayer.bipedRightArmwear.render(0.0625F);
         }
-        arm.rotateAngleX = 0.0F;
-        arm.rotateAngleY = 0.0F;
-        arm.rotateAngleZ = 0.1F * MiscUtils.handSideDelta(handSide);
-        arm.render(1.0F / 16.0F);
+        GlStateManager.disableBlend();
     }
+
+    public void renderLeftArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
+        GlStateManager.color(1.0F, 1.0F, 1.0F);
+        ModelPlayer modelplayer = this.renderPlayer.getMainModel();
+        this.setModelVisibilitiesMC(clientPlayer);
+        GlStateManager.enableBlend();
+        modelplayer.isSneak = false;
+        modelplayer.swingProgress = 0.0F;
+        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
+        modelplayer.bipedLeftArm.rotateAngleX = 0.0F;
+        modelplayer.bipedLeftArm.render(0.0625F);
+        if (renderWear) {
+            modelplayer.bipedLeftArmwear.rotateAngleX = 0.0F;
+            modelplayer.bipedLeftArmwear.render(0.0625F);
+        }
+        GlStateManager.disableBlend();
+    }
+
+    private void setModelVisibilitiesMC(AbstractClientPlayer clientPlayer) {
+        ModelPlayer modelplayer = this.renderPlayer.getMainModel();
+
+        if (clientPlayer.isSpectator())
+        {
+            modelplayer.setVisible(false);
+            modelplayer.bipedHead.showModel = true;
+            modelplayer.bipedHeadwear.showModel = true;
+        }
+        else
+        {
+            ItemStack itemstack = clientPlayer.getHeldItemMainhand();
+            ItemStack itemstack1 = clientPlayer.getHeldItemOffhand();
+            modelplayer.setVisible(true);
+            modelplayer.bipedHeadwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.HAT);
+            modelplayer.bipedBodyWear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
+            modelplayer.bipedLeftLegwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
+            modelplayer.bipedRightLegwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
+            modelplayer.bipedLeftArmwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
+            modelplayer.bipedRightArmwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
+            modelplayer.isSneak = clientPlayer.isSneaking();
+            ModelBiped.ArmPose modelbiped$armpose = ModelBiped.ArmPose.EMPTY;
+            ModelBiped.ArmPose modelbiped$armpose1 = ModelBiped.ArmPose.EMPTY;
+
+            if (!itemstack.isEmpty())
+            {
+                modelbiped$armpose = ModelBiped.ArmPose.ITEM;
+
+                if (clientPlayer.getItemInUseCount() > 0)
+                {
+                    EnumAction enumaction = itemstack.getItemUseAction();
+
+                    if (enumaction == EnumAction.BLOCK)
+                    {
+                        modelbiped$armpose = ModelBiped.ArmPose.BLOCK;
+                    }
+                    else if (enumaction == EnumAction.BOW)
+                    {
+                        modelbiped$armpose = ModelBiped.ArmPose.BOW_AND_ARROW;
+                    }
+                }
+            }
+
+            if (!itemstack1.isEmpty())
+            {
+                modelbiped$armpose1 = ModelBiped.ArmPose.ITEM;
+
+                if (clientPlayer.getItemInUseCount() > 0)
+                {
+                    EnumAction enumaction1 = itemstack1.getItemUseAction();
+
+                    if (enumaction1 == EnumAction.BLOCK)
+                    {
+                        modelbiped$armpose1 = ModelBiped.ArmPose.BLOCK;
+                    }
+                    // FORGE: fix MC-88356 allow offhand to use bow and arrow animation
+                    else if (enumaction1 == EnumAction.BOW)
+                    {
+                        modelbiped$armpose1 = ModelBiped.ArmPose.BOW_AND_ARROW;
+                    }
+                }
+            }
+
+            if (clientPlayer.getPrimaryHand() == EnumHandSide.RIGHT)
+            {
+                modelplayer.rightArmPose = modelbiped$armpose;
+                modelplayer.leftArmPose = modelbiped$armpose1;
+            }
+            else
+            {
+                modelplayer.rightArmPose = modelbiped$armpose1;
+                modelplayer.leftArmPose = modelbiped$armpose;
+            }
+        }
+    }
+
 }

@@ -249,7 +249,7 @@ public class AAClientCommandsManager {
                             res.append(fieldName).append(" - ").append("offsetY:").append(((ModelRenderer) obj).offsetY).append("\n");
                             res.append(fieldName).append(" - ").append("offsetZ:").append(((ModelRenderer) obj).offsetZ).append("\n");
 
-                            res.append(fieldName).append(" - ").append("children:").append(((ModelRenderer) obj).childModels.size()).append(", cubes:").append(((ModelRenderer) obj).cubeList.size()).append("\n");
+                            res.append(fieldName).append(" - ").append("children:").append(((ModelRenderer) obj).childModels != null ? ((ModelRenderer) obj).childModels.size() : 0).append(", cubes:").append(((ModelRenderer) obj).cubeList != null ? ((ModelRenderer) obj).cubeList.size() : 0).append("\n");
                             res.append(fieldName).append(" - ").append("showModel:").append(((ModelRenderer) obj).showModel).append("\n");
                             res.append(fieldName).append(" - ").append("isHidden:").append(((ModelRenderer) obj).isHidden).append("\n");
                             res.append(fieldName).append(" - ").append("mirror:").append(((ModelRenderer) obj).mirror).append("\n");

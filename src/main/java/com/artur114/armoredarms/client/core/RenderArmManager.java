@@ -139,6 +139,10 @@ public class RenderArmManager {
         return (T) this.renderLayers.get(tClass);
     }
 
+    public boolean killLayer(Class<? extends IArmRenderLayer> tClass) {
+        return this.renderLayers.remove(tClass) != null;
+    }
+
     public void init(AbstractClientPlayer player) {
         ArmoredArmsApi.InitRenderLayersEvent event = new ArmoredArmsApi.InitRenderLayersEvent();
         event.addLayer(ArmRenderLayerVanilla.class);
