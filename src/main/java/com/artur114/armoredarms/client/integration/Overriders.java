@@ -1,9 +1,13 @@
-package com.artur114.armoredarms.client.util;
+package com.artur114.armoredarms.client.integration;
 
 import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
 import c4.conarm.client.models.ModelConstructsArmor;
 import com.artur114.armoredarms.api.*;
+import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.core.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.util.MiscUtils;
+import com.artur114.armoredarms.client.util.Reflector;
 import com.artur114.armoredarms.main.AAConfig;
 import com.gildedgames.the_aether.api.AetherAPI;
 import com.gildedgames.the_aether.api.player.IPlayerAether;
@@ -64,7 +68,7 @@ import java.util.List;
 @Mod.EventBusSubscriber
 public class Overriders {
     @SubscribeEvent
-    public static void initArmorRenderLayer(ArmoredArmsApi.InitArmorRenderLayerEvent e) {
+    public static void initArmorRenderLayer(InitArmorRenderLayerEvent e) {
         e.registerOverrider("immersiveintelligence", "light_engineer_armor_chestplate", new LightEngineerArmorOverrider(), false);
         e.registerOverrider("galaxyspace", "space_suit_chest", new SpaceSuitTier1Overrider(), false);
         e.registerOverrider("hbm", "t45_plate", new HBMOverrider("rightarm", "leftarm", "item"), false);
@@ -92,7 +96,7 @@ public class Overriders {
     }
 
     @SubscribeEvent
-    public static void initRenderLayers(ArmoredArmsApi.InitRenderLayersEvent e) {
+    public static void initRenderLayers(InitRenderLayersEvent e) {
         e.addLayerIfModLoad(ThermalPaddingRenderLayer.class, "galacticraftcore");
         e.addLayerIfModLoad(AetherGlovesRenderLayer.class, "aether_legacy");
     }

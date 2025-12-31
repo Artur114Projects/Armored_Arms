@@ -2,15 +2,16 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.IArmRenderLayer;
-import com.artur114.armoredarms.client.util.Api;
+import com.artur114.armoredarms.api.events.AARenderLayerRenderingEvent;
+import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.RMException;
+import com.artur114.armoredarms.client.util.Reflector;
+import com.google.common.base.MoreObjects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -19,30 +20,28 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.storage.MapData;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Map;
-import java.util.Set;
 
 @SideOnly(Side.CLIENT)
 public class RenderArmManager {
     public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
     public Map<Class<? extends IArmRenderLayer>, IArmRenderLayer> renderLayers = null;
     public final Minecraft mc = Minecraft.getMinecraft();
+    public ItemRenderer itemRenderer = null;
     public boolean initTick = true;
     public boolean render = false;
     public boolean died = false;
 
 
-    public void renderSpecificHandEvent(RenderSpecificHandEvent e) {
+    public void renderHandEvent(RenderHandEvent e) {
         if (this.died || !this.render) {
             return;
         }
@@ -70,39 +69,15 @@ public class RenderArmManager {
         }
     }
 
-    public void tryRender(RenderSpecificHandEvent e) {
-        EntityPlayerSP player = this.mc.player;
-        EnumHandSide enumhandside = e.getHand() == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
-        float interpPitch = e.getInterpolatedPitch();
-        float swingProgress = e.getSwingProgress();
-        float equipProgress = e.getEquipProgress();
-        ItemStack stack = e.getItemStack();
-        EnumHand hand = e.getHand();
-
-        GlStateManager.pushMatrix();
-        boolean flag = false;
-
-        if (stack.isEmpty()) {
-            if (hand == EnumHand.MAIN_HAND) {
-                this.renderArmFirstPerson(equipProgress, swingProgress, enumhandside);
-
-                flag = true;
-            }
-        } else if (stack.getItem() instanceof ItemMap) {
-            if (hand == EnumHand.MAIN_HAND && player.getHeldItem(EnumHand.OFF_HAND).isEmpty()) {
-                this.renderMapFirstPerson(interpPitch, equipProgress, swingProgress, stack);
-            } else {
-                this.renderMapFirstPersonSide(equipProgress, enumhandside, swingProgress, stack);
-            }
-
-            flag = true;
-        }
-
-        if (flag) {
+    public void tryRender(RenderHandEvent e) {
+        boolean flag = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
+        boolean flag1 = this.itemRenderer.itemStackMainHand.isEmpty() || this.itemRenderer.itemStackMainHand.getItem() instanceof ItemMap || this.itemRenderer.itemStackOffHand.getItem() instanceof ItemMap;
+        if (flag1 && this.mc.gameSettings.thirdPersonView == 0 && !flag && !this.mc.gameSettings.hideGUI && !this.mc.playerController.isSpectator()) {
+            this.mc.entityRenderer.enableLightmap();
+            this.renderItemInFirstPerson(e.getPartialTicks());
+            this.mc.entityRenderer.disableLightmap();
             e.setCanceled(true);
         }
-
-        GlStateManager.popMatrix();
     }
 
     public void tryTick(TickEvent.ClientTickEvent e) {
@@ -144,7 +119,7 @@ public class RenderArmManager {
     }
 
     public void init(AbstractClientPlayer player) {
-        ArmoredArmsApi.InitRenderLayersEvent event = new ArmoredArmsApi.InitRenderLayersEvent();
+        InitRenderLayersEvent event = new InitRenderLayersEvent();
         event.addLayer(ArmRenderLayerVanilla.class);
         event.addLayer(ArmRenderLayerArmor.class);
         MinecraftForge.EVENT_BUS.post(event);
@@ -159,6 +134,8 @@ public class RenderArmManager {
                 throw new RMException(tr).setFatalLayer(layer);
             }
         }
+
+        this.itemRenderer = Reflector.getItemRenderer(this.mc);
     }
 
     public void onException(RMException exception) {
@@ -174,6 +151,74 @@ public class RenderArmManager {
         }
 
         exception.printStackTrace(System.err);
+    }
+
+    public void renderItemInFirstPerson(float partialTicks) {
+        AbstractClientPlayer abstractclientplayer = this.mc.player;
+        float f = abstractclientplayer.getSwingProgress(partialTicks);
+        EnumHand enumhand = MoreObjects.firstNonNull(abstractclientplayer.swingingHand, EnumHand.MAIN_HAND);
+        float interpPitch = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
+        float interpYaw = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
+        boolean flag = true;
+        boolean flag1 = true;
+
+        if (abstractclientplayer.isHandActive()) {
+            ItemStack itemstack = abstractclientplayer.getActiveItemStack();
+
+            if (itemstack.getItem() instanceof net.minecraft.item.ItemBow) {
+                flag = abstractclientplayer.getActiveHand() == EnumHand.MAIN_HAND;
+                flag1 = !flag;
+            }
+        }
+
+        this.itemRenderer.rotateArroundXAndY(interpPitch, interpYaw);
+        this.itemRenderer.setLightmap();
+        this.itemRenderer.rotateArm(partialTicks);
+        GlStateManager.enableRescaleNormal();
+
+        if (flag) {
+            float swingProgress = enumhand == EnumHand.MAIN_HAND ? f : 0.0F;
+            float equipProgress = 1.0F - (this.itemRenderer.prevEquippedProgressMainHand + (this.itemRenderer.equippedProgressMainHand - this.itemRenderer.prevEquippedProgressMainHand) * partialTicks);
+            this.callRenderNotTransformed(abstractclientplayer, partialTicks, interpPitch, EnumHand.MAIN_HAND, swingProgress, this.itemRenderer.itemStackMainHand, equipProgress);
+            this.renderItemInFirstPerson(abstractclientplayer, partialTicks, interpPitch, EnumHand.MAIN_HAND, swingProgress, this.itemRenderer.itemStackMainHand, equipProgress);
+        }
+
+        if (flag1) {
+            float swingProgress = enumhand == EnumHand.OFF_HAND ? f : 0.0F;
+            float equipProgress = 1.0F - (this.itemRenderer.prevEquippedProgressOffHand + (this.itemRenderer.equippedProgressOffHand - this.itemRenderer.prevEquippedProgressOffHand) * partialTicks);
+            this.callRenderNotTransformed(abstractclientplayer, partialTicks, interpPitch, EnumHand.OFF_HAND, swingProgress, this.itemRenderer.itemStackOffHand, equipProgress);
+            this.renderItemInFirstPerson(abstractclientplayer, partialTicks, interpPitch, EnumHand.OFF_HAND, swingProgress, this.itemRenderer.itemStackOffHand, equipProgress);
+        }
+
+        GlStateManager.disableRescaleNormal();
+        RenderHelper.disableStandardItemLighting();
+    }
+
+    public void callRenderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {
+        for (IArmRenderLayer renderLayer : this.renderLayers.values()) {
+            renderLayer.renderNotTransformed(player, partialTicks, interpPitch, hand, swingProgress, stack, equipProgress);
+        }
+    }
+
+    public void renderItemInFirstPerson(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {
+        EnumHandSide enumhandside = hand == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
+
+        GlStateManager.pushMatrix();
+
+        if (stack.isEmpty()) {
+            if (hand == EnumHand.MAIN_HAND) {
+                this.renderArmFirstPerson(equipProgress, swingProgress, enumhandside);
+            }
+        } else if (stack.getItem() instanceof ItemMap) {
+            if (hand == EnumHand.MAIN_HAND && player.getHeldItem(EnumHand.OFF_HAND).isEmpty()) {
+                this.renderMapFirstPerson(interpPitch, equipProgress, swingProgress, stack);
+            } else {
+                this.renderMapFirstPersonSide(equipProgress, enumhandside, swingProgress, stack);
+            }
+
+        }
+
+        GlStateManager.popMatrix();
     }
 
     public void renderArms() {
@@ -297,7 +342,9 @@ public class RenderArmManager {
         IArmRenderLayer vanilla = this.getLayer(ArmRenderLayerVanilla.class); // spaghetti!
 
         if (vanilla.needRender(player, this.render)) {
-            vanilla.renderTransformed(player, handSide);
+            if (!MinecraftForge.EVENT_BUS.post(new AARenderLayerRenderingEvent(vanilla, handSide, this.render))) {
+                vanilla.renderTransformed(player, handSide);
+            }
         }
 
         for (IArmRenderLayer layer : this.renderLayers.values()) {
@@ -306,7 +353,9 @@ public class RenderArmManager {
             }
             if (layer.needRender(player, this.render)) {
                 try {
-                    layer.renderTransformed(player, handSide);
+                    if (!MinecraftForge.EVENT_BUS.post(new AARenderLayerRenderingEvent(vanilla, handSide, this.render))) {
+                        layer.renderTransformed(player, handSide);
+                    }
                 } catch (RMException rm) {
                     throw rm;
                 } catch (Throwable tr) {

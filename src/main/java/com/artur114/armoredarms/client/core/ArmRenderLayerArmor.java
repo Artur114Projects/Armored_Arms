@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
+import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
 import com.artur114.armoredarms.client.util.*;
 import com.artur114.armoredarms.main.AAConfig;
 import lain.mods.cos.api.CosArmorAPI;
@@ -167,7 +168,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     private void initEvent() {
-        ArmoredArmsApi.InitArmorRenderLayerEvent event = new ArmoredArmsApi.InitArmorRenderLayerEvent();
+        InitArmorRenderLayerEvent event = new InitArmorRenderLayerEvent();
         MinecraftForge.EVENT_BUS.post(event);
 
         this.textureOverriders = event.textureOverriders();

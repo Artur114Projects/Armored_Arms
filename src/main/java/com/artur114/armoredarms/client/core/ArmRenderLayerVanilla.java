@@ -14,7 +14,9 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -28,6 +30,7 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     public ModelBiped baseArmorModel = null;
     public RenderPlayer renderPlayer = null;
     public ItemStack chestPlate = null;
+    public boolean canceled = false;
 
     @Override
     public void update(AbstractClientPlayer player) {
@@ -44,8 +47,13 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     }
 
     @Override
+    public void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {
+        this.canceled = ForgeHooksClient.renderSpecificFirstPersonHand(hand, partialTicks, interpPitch, swingProgress, equipProgress, stack);
+    }
+
+    @Override
     public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
-        if (player.isInvisible()) {
+        if (player.isInvisible() || this.canceled) {
             return;
         }
 
@@ -197,5 +205,4 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
             }
         }
     }
-
 }

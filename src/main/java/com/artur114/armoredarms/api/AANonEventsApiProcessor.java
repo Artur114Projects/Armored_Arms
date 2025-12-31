@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.api;
 
+import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.util.Tuple;
@@ -80,14 +82,14 @@ public class AANonEventsApiProcessor {
     }
 
     @SubscribeEvent
-    public static void initRenderLayersEvent(ArmoredArmsApi.InitRenderLayersEvent e) {
+    public static void initRenderLayersEvent(InitRenderLayersEvent e) {
         for (Class<? extends IArmRenderLayer> layer : renderLayers) {
             e.addLayer(layer);
         }
     }
 
     @SubscribeEvent
-    public static void initArmorRenderLayerEvent(ArmoredArmsApi.InitArmorRenderLayerEvent e) {
+    public static void initArmorRenderLayerEvent(InitArmorRenderLayerEvent e) {
         for (ShapelessRL black : renderBlackList) {
             e.addArmorToBlackList(black.getResourceDomain(), black.getResourcePath());
         }

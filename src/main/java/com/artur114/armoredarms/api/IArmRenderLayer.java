@@ -1,11 +1,13 @@
 package com.artur114.armoredarms.api;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 
 /**
  * Rendering layer interface; implementation must have an empty constructor.<br>
- * You can register your layer in {@link com.artur114.armoredarms.api.ArmoredArmsApi.InitRenderLayersEvent}.
+ * You can register your layer in {@link com.artur114.armoredarms.api.events.InitRenderLayersEvent}.
  * @see com.artur114.armoredarms.client.core.ArmRenderLayerVanilla
  */
 public interface IArmRenderLayer {
@@ -38,4 +40,9 @@ public interface IArmRenderLayer {
      * @param player Main Client-side player.
      */
     void init(AbstractClientPlayer player);
+
+    /**
+     * Rendering method.
+     */
+    default void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {}
 }
