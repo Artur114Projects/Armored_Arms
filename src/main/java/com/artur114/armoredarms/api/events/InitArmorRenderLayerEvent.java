@@ -27,7 +27,6 @@ import java.util.*;
  * <br>
  * This event uses {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}.<br>
  * <br>
- * @see Overriders#initArmorRenderLayer(InitArmorRenderLayerEvent)
  */
 public class InitArmorRenderLayerEvent extends Event {
     private final Map<ShapelessRL, IOverriderGetModel> modelOverriders = new HashMap<>();

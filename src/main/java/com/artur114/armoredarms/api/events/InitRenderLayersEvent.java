@@ -23,7 +23,6 @@ import java.util.Map;
  * <br>
  * This event uses {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}.<br>
  * <br>
- * @see Overriders#initRenderLayers(InitRenderLayersEvent)
  */
 @SideOnly(Side.CLIENT)
 public class InitRenderLayersEvent extends Event {
