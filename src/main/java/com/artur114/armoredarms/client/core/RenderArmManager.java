@@ -6,29 +6,20 @@ import com.artur114.armoredarms.api.events.AARenderLayerRenderingEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.RMException;
 import com.artur114.armoredarms.client.util.Reflector;
-import com.google.common.base.MoreObjects;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Map;
 
@@ -58,7 +49,7 @@ public class RenderArmManager {
     }
 
     public void tickEventClientTickEvent(TickEvent.ClientTickEvent e) {
-        if (e.phase != TickEvent.Phase.START || this.mc.player == null || this.mc.isGamePaused() || this.died) {
+        if (e.phase != TickEvent.Phase.START || this.mc.thePlayer == null || this.mc.isGamePaused() || this.died) {
             return;
         }
 
@@ -74,16 +65,16 @@ public class RenderArmManager {
     public void tryRender(RenderHandEvent e) {
         boolean flag = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
         boolean flag1 = this.itemRenderer.itemStackMainHand.isEmpty() || this.itemRenderer.itemStackMainHand.getItem() instanceof ItemMap || this.itemRenderer.itemStackOffHand.getItem() instanceof ItemMap;
-        if (flag1 && this.mc.gameSettings.thirdPersonView == 0 && !flag && !this.mc.gameSettings.hideGUI && !this.mc.playerController.isSpectator()) {
+        if (flag1 && this.mc.gameSettings.thirdPersonView == 0 && !flag && !this.mc.gameSettings.hideGUI) {
             this.mc.entityRenderer.enableLightmap();
-            this.renderItemInFirstPerson(e.getPartialTicks());
+            this.renderItemInFirstPerson(e.partialTicks);
             this.mc.entityRenderer.disableLightmap();
             e.setCanceled(true);
         }
     }
 
     public void tryTick(TickEvent.ClientTickEvent e) {
-        AbstractClientPlayer player = this.mc.player;
+        AbstractClientPlayer player = this.mc.thePlayer;
 
         if (this.initTick) {
             try {
@@ -150,14 +141,14 @@ public class RenderArmManager {
         }
 
         for (ITextComponent message : exception.messageForPlayer()) {
-            this.mc.player.sendMessage(message.setStyle(new Style().setColor(TextFormatting.RED)));
+            this.mc.thePlayer.sendMessage(message.setStyle(new Style().setColor(TextFormatting.RED)));
         }
 
         exception.printStackTrace(System.err);
     }
 
     public void renderItemInFirstPerson(float partialTicks) {
-        AbstractClientPlayer abstractclientplayer = this.mc.player;
+        AbstractClientPlayer abstractclientplayer = this.mc.thePlayer;
         float f = abstractclientplayer.getSwingProgress(partialTicks);
         EnumHand enumhand = MoreObjects.firstNonNull(abstractclientplayer.swingingHand, EnumHand.MAIN_HAND);
         float interpPitch = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
@@ -233,7 +224,7 @@ public class RenderArmManager {
     }
 
     public void setLightmap() {
-        AbstractClientPlayer abstractclientplayer = this.mc.player;
+        AbstractClientPlayer abstractclientplayer = this.mc.thePlayer;
         int i = this.mc.world.getCombinedLight(new BlockPos(abstractclientplayer.posX, abstractclientplayer.posY + (double)abstractclientplayer.getEyeHeight(), abstractclientplayer.posZ), 0);
         float f = (float)(i & 65535);
         float f1 = (float)(i >> 16);
@@ -241,7 +232,7 @@ public class RenderArmManager {
     }
 
     public void rotateArm(float p_187458_1_) {
-        EntityPlayerSP entityplayersp = this.mc.player;
+        EntityPlayerSP entityplayersp = this.mc.thePlayer;
         float f = entityplayersp.prevRenderArmPitch + (entityplayersp.renderArmPitch - entityplayersp.prevRenderArmPitch) * p_187458_1_;
         float f1 = entityplayersp.prevRenderArmYaw + (entityplayersp.renderArmYaw - entityplayersp.prevRenderArmYaw) * p_187458_1_;
         GlStateManager.rotate((entityplayersp.rotationPitch - f) * 0.1F, 1.0F, 0.0F, 0.0F);
@@ -273,7 +264,7 @@ public class RenderArmManager {
         GlStateManager.rotate(f * -41.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.translate(f * 0.3F, -1.1F, 0.45F);
 
-        this.renderArm(this.mc.player, enumHandSide);
+        this.renderArm(this.mc.thePlayer, enumHandSide);
 
         GlStateManager.popMatrix();
     }
@@ -360,7 +351,7 @@ public class RenderArmManager {
         GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
         GlStateManager.disableCull();
 
-        this.renderArm(this.mc.player, enumhandside);
+        this.renderArm(this.mc.thePlayer, enumhandside);
 
         GlStateManager.enableCull();
     }

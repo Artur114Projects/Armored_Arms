@@ -2,13 +2,13 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
-import com.artur114.armoredarms.client.util.*;
+import com.artur114.armoredarms.client.util.Function2;
+import com.artur114.armoredarms.client.util.MiscUtils;
+import com.artur114.armoredarms.client.util.RMException;
+import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
-import lain.mods.cos.api.CosArmorAPI;
-import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,13 +24,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import vazkii.quark.vanity.client.emotes.EmoteHandler;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -149,20 +150,20 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
-        if (Loader.isModLoaded("cosmeticarmorreworked")) {
-            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
-            int chestId = EntityEquipmentSlot.CHEST.getIndex();
-
-            if (stacks.isSkinArmor(chestId)) {
-                return ItemStack.EMPTY;
-            }
-
-            ItemStack stack = stacks.getStackInSlot(chestId);
-
-            if (!stack.isEmpty()) {
-                return stack;
-            }
-        }
+//        if (Loader.isModLoaded("cosmeticarmorreworked")) {
+//            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
+//            int chestId = EntityEquipmentSlot.CHEST.getIndex();
+//
+//            if (stacks.isSkinArmor(chestId)) {
+//                return ItemStack.EMPTY;
+//            }
+//
+//            ItemStack stack = stacks.getStackInSlot(chestId);
+//
+//            if (!stack.isEmpty()) {
+//                return stack;
+//            }
+//        }
 
         return player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
     }
