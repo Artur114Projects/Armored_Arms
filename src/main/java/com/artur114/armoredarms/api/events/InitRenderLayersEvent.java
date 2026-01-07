@@ -1,11 +1,10 @@
 package com.artur114.armoredarms.api.events;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
-import com.artur114.armoredarms.client.integration.Overriders;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.eventhandler.Event;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +16,7 @@ import java.util.Map;
  * <br>
  * {@link #renderLayers} Map of registered layers.<br>
  * <br>
- * This event can't be canceled. {@link net.minecraftforge.fml.common.eventhandler.Cancelable}.<br>
+ * This event can't be canceled. {@link cpw.mods.fml.common.eventhandler.Cancelable}.<br>
  * <br>
  * This event has no result. {@link Event.HasResult}<br>
  * <br>

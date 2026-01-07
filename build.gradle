@@ -21,9 +21,9 @@ plugins {
 }
 
 apply plugin: 'forge'
-String v = "v1.0.0-1.7.10-release"
+String v = "v1.0.0-1.7.10-betta"
 version = v
-group = "com.artur114.armoredarms" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = "com.artur114.armoredarms"
 archivesBaseName = "ArmoredArms"
 compileJava.options.encoding = 'UTF-8'
 
@@ -37,36 +37,8 @@ minecraft {
 
 repositories {}
 
-dependencies {}
-
-processResources {
-    // This will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    // Replace values in only mcmod.info.
-    filesMatching('mcmod.info') {
-        // Replace version and mcversion.
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-}
-
-// This task creates a .jar file containing the source code of this mod.
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
-}
-
-// This task creates a .jar file containing a deobfuscated version of this mod, for other developers to use in a development environment.
-task devJar(type: Jar) {
-    classifier = "dev"
-    from sourceSets.main.output
-}
-
-// Creates the listed artifacts on building the mod.
-artifacts {
-    archives sourcesJar
-    archives devJar
+dependencies {
+    compile fileTree(dir: "libs", includes: ['*.jar'])
 }
 
 jar {
@@ -78,7 +50,8 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"armoredarms",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "FMLAT": "aa_at.cfg"
         ])
     }
 }

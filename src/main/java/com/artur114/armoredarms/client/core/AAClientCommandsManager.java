@@ -6,13 +6,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -34,8 +33,8 @@ public class AAClientCommandsManager {
         this.addCommand(new CommandCopyItemName());
     }
 
-    public void clientChatEvent(ClientChatEvent e) {
-        String[] split = e.getMessage().split(" ");
+    public void clientChatEvent(ClientChatReceivedEvent e) {
+        String[] split = e.message.getFormattedText().split(" ");
         if (split.length == 0) {
             return;
         }
@@ -46,34 +45,35 @@ public class AAClientCommandsManager {
 
         if (name.equals("&aahelp")) {
             e.setCanceled(true);
-            this.mc.player.sendMessage(new TextComponentString("You can write (any command) usage to see usage"));
-            this.mc.player.sendMessage(new TextComponentString("&aac - Executes the last executed command."));
-            this.mc.player.sendMessage(new TextComponentString("&aahelp - Displays a list of all commands and their descriptions."));
+            this.mc.thePlayer.addChatMessage(new ChatComponentText("You can write (any command) usage to see usage"));
+            this.mc.thePlayer.addChatMessage(new ChatComponentText("&aac - Executes the last executed command."));
+            this.mc.thePlayer.addChatMessage(new ChatComponentText("&aahelp - Displays a list of all commands and their descriptions."));
             for (IAACommand command : this.commands) {
-                this.mc.player.sendMessage(new TextComponentString(command.name() + " - " + command.description()));
+                this.mc.thePlayer.addChatMessage(new ChatComponentText(command.name() + " - " + command.description()));
             }
         }
         if (name.equals("&aac")) {
             e.setCanceled(true);
             if (this.lastCommand != null && this.lastCommandArgs != null) {
-                this.lastCommand.execute(this.mc.player, this.lastCommandArgs);
+                this.lastCommand.execute(this.mc.thePlayer, this.lastCommandArgs);
             }
+            System.out.println(this.mc.thePlayer.getCurrentArmor(1));
             return;
         }
         for (IAACommand command : this.commands) {
             if (command.name().equals(name)) {
                 if (args.length > 0 && args[0].equals("usage")) {
                     for (String m : command.usage()) {
-                        this.mc.player.sendMessage(new TextComponentString(m));
+                        this.mc.thePlayer.addChatMessage(new ChatComponentText(m));
                     }
                     break;
                 }
                 try {
-                    command.execute(this.mc.player, args);
+                    command.execute(this.mc.thePlayer, args);
                     this.lastCommandArgs = args;
                     this.lastCommand = command;
                 } catch (Exception exp) {
-                    this.mc.player.sendMessage(new TextComponentString("ERROR: " + exp.getClass() + ": " + exp.getMessage()).setStyle(new Style().setColor(TextFormatting.RED)));
+                    this.mc.thePlayer.addChatMessage(new ChatComponentText("ERROR: " + exp.getClass() + ": " + exp.getMessage()).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
                     exp.printStackTrace(System.err);
                 }
                 e.setCanceled(true);
@@ -112,16 +112,15 @@ public class AAClientCommandsManager {
 
         @Override
         public void execute(EntityPlayerSP player, String[] args) {
-            ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-            if (stack.isEmpty()) {
+            ItemStack stack = player.getHeldItem();
+            if (stack == null) {
                 return;
             }
-            ResourceLocation registryName = stack.getItem().getRegistryName();
-            if (registryName == null) {
+            String itemName = Item.itemRegistry.getNameForObject(stack.getItem());
+            if (itemName == null) {
                 return;
             }
-            String itemName = registryName.toString();
-            player.sendMessage(new TextComponentString("Id: " + itemName + " is copied to clipboard"));
+            player.addChatMessage(new ChatComponentText("Id: " + itemName + " is copied to clipboard"));
             this.copyToClipboard(itemName);
         }
 
@@ -173,7 +172,7 @@ public class AAClientCommandsManager {
             }
 
             if (arg[0].equals("player")) {
-                mb = layerVanilla.renderPlayer.getMainModel();
+                mb = layerVanilla.renderPlayer.modelBipedMain;
             } else if (arg[0].equals("armor")) {
                 mb = layerArmor.currentArmorModel.original();
             }
@@ -191,7 +190,7 @@ public class AAClientCommandsManager {
             Set<String> fields = null;
 
             if (args.contains("-bipall")) {
-                fields = new HashSet<>(Arrays.asList("bipedHead", "bipedHeadwear", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftArmwear", "bipedRightArmwear", "bipedLeftLegwear", "bipedRightLegwear", "bipedBodyWear", "bipedLeftLeg"));
+                fields = new HashSet<>(Arrays.asList("bipedHead", "bipedHeadwear", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg"));
             }
             if (args.stream().anyMatch(s -> s.startsWith("-fields#"))) {
                 if (fields == null) fields = new HashSet<>();
@@ -211,10 +210,10 @@ public class AAClientCommandsManager {
 
             if (args.contains("-copy")) {
                 this.copyToClipboard(res.toString());
-                player.sendMessage(new TextComponentString("Data is successfully copped to clipboard").setStyle(new Style().setColor(TextFormatting.GREEN)));
+                player.addChatMessage(new ChatComponentText("Data is successfully copped to clipboard").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
             }
             if (args.contains("-chat")) {
-                player.sendMessage(new TextComponentString(res.toString()));
+                player.addChatMessage(new ChatComponentText(res.toString()));
             }
             if (args.contains("-console")) {
                 for (String string : res.toString().split("\n")) {

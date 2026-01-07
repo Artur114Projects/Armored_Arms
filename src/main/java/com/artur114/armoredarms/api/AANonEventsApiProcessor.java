@@ -3,11 +3,10 @@ package com.artur114.armoredarms.api;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.ShapelessRL;
+import com.artur114.armoredarms.client.util.Tuple;
 import com.artur114.armoredarms.main.ArmoredArms;
-import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +18,6 @@ import java.util.Set;
  * <br>
  * ps: I hope there isn't some stupid mistake here that will cause nothing to work.
  */
-@Mod.EventBusSubscriber(modid = ArmoredArms.MODID)
 public class AANonEventsApiProcessor {
     private static final Map<ShapelessRL, Tuple<IOverrider, Boolean>> overriders = new HashMap<>();
     private static final Set<Class<? extends IArmRenderLayer>> renderLayers = new HashSet<>();
@@ -82,14 +80,14 @@ public class AANonEventsApiProcessor {
     }
 
     @SubscribeEvent
-    public static void initRenderLayersEvent(InitRenderLayersEvent e) {
+    public void initRenderLayersEvent(InitRenderLayersEvent e) {
         for (Class<? extends IArmRenderLayer> layer : renderLayers) {
             e.addLayer(layer);
         }
     }
 
     @SubscribeEvent
-    public static void initArmorRenderLayerEvent(InitArmorRenderLayerEvent e) {
+    public void initArmorRenderLayerEvent(InitArmorRenderLayerEvent e) {
         for (ShapelessRL black : renderBlackList) {
             e.addArmorToBlackList(black.getResourceDomain(), black.getResourcePath());
         }

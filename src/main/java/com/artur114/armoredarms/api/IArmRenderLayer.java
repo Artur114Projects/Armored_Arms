@@ -2,8 +2,6 @@ package com.artur114.armoredarms.api;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
 
 /**
  * Rendering layer interface; implementation must have an empty constructor.<br>
@@ -21,9 +19,8 @@ public interface IArmRenderLayer {
     /**
      * Rendering method; all transformations are already performed before calling.
      * @param player Main Client-side player.
-     * @param handSide Hand side to render.
      */
-    void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide);
+    void renderTransformed(AbstractClientPlayer player);
 
     /**
      * By default, the vanilla hand renderer is used,
@@ -44,5 +41,5 @@ public interface IArmRenderLayer {
     /**
      * Rendering method.
      */
-    default void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {}
+    default void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, float swingProgress, ItemStack stack, float equipProgress) {}
 }

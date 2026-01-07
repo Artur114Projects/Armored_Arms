@@ -2,30 +2,28 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
-import com.artur114.armoredarms.client.util.Function2;
 import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.RMException;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
+import com.artur114.armoredarms.main.ArmoredArms;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RenderBiped;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -37,10 +35,9 @@ import java.util.function.Function;
 
 @SideOnly(Side.CLIENT)
 public class ArmRenderLayerArmor implements IArmRenderLayer {
-    public static final ResourceLocation ENCHANTED_ITEM_GLINT_RES = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+    private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
     public final DefaultTextureGetter defaultTextureGetter = new DefaultTextureGetter();
     public final DefaultModelGetter defaultModelGetter = new DefaultModelGetter();
-    public List<LayerRenderer<AbstractClientPlayer>> layerRenderers = null;
     public Map<ShapelessRL, IOverriderGetModel> modelOverriders = null;
     public Map<ShapelessRL, IOverriderGetTex> textureOverriders = null;
     public Map<ShapelessRL, IOverriderRender> renderOverriders = null;
@@ -48,7 +45,6 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public final Minecraft mc = Minecraft.getMinecraft();
     public List<ShapelessRL> renderBlackList = null;
     public Set<Item> killingArmor = new HashSet<>();
-    public LayerBipedArmor armorLayer = null;
     public RenderPlayer renderPlayer = null;
     public boolean render = false;
 
@@ -78,9 +74,9 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     @Override
-    public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+    public void renderTransformed(AbstractClientPlayer player) {
         try {
-            this.tryRender(player, handSide);
+            this.tryRender(player);
         } catch (RMException rm) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
@@ -100,8 +96,6 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     @Override
     public void init(AbstractClientPlayer player) {
         this.renderPlayer = this.initRenderPlayer(player);
-        this.layerRenderers = this.initLayerRenderers(player);
-        this.armorLayer = this.findArmorLayer();
 
         this.initEvent();
     }
@@ -109,8 +103,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public void tryTick(AbstractClientPlayer player) {
         ItemStack chestPlate = this.itemStackArmor(player);
 
-        if (this.killingArmor.contains(chestPlate.getItem()) || !(chestPlate.getItem() instanceof ItemArmor)) {
-            this.chestPlate = ItemStack.EMPTY;
+        if (chestPlate == null || this.killingArmor.contains(chestPlate.getItem()) || !(chestPlate.getItem() instanceof ItemArmor)) {
+            this.chestPlate = null;
             this.chestPlateItem = null;
             this.render = false;
             return;
@@ -120,7 +114,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             return;
         }
 
-        if (this.renderBlackList.contains(new ShapelessRL(chestPlate.getItem().getRegistryName()))) {
+        if (this.renderBlackList.contains(new ShapelessRL(Item.itemRegistry.getNameForObject(chestPlate.getItem())))) {
             this.chestPlateItem = (ItemArmor) chestPlate.getItem();
             this.chestPlate = chestPlate;
             this.render = false;
@@ -138,15 +132,15 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         this.currentArmorTex = this.getArmorTex(player, IOverriderGetTex.EnumTexType.NULL);
     }
 
-    public void tryRender(AbstractClientPlayer player, EnumHandSide handSide) {
+    public void tryRender(AbstractClientPlayer player) {
         ResourceLocation armorTexOv = this.currentArmorTexOv;
         IModelOnlyArms armorModel = this.currentArmorModel;
         ResourceLocation armorTex = this.currentArmorTex;
 
-        this.render(armorModel, armorTexOv, handSide, IOverriderRender.EnumRenderType.ARMOR_OVERLAY);
-        this.render(armorModel, armorTex, handSide, IOverriderRender.EnumRenderType.ARMOR);
+        this.render(armorModel, armorTexOv, IOverriderRender.EnumRenderType.ARMOR_OVERLAY);
+        this.render(armorModel, armorTex, IOverriderRender.EnumRenderType.ARMOR);
 
-        this.render(armorModel, ENCHANTED_ITEM_GLINT_RES, handSide, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
+        this.render(armorModel, RES_ITEM_GLINT, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
     }
 
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
@@ -165,7 +159,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 //            }
 //        }
 
-        return player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+        return player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID);
     }
 
     private void initEvent() {
@@ -179,50 +173,12 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         this.renderBlackList = event.renderBlackList();
     }
 
-    @SuppressWarnings("unchecked")
-    public List<LayerRenderer<AbstractClientPlayer>> initLayerRenderers(AbstractClientPlayer player) {
-        try {
-            Field field = null;
-            Field[] fields = RenderLivingBase.class.getDeclaredFields();
-
-            for (Field rField : fields) {
-                boolean isAcc = rField.isAccessible();
-                rField.setAccessible(true);
-                if (rField.get(this.renderPlayer) instanceof List) {
-                    field = rField;
-                }
-                rField.setAccessible(isAcc);
-            }
-
-            if (field == null) {
-                throw new RMException("layerRenderers is not find!").setFatalLayer(this);
-            }
-
-            boolean isAcc = field.isAccessible();
-            field.setAccessible(true);
-            List<LayerRenderer<AbstractClientPlayer>> layers = (List<LayerRenderer<AbstractClientPlayer>>) field.get(this.renderPlayer);
-            field.setAccessible(isAcc);
-            return layers;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public LayerBipedArmor findArmorLayer() {
-        for (LayerRenderer<?> layerRenderer : this.layerRenderers) {
-            if (layerRenderer instanceof LayerBipedArmor) {
-                return (LayerBipedArmor) layerRenderer;
-            }
-        }
-        throw new IllegalStateException();
-    }
-
     public RenderPlayer initRenderPlayer(AbstractClientPlayer player) {
-        return (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+        return (RenderPlayer) RenderManager.instance.getEntityRenderObject(player);
     }
 
     public void updateOverriders() {
-        ShapelessRL rl = new ShapelessRL(this.chestPlateItem.getRegistryName());
+        ShapelessRL rl = new ShapelessRL(Item.itemRegistry.getNameForObject(this.chestPlate.getItem()));
 
         AtomicReference<IOverriderRender> overriderRender = new AtomicReference<>(this.renderOverriders.get(rl));
         AtomicReference<IOverriderGetTex> overriderGetTex = new AtomicReference<>(this.textureOverriders.get(rl));
@@ -262,8 +218,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
     }
 
-    public void render(IModelOnlyArms arms, ResourceLocation tex, EnumHandSide handSide, IOverriderRender.EnumRenderType type) {
-        this.currentRenderOverrider.render(arms, tex, handSide, this.chestPlate, this.chestPlateItem, type);
+    public void render(IModelOnlyArms arms, ResourceLocation tex, IOverriderRender.EnumRenderType type) {
+        this.currentRenderOverrider.render(arms, tex, this.chestPlate, this.chestPlateItem, type);
     }
 
     public IModelOnlyArms getArmorModel(AbstractClientPlayer player) {
@@ -271,115 +227,102 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public ResourceLocation getArmorTex(AbstractClientPlayer player, IOverriderGetTex.EnumTexType type) {
-        return this.currentGetTexOverrider.getTexture(player, this.armorLayer, this.layerRenderers, this.chestPlate, this.chestPlateItem, type);
+        return this.currentGetTexOverrider.getTexture(player, this.chestPlate, this.chestPlateItem, type);
     }
 
     public static class DefaultRender implements IOverriderRender {
         private final Minecraft mc = Minecraft.getMinecraft();
 
         @Override
-        public void render(IModelOnlyArms arms, ResourceLocation tex, EnumHandSide handSide, ItemStack stackArmor, ItemArmor itemArmor, EnumRenderType type) {
+        public void render(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumRenderType type) {
             if (arms == null || tex == null) {
                 return;
             }
             switch (type) {
                 case ARMOR_ENCHANT:
-                    this.renderEnchant(arms, tex, stackArmor, itemArmor, handSide);
+                    this.renderEnchant(arms, tex, stackArmor, itemArmor);
                     break;
                 case ARMOR:
-                    this.renderArmor(arms, tex, stackArmor, itemArmor, handSide);
+                    this.renderArmor(arms, tex, stackArmor, itemArmor);
                     break;
                 case ARMOR_OVERLAY:
-                    this.render(arms, tex, stackArmor, itemArmor, handSide);
+                    this.render(arms, tex, stackArmor, itemArmor);
                     break;
             }
         }
 
-        private void renderArmor(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumHandSide handSide) {
-            if (itemArmor.hasOverlay(stackArmor)) {
-                int i = itemArmor.getColor(stackArmor);
+        private void renderArmor(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
+            int i = itemArmor.getColor(stackArmor);
+            if (i != -1) {
                 float r = (float) (i >> 16 & 255) / 255.0F;
                 float g = (float) (i >> 8 & 255) / 255.0F;
                 float b = (float) (i & 255) / 255.0F;
-                GlStateManager.color(r, g, b, 1.0F);
-                this.render(arms, tex, stackArmor, itemArmor, handSide);
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                GL11.glColor3f(r, g, b);
+                this.render(arms, tex, stackArmor, itemArmor);
+                GL11.glColor3f(1.0F, 1.0F, 1.0F);
             } else {
-                this.render(arms, tex, stackArmor, itemArmor, handSide);
+                this.render(arms, tex, stackArmor, itemArmor);
             }
         }
 
-        private void render(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumHandSide handSide) {
+        private void render(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
             this.mc.getTextureManager().bindTexture(tex);
-            arms.renderArm(this.mc.player, itemArmor, stackArmor, handSide);
+            arms.renderArm(this.mc.thePlayer, itemArmor, stackArmor);
         }
 
-        private void renderEnchant(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumHandSide handSide) {
-            if (!stackArmor.hasEffect()) {
+        private void renderEnchant(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
+            if (!stackArmor.isItemEnchanted()) {
                 return;
             }
-            float f = (float) this.mc.player.ticksExisted;
-            GlStateManager.pushMatrix();
-            GlStateManager.pushAttrib();
+            GL11.glPushMatrix();
+            float f8 = (float) this.mc.thePlayer.ticksExisted;
             this.mc.getTextureManager().bindTexture(tex);
-            this.mc.entityRenderer.setupFogColor(true);
-            GlStateManager.enableBlend();
-            GlStateManager.depthFunc(514);
-            GlStateManager.depthMask(false);
-            GlStateManager.color(0.5F, 0.5F, 0.5F, 1.0F);
+            GL11.glEnable(3042);
+            float f9 = 0.5F;
+            GL11.glColor4f(f9, f9, f9, 1.0F);
+            GL11.glDepthFunc(514);
+            GL11.glDepthMask(false);
 
-            for (int i = 0; i < 2; ++i) {
-                GlStateManager.disableLighting();
-                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
-                GlStateManager.color(0.38F, 0.19F, 0.608F, 1.0F);
-                GlStateManager.matrixMode(5890);
-                GlStateManager.loadIdentity();
-                GlStateManager.scale(0.33333334F, 0.33333334F, 0.33333334F);
-                GlStateManager.rotate(30.0F - (float)i * 60.0F, 0.0F, 0.0F, 1.0F);
-                GlStateManager.translate(0.0F, f * (0.001F + (float)i * 0.003F) * 20.0F, 0.0F);
-                GlStateManager.matrixMode(5888);
-                arms.renderArm(this.mc.player, itemArmor, stackArmor, handSide);
-                GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            for (int k = 0; k < 2; ++k) {
+                GL11.glDisable(2896);
+                float f10 = 0.76F;
+                GL11.glColor4f(0.5F * f10, 0.25F * f10, 0.8F * f10, 1.0F);
+                GL11.glBlendFunc(768, 1);
+                GL11.glMatrixMode(5890);
+                GL11.glLoadIdentity();
+                float f11 = f8 * (0.001F + (float) k * 0.003F) * 20.0F;
+                float f12 = 0.33333334F;
+                GL11.glScalef(f12, f12, f12);
+                GL11.glRotatef(30.0F - (float) k * 60.0F, 0.0F, 0.0F, 1.0F);
+                GL11.glTranslatef(0.0F, f11, 0.0F);
+                GL11.glMatrixMode(5888);
+                arms.renderArm(this.mc.thePlayer, itemArmor, stackArmor);
             }
 
-            GlStateManager.matrixMode(5890);
-            GlStateManager.loadIdentity();
-            GlStateManager.matrixMode(5888);
-            GlStateManager.enableLighting();
-            GlStateManager.depthMask(true);
-            GlStateManager.depthFunc(515);
-            GlStateManager.disableBlend();
-            this.mc.entityRenderer.setupFogColor(false);
-            GlStateManager.popMatrix();
-            GlStateManager.popAttrib();
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GL11.glMatrixMode(5890);
+            GL11.glDepthMask(true);
+            GL11.glLoadIdentity();
+            GL11.glMatrixMode(5888);
+            GL11.glEnable(2896);
+            GL11.glDisable(3042);
+            GL11.glDepthFunc(515);
+            GL11.glPopMatrix();
         }
     }
 
     public static class DefaultModelGetter implements IOverriderGetModel {
         private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
-        private Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor;
         private double modelSize = AAConfig.vanillaArmorModelSize;
         private Function<ModelBiped, IModelOnlyArms> factory;
 
         public DefaultModelGetter() {
-            this.extractor = ((modelBase, handSide) -> {
-                switch (handSide) {
-                    case RIGHT:
-                        return modelBase.bipedRightArm;
-                    case LEFT:
-                        return modelBase.bipedLeftArm;
-                    default:
-                        return null;
-                }
-            });
-            this.factory = (modelBiped -> new DefaultModelOnlyArms(modelBiped, this.extractor()));
+            this.factory = (DefaultModelOnlyArms::new);
         }
 
         @Override
         public IModelOnlyArms getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
-            ModelBiped mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, this.defaultModel);
+            ModelBiped mb = ForgeHooksClient.getArmorModel(player, stack, ArmoredArms.CHEST_PLATE_ID, this.defaultModel);
             if (mb == null) {
                 if (this.modelSize != AAConfig.vanillaArmorModelSize) {
                     this.defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
@@ -390,14 +333,6 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             return this.factory.apply(mb);
         }
 
-        private Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor() {
-            return this.extractor;
-        }
-
-        protected void setArmsExtractor(Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor) {
-            this.extractor = extractor;
-        }
-
         protected void setFactory(Function<ModelBiped, IModelOnlyArms> factory) {
             this.factory = factory;
         }
@@ -406,44 +341,32 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public static class DefaultTextureGetter implements IOverriderGetTex {
 
         @Override
-        public ResourceLocation getTexture(AbstractClientPlayer player, LayerBipedArmor armorLayer, List<LayerRenderer<AbstractClientPlayer>> layerRenderers, ItemStack chestPlate, ItemArmor itemArmor, EnumTexType type) {
+        public ResourceLocation getTexture(AbstractClientPlayer player, ItemStack chestPlate, ItemArmor itemArmor, EnumTexType type) {
             switch (type) {
                 case NULL:
-                    return armorLayer.getArmorResource(player, chestPlate, EntityEquipmentSlot.CHEST, null);
+                    return RenderBiped.getArmorResource(player, chestPlate, ArmoredArms.CHEST_PLATE_ID, null);
                 case OVERLAY:
-                    if (itemArmor.hasOverlay(chestPlate)) return armorLayer.getArmorResource(player, chestPlate, EntityEquipmentSlot.CHEST, "overlay");
+                    if (itemArmor.getColor(chestPlate) != -1) return RenderBiped.getArmorResource(player, chestPlate, ArmoredArms.CHEST_PLATE_ID, "overlay");
             }
             return null;
         }
     }
 
     public static class DefaultModelOnlyArms implements IModelOnlyArms {
-        public final ModelRenderer[] playerArms = MiscUtils.playerArms();
-        public final ModelRenderer[] arms;
+        public final ModelRenderer playerArm = MiscUtils.playerArms();
         public final ModelBiped mb;
 
         public DefaultModelOnlyArms(ModelBiped mb) {
-            this.arms = new ModelRenderer[] {mb.bipedLeftArm, mb.bipedRightArm};
-            this.mb = mb;
-        }
-
-        public DefaultModelOnlyArms(ModelBiped mb, Function2<ModelBiped, EnumHandSide, ModelRenderer> armsExtractor) {
-            this.arms = new ModelRenderer[] {armsExtractor.apply(mb, EnumHandSide.LEFT), armsExtractor.apply(mb, EnumHandSide.RIGHT)};
-            this.mb = mb;
-        }
-
-        public DefaultModelOnlyArms(ModelBiped mb, ModelRenderer right, ModelRenderer left) {
-            this.arms = new ModelRenderer[] {left, right};
             this.mb = mb;
         }
 
         @Override
-        public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
-            ModelRenderer arm = this.arms[side.ordinal()];
-            arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+        public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor) {
+            ModelRenderer arm = this.mb.bipedRightArm;
+            arm.rotationPointX = -5.0F * 1;
             arm.rotationPointY = 2.0F;
             arm.rotationPointZ = 0.0F;
-            MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
+            MiscUtils.setPlayerArmDataToArm(arm, this.playerArm);
             boolean h = arm.isHidden;
             boolean s = arm.showModel;
             arm.isHidden = false;
