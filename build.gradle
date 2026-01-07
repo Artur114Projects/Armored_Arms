@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-String v = 'v1.4.3-1.12.2-release'
+String v = 'v1.4.4-1.12.2-release'
 
 version = v
 group = 'com.artur114.armoredarms'
@@ -51,7 +51,8 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"armoredarms",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "FMLAT": "aa_at.cfg"
         ])
     }
 }
