@@ -9,6 +9,7 @@ import com.artur114.armoredarms.client.util.Reflector;
 import com.google.common.base.MoreObjects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -51,7 +53,7 @@ public class RenderArmManager {
         } catch (RMException rm) {
             this.onException(rm.setMethod(RMException.Method.RENDER));
         } catch (Throwable exp) {
-            this.onException(new RMException(exp).setMethod(RMException.Method.RENDER));
+            this.onException(new RMException(exp).setFatal().setMethod(RMException.Method.RENDER));
         }
     }
 
@@ -65,7 +67,7 @@ public class RenderArmManager {
         } catch (RMException rm) {
             this.onException(rm.setMethod(RMException.Method.TICK));
         } catch (Throwable exp) {
-            this.onException(new RMException(exp).setMethod(RMException.Method.TICK));
+            this.onException(new RMException(exp).setFatal().setMethod(RMException.Method.TICK));
         }
     }
 
@@ -171,9 +173,9 @@ public class RenderArmManager {
             }
         }
 
-        this.itemRenderer.rotateArroundXAndY(interpPitch, interpYaw);
-        this.itemRenderer.setLightmap();
-        this.itemRenderer.rotateArm(partialTicks);
+        this.rotateArroundXAndY(interpPitch, interpYaw);
+        this.setLightmap();
+        this.rotateArm(partialTicks);
         GlStateManager.enableRescaleNormal();
 
         if (flag) {
@@ -229,6 +231,33 @@ public class RenderArmManager {
         this.transAndRenderArm(EnumHandSide.LEFT);
         GlStateManager.popMatrix();
         GlStateManager.enableCull();
+    }
+
+    private void rotateArroundXAndY(float angle, float angleY)
+    {
+        GlStateManager.pushMatrix();
+        GlStateManager.rotate(angle, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(angleY, 0.0F, 1.0F, 0.0F);
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.popMatrix();
+    }
+
+    private void setLightmap()
+    {
+        AbstractClientPlayer abstractclientplayer = this.mc.player;
+        int i = this.mc.world.getCombinedLight(new BlockPos(abstractclientplayer.posX, abstractclientplayer.posY + (double)abstractclientplayer.getEyeHeight(), abstractclientplayer.posZ), 0);
+        float f = (float)(i & 65535);
+        float f1 = (float)(i >> 16);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, f, f1);
+    }
+
+    private void rotateArm(float p_187458_1_)
+    {
+        EntityPlayerSP entityplayersp = this.mc.player;
+        float f = entityplayersp.prevRenderArmPitch + (entityplayersp.renderArmPitch - entityplayersp.prevRenderArmPitch) * p_187458_1_;
+        float f1 = entityplayersp.prevRenderArmYaw + (entityplayersp.renderArmYaw - entityplayersp.prevRenderArmYaw) * p_187458_1_;
+        GlStateManager.rotate((entityplayersp.rotationPitch - f) * 0.1F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate((entityplayersp.rotationYaw - f1) * 0.1F, 0.0F, 1.0F, 0.0F);
     }
 
     public float getMapAngleFromPitch(float pitch) {

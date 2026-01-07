@@ -12,13 +12,13 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-String v = 'v1.4.0-release'
+String v = 'v1.4.2-1.12.2-release'
 
 version = v
 group = 'com.artur114.armoredarms'
 archivesBaseName = 'ArmoredArms'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
     accessTransformer = file('src/main/resources/META-INF/aa_at.cfg')
