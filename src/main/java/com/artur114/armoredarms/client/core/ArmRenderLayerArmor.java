@@ -52,7 +52,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public boolean render = false;
 
 
-    public ItemStack chestPlate = null;
+    public ItemStack chestPlate = ItemStack.EMPTY;
     public ItemArmor chestPlateItem = null;
     public IModelOnlyArms currentArmorModel = null;
     public ResourceLocation currentArmorTex = null;
@@ -443,6 +443,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             arm.rotationPointY = 2.0F;
             arm.rotationPointZ = 0.0F;
             MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
+            arm.rotateAngleX = 0.0F;
             boolean h = arm.isHidden;
             boolean s = arm.showModel;
             arm.isHidden = false;

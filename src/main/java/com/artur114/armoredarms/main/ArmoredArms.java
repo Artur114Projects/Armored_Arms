@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ArmoredArms {
     public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.4.2-1.12.2-release";
+    public static final String VERSION = "v1.4.3-1.12.2-release";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 
