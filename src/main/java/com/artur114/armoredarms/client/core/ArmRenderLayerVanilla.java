@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
+import com.artur114.armoredarms.client.util.EnumHandSide;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
 import cpw.mods.fml.relauncher.Side;
@@ -27,13 +28,13 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     public void update(AbstractClientPlayer player) {}
 
     @Override
-    public void renderTransformed(AbstractClientPlayer player) {
+    public void renderTransformed(AbstractClientPlayer player, EnumHandSide side) {
         if (player.isInvisible()) {
             return;
         }
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(player.getLocationSkin());
-        this.renderArm(player);
+        this.renderArm(player, side);
     }
 
     @Override
@@ -46,12 +47,12 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
         this.renderPlayer = (RenderPlayer) RenderManager.instance.getEntityRenderObject(player);
     }
 
-    public void renderArm(AbstractClientPlayer player) {
+    public void renderArm(AbstractClientPlayer player, EnumHandSide side) {
         ModelBiped mb = this.renderPlayer.modelBipedMain;
         float f = 1.0F;
         GL11.glColor3f(f, f, f);
         mb.swingProgress = 0.0F;
         mb.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, player);
-        mb.bipedRightArm.render(0.0625F);
+        side.handFromModelBiped(mb).render(0.0625F);
     }
 }

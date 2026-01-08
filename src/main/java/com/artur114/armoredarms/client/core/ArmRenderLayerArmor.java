@@ -2,6 +2,7 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.client.util.EnumHandSide;
 import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.RMException;
 import com.artur114.armoredarms.client.util.ShapelessRL;
@@ -74,9 +75,9 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     @Override
-    public void renderTransformed(AbstractClientPlayer player) {
+    public void renderTransformed(AbstractClientPlayer player, EnumHandSide side) {
         try {
-            this.tryRender(player);
+            this.tryRender(player, side);
         } catch (RMException rm) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
@@ -132,15 +133,15 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         this.currentArmorTex = this.getArmorTex(player, IOverriderGetTex.EnumTexType.NULL);
     }
 
-    public void tryRender(AbstractClientPlayer player) {
+    public void tryRender(AbstractClientPlayer player, EnumHandSide side) {
         ResourceLocation armorTexOv = this.currentArmorTexOv;
         IModelOnlyArms armorModel = this.currentArmorModel;
         ResourceLocation armorTex = this.currentArmorTex;
 
-        this.render(armorModel, armorTexOv, IOverriderRender.EnumRenderType.ARMOR_OVERLAY);
-        this.render(armorModel, armorTex, IOverriderRender.EnumRenderType.ARMOR);
+        this.render(armorModel, side, armorTexOv, IOverriderRender.EnumRenderType.ARMOR_OVERLAY);
+        this.render(armorModel, side, armorTex, IOverriderRender.EnumRenderType.ARMOR);
 
-        this.render(armorModel, RES_ITEM_GLINT, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
+        this.render(armorModel, side, RES_ITEM_GLINT, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
     }
 
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
@@ -218,8 +219,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
     }
 
-    public void render(IModelOnlyArms arms, ResourceLocation tex, IOverriderRender.EnumRenderType type) {
-        this.currentRenderOverrider.render(arms, tex, this.chestPlate, this.chestPlateItem, type);
+    public void render(IModelOnlyArms arms, EnumHandSide side, ResourceLocation tex, IOverriderRender.EnumRenderType type) {
+        this.currentRenderOverrider.render(arms, side, tex, this.chestPlate, this.chestPlateItem, type);
     }
 
     public IModelOnlyArms getArmorModel(AbstractClientPlayer player) {
@@ -234,43 +235,43 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         private final Minecraft mc = Minecraft.getMinecraft();
 
         @Override
-        public void render(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumRenderType type) {
+        public void render(IModelOnlyArms arms, EnumHandSide side, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumRenderType type) {
             if (arms == null || tex == null) {
                 return;
             }
             switch (type) {
                 case ARMOR_ENCHANT:
-                    this.renderEnchant(arms, tex, stackArmor, itemArmor);
+                    this.renderEnchant(arms, side, tex, stackArmor, itemArmor);
                     break;
                 case ARMOR:
-                    this.renderArmor(arms, tex, stackArmor, itemArmor);
+                    this.renderArmor(arms, side, tex, stackArmor, itemArmor);
                     break;
                 case ARMOR_OVERLAY:
-                    this.render(arms, tex, stackArmor, itemArmor);
+                    this.render(arms, side, tex, stackArmor, itemArmor);
                     break;
             }
         }
 
-        private void renderArmor(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
+        private void renderArmor(IModelOnlyArms arms, EnumHandSide side, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
             int i = itemArmor.getColor(stackArmor);
             if (i != -1) {
                 float r = (float) (i >> 16 & 255) / 255.0F;
                 float g = (float) (i >> 8 & 255) / 255.0F;
                 float b = (float) (i & 255) / 255.0F;
                 GL11.glColor3f(r, g, b);
-                this.render(arms, tex, stackArmor, itemArmor);
+                this.render(arms, side, tex, stackArmor, itemArmor);
                 GL11.glColor3f(1.0F, 1.0F, 1.0F);
             } else {
-                this.render(arms, tex, stackArmor, itemArmor);
+                this.render(arms, side, tex, stackArmor, itemArmor);
             }
         }
 
-        private void render(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
+        private void render(IModelOnlyArms arms, EnumHandSide side, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
             this.mc.getTextureManager().bindTexture(tex);
-            arms.renderArm(this.mc.thePlayer, itemArmor, stackArmor);
+            arms.renderArm(this.mc.thePlayer, side, itemArmor, stackArmor);
         }
 
-        private void renderEnchant(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
+        private void renderEnchant(IModelOnlyArms arms, EnumHandSide side, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor) {
             if (!stackArmor.isItemEnchanted()) {
                 return;
             }
@@ -296,7 +297,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
                 GL11.glRotatef(30.0F - (float) k * 60.0F, 0.0F, 0.0F, 1.0F);
                 GL11.glTranslatef(0.0F, f11, 0.0F);
                 GL11.glMatrixMode(5888);
-                arms.renderArm(this.mc.thePlayer, itemArmor, stackArmor);
+                arms.renderArm(this.mc.thePlayer, side, itemArmor, stackArmor);
             }
 
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -353,7 +354,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public static class DefaultModelOnlyArms implements IModelOnlyArms {
-        public final ModelRenderer playerArm = MiscUtils.playerArms();
+        public final ModelRenderer[] playerArms = MiscUtils.playerArms();
         public final ModelBiped mb;
 
         public DefaultModelOnlyArms(ModelBiped mb) {
@@ -361,12 +362,12 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
 
         @Override
-        public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor) {
-            ModelRenderer arm = this.mb.bipedRightArm;
-            arm.rotationPointX = -5.0F * 1;
+        public void renderArm(AbstractClientPlayer player, EnumHandSide side, ItemArmor itemArmor, ItemStack stackArmor) {
+            ModelRenderer arm = side.handFromModelBiped(this.mb);
+            arm.rotationPointX = -5.0F * side.delta();
             arm.rotationPointY = 2.0F;
             arm.rotationPointZ = 0.0F;
-            MiscUtils.setPlayerArmDataToArm(arm, this.playerArm);
+            MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
             boolean h = arm.isHidden;
             boolean s = arm.showModel;
             arm.isHidden = false;

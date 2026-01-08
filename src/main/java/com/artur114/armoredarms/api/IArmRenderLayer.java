@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.api;
 
+import com.artur114.armoredarms.client.util.EnumHandSide;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.item.ItemStack;
 
@@ -20,7 +21,7 @@ public interface IArmRenderLayer {
      * Rendering method; all transformations are already performed before calling.
      * @param player Main Client-side player.
      */
-    void renderTransformed(AbstractClientPlayer player);
+    void renderTransformed(AbstractClientPlayer player, EnumHandSide side);
 
     /**
      * By default, the vanilla hand renderer is used,

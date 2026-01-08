@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.api;
 
+import com.artur114.armoredarms.client.util.EnumHandSide;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.item.ItemArmor;
@@ -14,7 +15,7 @@ public interface IModelOnlyArms {
      * @param itemArmor Item of equipped armor.
      * @param stackArmor Stack of equipped armor.
      */
-    void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor);
+    void renderArm(AbstractClientPlayer player, EnumHandSide side, ItemArmor itemArmor, ItemStack stackArmor);
 
     /**
      * @return Original model.

@@ -6,10 +6,11 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 
 public class MiscUtils {
-    public static ModelRenderer playerArms() {
+    public static ModelRenderer[] playerArms() {
         ModelBiped player = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class).renderPlayer.modelBipedMain;
-        return player.bipedRightArm;
+        return new ModelRenderer[] {player.bipedRightArm, player.bipedLeftArm};
     }
+
 
     public static void setPlayerArmDataToArm(ModelRenderer arm, ModelRenderer playerArm) {
         arm.rotateAngleX = playerArm.rotateAngleX;
