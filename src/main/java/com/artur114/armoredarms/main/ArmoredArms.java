@@ -21,7 +21,7 @@ public class ArmoredArms {
     public static final int CHEST_PLATE_ID = 2;
     public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.1.1-1.7.10-betta";
+    public static final String VERSION = "v1.1.2-1.7.10-betta";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 

@@ -2,6 +2,7 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.client.integration.ModsList;
 import com.artur114.armoredarms.client.util.EnumHandSide;
 import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.RMException;
@@ -10,6 +11,9 @@ import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import lain.mods.cos.CosmeticArmorReworked;
+import lain.mods.cos.client.InventoryManagerClient;
+import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
@@ -145,20 +149,20 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
-//        if (Loader.isModLoaded("cosmeticarmorreworked")) {
-//            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
-//            int chestId = EntityEquipmentSlot.CHEST.getIndex();
-//
-//            if (stacks.isSkinArmor(chestId)) {
-//                return ItemStack.EMPTY;
-//            }
-//
-//            ItemStack stack = stacks.getStackInSlot(chestId);
-//
-//            if (!stack.isEmpty()) {
-//                return stack;
-//            }
-//        }
+        if (ModsList.COSMETIC_ARMOR.isLoaded()) {
+            InventoryCosArmor stacks = CosmeticArmorReworked.invMan.getCosArmorInventoryClient(player.getUniqueID());
+            int chestId = ArmoredArms.CHEST_PLATE_ID;
+
+            if (stacks.isSkinArmor(chestId)) {
+                return null;
+            }
+
+            ItemStack stack = stacks.getStackInSlot(chestId);
+
+            if (stack != null) {
+                return stack;
+            }
+        }
 
         return player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID);
     }

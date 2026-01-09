@@ -32,7 +32,6 @@ public class Overriders {
         e.registerOverrider("alfheim", "ElementalEarthChest", new OverriderBotania("armR", "armL"), false);
         e.registerOverrider("alfheim", "ElvoriumChestplate", new OverriderBotania("armR", "armL"), false);
         e.registerOverrider("alfheim", "FenrirChestplate", new OverriderBotania("armR", "armL"), false);
-
     }
 
     public static class OverriderBotania extends ArmRenderLayerArmor.DefaultModelGetter {
