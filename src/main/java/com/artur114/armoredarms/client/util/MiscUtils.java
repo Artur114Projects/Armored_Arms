@@ -2,12 +2,15 @@ package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.client.core.ArmRenderLayerVanilla;
 import com.artur114.armoredarms.main.ArmoredArms;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 
 public class MiscUtils {
     public static ModelRenderer[] playerArms() {
-        ModelBiped player = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class).renderPlayer.modelBipedMain;
+        ModelBiped player = ((RenderPlayer) RenderManager.instance.getEntityRenderObject(Minecraft.getMinecraft().thePlayer)).modelBipedMain;
         return new ModelRenderer[] {player.bipedRightArm, player.bipedLeftArm};
     }
 

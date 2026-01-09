@@ -1,17 +1,27 @@
 package com.artur114.armoredarms.client.integration;
 
 
+import com.artur114.armoredarms.api.IArmRenderLayer;
 import com.artur114.armoredarms.api.IModelOnlyArms;
 import com.artur114.armoredarms.api.IOverriderGetModel;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.core.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.util.EnumHandSide;
 import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.Reflector;
+import com.artur114.armoredarms.main.AAConfig;
+import com.gildedgames.the_aether.api.accessories.AccessoryType;
+import com.gildedgames.the_aether.items.ItemsAether;
+import com.gildedgames.the_aether.items.accessories.ItemAccessory;
+import com.gildedgames.the_aether.player.PlayerAether;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.IModelCustom;
@@ -32,6 +42,11 @@ public class Overriders {
         e.registerOverrider("alfheim", "ElementalEarthChest", new OverriderBotania("armR", "armL"), false);
         e.registerOverrider("alfheim", "ElvoriumChestplate", new OverriderBotania("armR", "armL"), false);
         e.registerOverrider("alfheim", "FenrirChestplate", new OverriderBotania("armR", "armL"), false);
+    }
+
+    @SubscribeEvent
+    public void initRenderLayers(InitRenderLayersEvent e) {
+        e.addLayerIfModLoad(AetherGlovesRenderLayer.class, "aether_legacy");
     }
 
     public static class OverriderBotania extends ArmRenderLayerArmor.DefaultModelGetter {
@@ -89,5 +104,63 @@ public class Overriders {
                 return this.mb;
             }
         }
-     }
+    }
+    
+    public static class AetherGlovesRenderLayer implements IArmRenderLayer {
+        private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
+        public final ModelRenderer[] playerArms = MiscUtils.playerArms();
+        private double modelSize = AAConfig.vanillaArmorModelSize - 1;
+        public final Minecraft mc = Minecraft.getMinecraft();
+        public RenderPlayer renderPlayer = null;
+        public ItemStack gloves = null;
+
+        @Override
+        public void update(AbstractClientPlayer player) {
+            PlayerAether playerAether = PlayerAether.get(player);
+            this.gloves = playerAether.getAccessoryInventory().getStackInSlot(AccessoryType.GLOVES);
+            if (this.modelSize != AAConfig.vanillaArmorModelSize) {
+                this.defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
+                this.modelSize = AAConfig.vanillaArmorModelSize;
+                this.defaultModel.swingProgress = 0.0F;
+                this.defaultModel.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, player);
+            }
+        }
+
+        @Override
+        public void renderTransformed(AbstractClientPlayer player, EnumHandSide side) {
+            this.mc.getTextureManager().bindTexture(player.getLocationSkin());
+            if (this.gloves != null) {
+                if (this.gloves.getItem() instanceof ItemAccessory) {
+                    this.mc.getTextureManager().bindTexture(((ItemAccessory)this.gloves.getItem()).texture);
+                    int colour = gloves.getItem().getColorFromItemStack(this.gloves, 0);
+                    float red = (float)(colour >> 16 & 255) / 255.0F;
+                    float green = (float)(colour >> 8 & 255) / 255.0F;
+                    float blue = (float)(colour & 255) / 255.0F;
+                    if (this.gloves.getItem() != ItemsAether.phoenix_gloves) {
+                        GL11.glColor3f(red, green, blue);
+                    }
+
+                    GL11.glEnable(3042);
+                    ModelRenderer arm = side.handFromModelBiped(this.defaultModel);
+                    arm.rotationPointX = -5.0F * side.delta();
+                    arm.rotationPointY = 2.0F;
+                    arm.rotationPointZ = 0.0F;
+                    MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
+                    arm.render(0.0625F);
+                    GL11.glDisable(3042);
+                    GL11.glColor3f(1.0F, 1.0F, 1.0F);
+                }
+            }
+        }
+
+        @Override
+        public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {
+            return this.gloves != null;
+        }
+
+        @Override
+        public void init(AbstractClientPlayer player) {
+            this.renderPlayer = (RenderPlayer) RenderManager.instance.getEntityRenderObject(player);
+        }
+    }
 }
