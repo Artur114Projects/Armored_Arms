@@ -315,10 +315,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public static class DefaultModelGetter implements IOverriderGetModel {
         private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
         private double modelSize = AAConfig.vanillaArmorModelSize;
-        private Function<ModelBiped, IModelOnlyArms> factory;
 
         public DefaultModelGetter() {
-            this.factory = (DefaultModelOnlyArms::new);
         }
 
         @Override
@@ -331,11 +329,11 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
                 }
                 mb = this.defaultModel;
             }
-            return this.factory.apply(mb);
+            return this.createModel(mb);
         }
 
-        protected void setFactory(Function<ModelBiped, IModelOnlyArms> factory) {
-            this.factory = factory;
+        protected IModelOnlyArms createModel(ModelBiped mb) {
+            return new DefaultModelOnlyArms(mb);
         }
     }
 
@@ -355,15 +353,24 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 
     public static class DefaultModelOnlyArms implements IModelOnlyArms {
         public final ModelRenderer[] playerArms = MiscUtils.playerArms();
+        public final ModelRenderer[] arms;
         public final ModelBiped mb;
 
         public DefaultModelOnlyArms(ModelBiped mb) {
             this.mb = mb;
+
+            this.arms = new ModelRenderer[] {EnumHandSide.RIGHT.handFromModelBiped(mb), EnumHandSide.LEFT.handFromModelBiped(mb)};
+        }
+
+        public DefaultModelOnlyArms(ModelBiped mb, ModelRenderer rightArm, ModelRenderer leftArm) {
+            this.mb = mb;
+
+            this.arms = new ModelRenderer[] {rightArm, leftArm};
         }
 
         @Override
         public void renderArm(AbstractClientPlayer player, EnumHandSide side, ItemArmor itemArmor, ItemStack stackArmor) {
-            ModelRenderer arm = side.handFromModelBiped(this.mb);
+            ModelRenderer arm = this.arms[side.ordinal()];
             arm.rotationPointX = -5.0F * side.delta();
             arm.rotationPointY = 2.0F;
             arm.rotationPointZ = 0.0F;

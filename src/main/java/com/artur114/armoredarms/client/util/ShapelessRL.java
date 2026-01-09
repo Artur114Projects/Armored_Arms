@@ -6,15 +6,15 @@ import javax.annotation.Nullable;
 
 public class ShapelessRL extends ResourceLocation {
     public ShapelessRL(String resourceName) {
-        super(resourceName);
+        super(resourceName.toLowerCase());
     }
 
     public ShapelessRL(String resourceDomainIn, String resourcePathIn) {
-        super(resourceDomainIn == null ? "" : resourceDomainIn, resourcePathIn == null ? "" : resourcePathIn);
+        super(resourceDomainIn == null ? "" : resourceDomainIn.toLowerCase(), resourcePathIn == null ? "" : resourcePathIn.toLowerCase());
     }
 
     public ShapelessRL(@Nullable ResourceLocation rl) {
-        this(rl == null ? "" : rl.getResourceDomain(), rl == null ? "" : rl.getResourcePath());
+        this(rl == null ? "" : rl.getResourceDomain().toLowerCase(), rl == null ? "" : rl.getResourcePath().toLowerCase());
     }
 
     public boolean isShapeless() {

@@ -45,7 +45,6 @@ public class RenderArmManager {
     public final Minecraft mc = Minecraft.getMinecraft();
     public EntityRenderer entityRenderer = null;
     public ItemRenderer itemRenderer = null;
-    public boolean isBackHandLoaded = false;
     public boolean initTick = true;
     public boolean render = false;
     public boolean died = false;
@@ -116,7 +115,7 @@ public class RenderArmManager {
             if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping() && !this.mc.gameSettings.hideGUI && !this.mc.playerController.enableEverythingIsScrewedUpMode()) {
                 this.entityRenderer.enableLightmap(e.partialTicks);
                 this.renderItemInFirstPerson(EnumHandSide.RIGHT, e.partialTicks, this.mc.thePlayer.getSwingProgress(e.partialTicks), this.itemRenderer.itemToRender);
-                if (this.isBackHandLoaded && BackhandUtils.getOffhandItem(this.mc.thePlayer) != null && !this.isUsed2Arm(this.itemRenderer.itemToRender)) {
+                if (ModsList.BACKHAND.isLoaded() && BackhandUtils.getOffhandItem(this.mc.thePlayer) != null && !this.isUsed2Arm(this.itemRenderer.itemToRender)) {
                     GL11.glEnable(2884);
                     GL11.glCullFace(1028);
                     GL11.glPushMatrix();
@@ -202,7 +201,6 @@ public class RenderArmManager {
 
         this.entityRenderer = this.mc.entityRenderer;
         this.itemRenderer = this.entityRenderer.itemRenderer;
-        this.isBackHandLoaded = Loader.isModLoaded("backhand");
     }
 
     public void onException(RMException exception) {

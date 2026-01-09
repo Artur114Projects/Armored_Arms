@@ -4,6 +4,7 @@ import com.artur114.armoredarms.api.AANonEventsApiProcessor;
 import com.artur114.armoredarms.client.core.AAClientCommandsManager;
 import com.artur114.armoredarms.client.core.RenderArmManager;
 import com.artur114.armoredarms.client.integration.EventsRetranslators;
+import com.artur114.armoredarms.client.integration.Overriders;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -20,7 +21,7 @@ public class ArmoredArms {
     public static final int CHEST_PLATE_ID = 2;
     public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.1.0-1.7.10-betta";
+    public static final String VERSION = "v1.1.1-1.7.10-betta";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 
@@ -28,6 +29,7 @@ public class ArmoredArms {
     public void init(FMLInitializationEvent e) {
         EventsRetranslators.init();
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new Overriders());
         FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(new AANonEventsApiProcessor());
     }

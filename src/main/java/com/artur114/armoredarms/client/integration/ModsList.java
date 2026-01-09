@@ -5,6 +5,7 @@ import cpw.mods.fml.common.Loader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public enum ModsList {
+    BACKHAND("backhand"),
     THAUMCRAFT("Thaumcraft");
 
     private AtomicBoolean loaded = null;
