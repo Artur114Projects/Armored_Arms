@@ -3,7 +3,6 @@ package com.artur114.armoredarms.client.integration;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
 import com.artur114.armoredarms.api.IModelOnlyArms;
-import com.artur114.armoredarms.api.IOverriderGetModel;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.core.ArmRenderLayerArmor;
@@ -12,6 +11,8 @@ import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.Reflector;
 import com.artur114.armoredarms.main.AAConfig;
 import com.gildedgames.the_aether.api.accessories.AccessoryType;
+import com.gildedgames.the_aether.api.player.IPlayerAether;
+import com.gildedgames.the_aether.api.player.util.IAccessoryInventory;
 import com.gildedgames.the_aether.items.ItemsAether;
 import com.gildedgames.the_aether.items.accessories.ItemAccessory;
 import com.gildedgames.the_aether.player.PlayerAether;
@@ -26,7 +27,6 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
-import vazkii.botania.client.model.armor.ModelArmorTerrasteel;
 
 /**
  * Here i ultrashitcoding
@@ -116,8 +116,15 @@ public class Overriders {
 
         @Override
         public void update(AbstractClientPlayer player) {
+            String method = "getStackInSlot";
+            try {
+                Class.forName("com.gildedgames.the_aether.api.accessories.DegradationRate");
+                method = "getFirstStackIfWearing";
+            } catch (ClassNotFoundException ignored) {}
+
             PlayerAether playerAether = PlayerAether.get(player);
-            this.gloves = playerAether.getAccessoryInventory().getStackInSlot(AccessoryType.GLOVES);
+            this.gloves = Reflector.invokeMethod(IAccessoryInventory.class, playerAether.getAccessoryInventory(), method, new Class[] {AccessoryType.class}, new Object[] {AccessoryType.GLOVES});
+
             if (this.modelSize != AAConfig.vanillaArmorModelSize) {
                 this.defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
                 this.modelSize = AAConfig.vanillaArmorModelSize;
