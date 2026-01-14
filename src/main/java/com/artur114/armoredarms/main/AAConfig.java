@@ -1,45 +1,37 @@
 package com.artur114.armoredarms.main;
 
 
+import cpw.mods.fml.client.IModGuiFactory;
+import cpw.mods.fml.client.config.GuiConfig;
+import cpw.mods.fml.client.config.IConfigElement;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
-//@Config(modid = ArmoredArms.MODID)
+import java.util.List;
+import java.util.Set;
+
 public class AAConfig {
     public static Configuration config;
 
-//    @Config.LangKey("armoredarms.cfg.disableArmWear")
-    public static boolean disableArmWear = true;
-
-//    @Config.LangKey("armoredarms.cfg.enableArmWearWithVanillaM")
-    public static boolean enableArmWearWithVanillaM = true;
-
-//    @Config.RequiresMcRestart
-//    @Config.LangKey("armoredarms.cfg.renderBlackList")
     public static String[] renderBlackList = new String[0];
-
-//    @Config.RequiresMcRestart
-//    @Config.LangKey("armoredarms.cfg.renderArmWearList")
-    public static String[] renderArmWearList = new String[] {"cqrepoured:*"};
-
-//    @Config.RangeDouble(min = 0.0D, max = 10.0D)
-//    @Config.LangKey("armoredarms.cfg.vanillaArmorModelSize")
     public static double vanillaArmorModelSize = 0.4D;
-
-//    @Config.LangKey("armoredarms.cfg.useCheckByItem")
-//    @Config.Comment("will be more optimized, but in theory may cause visual bugs")
     public static boolean useCheckByItem = false;
 
     private void sync() {
-        disableArmWear = config.get("base", "disableArmWear", true).getBoolean();
-        enableArmWearWithVanillaM = config.get("base", "enableArmWearWithVanillaM", true).getBoolean();
-        renderBlackList = config.get("base", "renderBlackList", new String[0]).getStringList();
-        renderArmWearList = config.get("base", "renderArmWearList", new String[0]).getStringList();
-        vanillaArmorModelSize = config.get("base", "vanillaArmorModelSize", 0.4D).getDouble();
-        useCheckByItem = config.get("base", "useCheckByItem", false).getBoolean();
-        config.save();
+        renderBlackList = config.get("base", "renderBlackList", new String[0], "Blacklist of armor for rendering").getStringList();
+        vanillaArmorModelSize = config.get("base", "vanillaArmorModelSize", 0.4D, "Vanilla armor model size").getDouble();
+        useCheckByItem = config.get("base", "useCheckByItem", false, "Use check by item").getBoolean();
+
+        if (config.hasChanged()) {
+            config.save();
+        }
+
+        System.out.println("AA Configs Is synced");
     }
 
     public void configChangedEventOnConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent e) {
@@ -52,5 +44,35 @@ public class AAConfig {
         config = new Configuration(e.getSuggestedConfigurationFile());
         config.load();
         this.sync();
+    }
+
+    public static class ConfigGuiFactory implements IModGuiFactory {
+
+        @Override
+        public void initialize(Minecraft minecraft) {
+
+        }
+
+        @Override
+        public Class<? extends GuiScreen> mainConfigGuiClass() {
+            return AAConfigGui.class;
+        }
+
+        @Override
+        public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
+            return null;
+        }
+
+        @Override
+        public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement runtimeOptionCategoryElement) {
+            return null;
+        }
+    }
+
+    public static class AAConfigGui extends GuiConfig {
+
+        public AAConfigGui(GuiScreen parentScreen) {
+            super(parentScreen, new ConfigElement<>(AAConfig.config.getCategory("base")).getChildElements(), ArmoredArms.MODID, false, true, "ArmoredArms Configuration");
+        }
     }
 }

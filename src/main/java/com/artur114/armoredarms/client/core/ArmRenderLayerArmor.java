@@ -151,7 +151,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
         if (ModsList.COSMETIC_ARMOR.isLoaded()) {
             InventoryCosArmor stacks = CosmeticArmorReworked.invMan.getCosArmorInventoryClient(player.getUniqueID());
-            int chestId = ArmoredArms.CHEST_PLATE_ID;
+            int chestId = ArmoredArms.CHEST_PLATE_ID + 1;
 
             if (stacks.isSkinArmor(chestId)) {
                 return null;
@@ -164,7 +164,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             }
         }
 
-        return player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID);
+        return player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID + 1);
     }
 
     private void initEvent() {

@@ -10,6 +10,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -18,13 +19,13 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-@Mod(modid = ArmoredArms.MODID, name = ArmoredArms.NAME, version = ArmoredArms.VERSION, useMetadata = true)
+@Mod(modid = ArmoredArms.MODID, name = ArmoredArms.NAME, version = ArmoredArms.VERSION, guiFactory = ArmoredArms.GUI_FACTORY, useMetadata = true)
 public class ArmoredArms {
-    public static final int CHEST_PLATE_ID = 2;
-    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
+    public static final int CHEST_PLATE_ID = 1;
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
     public static final AAConfig CONFIGS = new AAConfig();
-    public static final String VERSION = "v1.1.4-1.7.10-betta";
+    public static final String GUI_FACTORY = "com.artur114.armoredarms.main.AAConfig$ConfigGuiFactory";
+    public static final String VERSION = "v1.2.0-1.7.10-release";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 
@@ -42,22 +43,16 @@ public class ArmoredArms {
         MinecraftForge.EVENT_BUS.register(new AANonEventsApiProcessor());
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     @SideOnly(Side.CLIENT)
     public void renderHand(RenderHandEvent e) {
         RENDER_ARM_MANAGER.renderHandEvent(e);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     @SideOnly(Side.CLIENT)
     public void clientTick(TickEvent.ClientTickEvent e) {
         RENDER_ARM_MANAGER.tickEventClientTickEvent(e);
-    }
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void clientChat(ClientChatReceivedEvent e) {
-        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
     }
 
     @SubscribeEvent

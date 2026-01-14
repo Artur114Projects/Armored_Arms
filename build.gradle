@@ -21,7 +21,7 @@ plugins {
 }
 
 apply plugin: 'forge'
-String v = "v1.1.4-1.7.10-betta"
+String v = "v1.2.0-1.7.10-release"
 version = v
 group = "com.artur114.armoredarms"
 archivesBaseName = "ArmoredArms"

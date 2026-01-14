@@ -35,6 +35,9 @@ public class AAClientCommandsManager {
 
     public void clientChatEvent(ClientChatReceivedEvent e) {
         String[] split = e.message.getFormattedText().split(" ");
+
+        System.out.println(Arrays.toString(split));
+        System.out.println(e.message.getFormattedText());
         if (split.length == 0) {
             return;
         }

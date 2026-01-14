@@ -226,6 +226,7 @@ public class RenderArmManager {
     }
 
     public void renderItemInFirstPerson(EnumHandSide side, float partialTicks, float swingProgress, ItemStack itemstack) {
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         float equippedProgress = this.itemRenderer.prevEquippedProgress + (this.itemRenderer.equippedProgress - this.itemRenderer.prevEquippedProgress) * partialTicks;
         EntityClientPlayerMP entityclientplayermp = this.mc.thePlayer;
         float rotationPitch = entityclientplayermp.prevRotationPitch + (entityclientplayermp.rotationPitch - entityclientplayermp.prevRotationPitch) * partialTicks;
