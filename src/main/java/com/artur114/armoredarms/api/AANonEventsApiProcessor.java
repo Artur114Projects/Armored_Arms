@@ -5,9 +5,9 @@ import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +30,7 @@ public class AANonEventsApiProcessor {
     }
 
     protected static void aaNonEventAddLayerIfModLoad(Class<? extends IArmRenderLayer> renderLayer, String modId) {
-        if (Loader.isModLoaded(modId)) {
+        if (ModList.get().isLoaded(modId)) {
             renderLayers.add(renderLayer);
         }
     }
@@ -91,10 +91,10 @@ public class AANonEventsApiProcessor {
     @SubscribeEvent
     public static void initArmorRenderLayerEvent(InitArmorRenderLayerEvent e) {
         for (ShapelessRL black : renderBlackList) {
-            e.addArmorToBlackList(black.getResourceDomain(), black.getResourcePath());
+            e.addArmorToBlackList(black.getNamespace(), black.getPath());
         }
         overriders.forEach((rl, overrider) -> {
-            e.registerOverrider(rl.getResourceDomain(), rl.getResourcePath(), overrider.getFirst(), overrider.getSecond());
+            e.registerOverrider(rl.getNamespace(), rl.getPath(), overrider.getA(), overrider.getB());
         });
     }
 }

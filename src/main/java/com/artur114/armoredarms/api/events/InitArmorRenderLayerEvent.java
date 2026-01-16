@@ -6,7 +6,7 @@ import com.artur114.armoredarms.api.IOverriderGetTex;
 import com.artur114.armoredarms.api.IOverriderRender;
 import com.artur114.armoredarms.client.integration.Overriders;
 import com.artur114.armoredarms.client.util.ShapelessRL;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ import java.util.*;
  * {@link #renderOverriders} Map of registered IOverriderRender.<br>
  * {@link #renderBlackList} Blacklist.<br>
  * <br>
- * This event can't be canceled. {@link net.minecraftforge.fml.common.eventhandler.Cancelable}. <br>
+ * This event can't be canceled. {@link net.minecraftforge.eventbus.api.Cancelable}. <br>
  * <br>
  * This event has no result. {@link Event.HasResult}<br>
  * <br>

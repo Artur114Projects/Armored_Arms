@@ -1,9 +1,10 @@
 package com.artur114.armoredarms.api;
 
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Rendering layer interface; implementation must have an empty constructor.<br>
@@ -21,9 +22,9 @@ public interface IArmRenderLayer {
     /**
      * Rendering method; all transformations are already performed before calling.
      * @param player Main Client-side player.
-     * @param handSide Hand side to render.
+     * @param side Hand side to render.
      */
-    void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide);
+    void renderTransformed(PoseStack poseStack, MultiBufferSource buffer, AbstractClientPlayer player, HumanoidArm side, int combinedLight);
 
     /**
      * By default, the vanilla hand renderer is used,
@@ -44,5 +45,5 @@ public interface IArmRenderLayer {
     /**
      * Rendering method.
      */
-    default void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {}
+    default void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, HumanoidArm hand, float swingProgress, ItemStack stack, float equipProgress) {}
 }

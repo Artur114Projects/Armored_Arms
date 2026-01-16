@@ -1,8 +1,9 @@
 package com.artur114.armoredarms.api;
 
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Overrider responsible for obtaining armor model
@@ -15,5 +16,5 @@ public interface IOverriderGetModel extends IOverrider {
      * @param stack Stack of equipped armor.
      * @return Model belonging to the passed ItemStack, wrapped in an IModelOnlyArms implementation.
      */
-    IModelOnlyArms getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack);
+    IModelOnlyArms getModel(AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stack);
 }

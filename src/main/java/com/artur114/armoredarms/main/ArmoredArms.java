@@ -1,47 +1,38 @@
 package com.artur114.armoredarms.main;
 
-import com.artur114.armoredarms.client.core.AAClientCommandsManager;
 import com.artur114.armoredarms.client.core.RenderArmManager;
-import com.artur114.armoredarms.client.integration.EventsRetranslators;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod.EventBusSubscriber
-@Mod(modid = ArmoredArms.MODID, name = ArmoredArms.NAME, version = ArmoredArms.VERSION, useMetadata = true, clientSideOnly = true)
+@Mod(ArmoredArms.MODID)
 public class ArmoredArms {
-    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
+//    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.4.0-release";
     public static final String MODID = "armoredarms";
-    public static final String NAME = "Armored Arms";
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent e) {
-        EventsRetranslators.init();
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @OnlyIn(Dist.CLIENT)
+    public static void renderHand(RenderArmEvent e) {
+        RENDER_ARM_MANAGER.renderArmEvent(e);
     }
 
     @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public static void renderHand(RenderHandEvent e) {
-        RENDER_ARM_MANAGER.renderHandEvent(e);
-    }
-
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void clientTick(TickEvent.ClientTickEvent e) {
         RENDER_ARM_MANAGER.tickEventClientTickEvent(e);
     }
 
     @SubscribeEvent
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void clientChat(ClientChatEvent e) {
-        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
+//        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
     }
 }

@@ -1,9 +1,11 @@
 package com.artur114.armoredarms.api;
 
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
@@ -20,9 +22,9 @@ public interface IOverriderRender extends IOverrider {
      * @param itemArmor The item of equipped armor.
      * @param type The rendering type.
      */
-    void render(@Nullable IModelOnlyArms arms, @Nullable ResourceLocation tex, EnumHandSide handSide, ItemStack stackArmor, ItemArmor itemArmor, EnumRenderType type);
+    void render(@Nullable IModelOnlyArms arms, @Nullable ResourceLocation tex, PoseStack pPoseStack, MultiBufferSource pBuffer, HumanoidArm handSide, ItemStack stackArmor, ArmorItem itemArmor, EnumRenderType type, int packedLight);
 
     enum EnumRenderType {
-        ARMOR, ARMOR_OVERLAY, ARMOR_ENCHANT
+        ARMOR, ARMOR_OVERLAY, ARMOR_ENCHANT, ARMOR_TRIM
     }
 }

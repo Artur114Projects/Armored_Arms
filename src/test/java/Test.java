@@ -2,9 +2,6 @@ import com.artur114.armoredarms.client.util.ShapelessRL;
 //import com.hbm.render.model.ModelArmorAJR;
 //import com.hbm.render.model.ModelB92;
 //import net.machinemuse.powersuits.client.model.item.armor.HighPolyArmor;
-import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashSet;

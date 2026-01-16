@@ -2,10 +2,10 @@ package com.artur114.armoredarms.api.events;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
 import com.artur114.armoredarms.client.integration.Overriders;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.ModList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.Map;
  * <br>
  * {@link #renderLayers} Map of registered layers.<br>
  * <br>
- * This event can't be canceled. {@link net.minecraftforge.fml.common.eventhandler.Cancelable}.<br>
+ * This event can't be canceled. {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
  * <br>
  * This event has no result. {@link Event.HasResult}<br>
  * <br>
@@ -25,7 +25,7 @@ import java.util.Map;
  * <br>
  * @see Overriders#initRenderLayers(InitRenderLayersEvent)
  */
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class InitRenderLayersEvent extends Event {
     private final Map<Class<? extends IArmRenderLayer>, IArmRenderLayer> renderLayers = new HashMap<>();
 
@@ -43,7 +43,7 @@ public class InitRenderLayersEvent extends Event {
      * @param modId The mod ID for which the rendering layer is intended; if the mod is not loaded, the rendering layer will not be created.
      */
     public void addLayerIfModLoad(Class<? extends IArmRenderLayer> renderLayer, String modId) {
-        if (Loader.isModLoaded(modId)) {
+        if (ModList.get().isLoaded(modId)) {
             this.addLayer(renderLayer);
         }
     }

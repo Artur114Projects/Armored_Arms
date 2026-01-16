@@ -4,56 +4,56 @@ import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
 import com.artur114.armoredarms.client.util.*;
 import com.artur114.armoredarms.main.AAConfig;
-import lain.mods.cos.api.CosArmorAPI;
-import lain.mods.cos.api.inventory.CAStacksBase;
+import com.artur114.armoredarms.main.ArmoredArms;
+import com.google.common.collect.Maps;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import vazkii.quark.vanity.client.emotes.EmoteHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.lang.reflect.Field;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ArmRenderLayerArmor implements IArmRenderLayer {
-    public static final ResourceLocation ENCHANTED_ITEM_GLINT_RES = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+    private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
     public final DefaultTextureGetter defaultTextureGetter = new DefaultTextureGetter();
     public final DefaultModelGetter defaultModelGetter = new DefaultModelGetter();
-    public List<LayerRenderer<AbstractClientPlayer>> layerRenderers = null;
     public Map<ShapelessRL, IOverriderGetModel> modelOverriders = null;
     public Map<ShapelessRL, IOverriderGetTex> textureOverriders = null;
     public Map<ShapelessRL, IOverriderRender> renderOverriders = null;
     public final DefaultRender defaultRender = new DefaultRender();
-    public final Minecraft mc = Minecraft.getMinecraft();
+    public final Minecraft mc = Minecraft.getInstance();
     public List<ShapelessRL> renderBlackList = null;
     public Set<Item> killingArmor = new HashSet<>();
-    public LayerBipedArmor armorLayer = null;
-    public RenderPlayer renderPlayer = null;
+    public PlayerRenderer renderPlayer = null;
     public boolean render = false;
 
 
     public ItemStack chestPlate = null;
-    public ItemArmor chestPlateItem = null;
+    public ArmorItem chestPlateItem = null;
     public IModelOnlyArms currentArmorModel = null;
     public ResourceLocation currentArmorTex = null;
     public ResourceLocation currentArmorTexOv = null;
@@ -77,9 +77,9 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     @Override
-    public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+    public void renderTransformed(PoseStack poseStack, MultiBufferSource buffer, AbstractClientPlayer player, HumanoidArm side, int combinedLight) {
         try {
-            this.tryRender(player, handSide);
+            this.tryRender(poseStack, buffer, player, side, combinedLight);
         } catch (RMException rm) {
             this.render = false;
             this.killingArmor.add(this.chestPlateItem);
@@ -99,8 +99,6 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     @Override
     public void init(AbstractClientPlayer player) {
         this.renderPlayer = this.initRenderPlayer(player);
-        this.layerRenderers = this.initLayerRenderers(player);
-        this.armorLayer = this.findArmorLayer();
 
         this.initEvent();
     }
@@ -108,7 +106,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     public void tryTick(AbstractClientPlayer player) {
         ItemStack chestPlate = this.itemStackArmor(player);
 
-        if (this.killingArmor.contains(chestPlate.getItem()) || !(chestPlate.getItem() instanceof ItemArmor)) {
+        if (this.killingArmor.contains(chestPlate.getItem()) || !(chestPlate.getItem() instanceof ArmorItem)) {
             this.chestPlate = ItemStack.EMPTY;
             this.chestPlateItem = null;
             this.render = false;
@@ -119,8 +117,10 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             return;
         }
 
-        if (this.renderBlackList.contains(new ShapelessRL(chestPlate.getItem().getRegistryName()))) {
-            this.chestPlateItem = (ItemArmor) chestPlate.getItem();
+        ResourceLocation rl = ForgeRegistries.ITEMS.getKey(chestPlate.getItem());
+
+        if (rl == null || this.renderBlackList.contains(new ShapelessRL(rl))) {
+            this.chestPlateItem = (ArmorItem) chestPlate.getItem();
             this.chestPlate = chestPlate;
             this.render = false;
             return;
@@ -128,7 +128,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 
         this.render = true;
         this.chestPlate = chestPlate;
-        this.chestPlateItem = (ItemArmor) chestPlate.getItem();
+        this.chestPlateItem = (ArmorItem) chestPlate.getItem();
 
         this.updateOverriders();
 
@@ -137,34 +137,35 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         this.currentArmorTex = this.getArmorTex(player, IOverriderGetTex.EnumTexType.NULL);
     }
 
-    public void tryRender(AbstractClientPlayer player, EnumHandSide handSide) {
+    public void tryRender(PoseStack poseStack, MultiBufferSource buffer, AbstractClientPlayer player, HumanoidArm side, int combinedLight) {
         ResourceLocation armorTexOv = this.currentArmorTexOv;
         IModelOnlyArms armorModel = this.currentArmorModel;
         ResourceLocation armorTex = this.currentArmorTex;
 
-        this.render(armorModel, armorTexOv, handSide, IOverriderRender.EnumRenderType.ARMOR_OVERLAY);
-        this.render(armorModel, armorTex, handSide, IOverriderRender.EnumRenderType.ARMOR);
+        this.render(armorModel, armorTexOv, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_OVERLAY, combinedLight);
+        this.render(armorModel, armorTex, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR, combinedLight);
 
-        this.render(armorModel, ENCHANTED_ITEM_GLINT_RES, handSide, IOverriderRender.EnumRenderType.ARMOR_ENCHANT);
+        this.render(armorModel, null, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_ENCHANT, combinedLight);
+        this.render(armorModel, null, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_TRIM, combinedLight);
     }
 
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
-        if (Loader.isModLoaded("cosmeticarmorreworked")) {
-            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
-            int chestId = EntityEquipmentSlot.CHEST.getIndex();
+//        if (Loader.isModLoaded("cosmeticarmorreworked")) {
+//            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
+//            int chestId = EntityEquipmentSlot.CHEST.getIndex();
+//
+//            if (stacks.isSkinArmor(chestId)) {
+//                return ItemStack.EMPTY;
+//            }
+//
+//            ItemStack stack = stacks.getStackInSlot(chestId);
+//
+//            if (!stack.isEmpty()) {
+//                return stack;
+//            }
+//        }
 
-            if (stacks.isSkinArmor(chestId)) {
-                return ItemStack.EMPTY;
-            }
-
-            ItemStack stack = stacks.getStackInSlot(chestId);
-
-            if (!stack.isEmpty()) {
-                return stack;
-            }
-        }
-
-        return player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+        return player.getItemBySlot(EquipmentSlot.CHEST);
     }
 
     private void initEvent() {
@@ -178,50 +179,18 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         this.renderBlackList = event.renderBlackList();
     }
 
-    @SuppressWarnings("unchecked")
-    public List<LayerRenderer<AbstractClientPlayer>> initLayerRenderers(AbstractClientPlayer player) {
-        try {
-            Field field = null;
-            Field[] fields = RenderLivingBase.class.getDeclaredFields();
-
-            for (Field rField : fields) {
-                boolean isAcc = rField.isAccessible();
-                rField.setAccessible(true);
-                if (rField.get(this.renderPlayer) instanceof List) {
-                    field = rField;
-                }
-                rField.setAccessible(isAcc);
-            }
-
-            if (field == null) {
-                throw new RMException("layerRenderers is not find!").setFatalLayer(this);
-            }
-
-            boolean isAcc = field.isAccessible();
-            field.setAccessible(true);
-            List<LayerRenderer<AbstractClientPlayer>> layers = (List<LayerRenderer<AbstractClientPlayer>>) field.get(this.renderPlayer);
-            field.setAccessible(isAcc);
-            return layers;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public LayerBipedArmor findArmorLayer() {
-        for (LayerRenderer<?> layerRenderer : this.layerRenderers) {
-            if (layerRenderer instanceof LayerBipedArmor) {
-                return (LayerBipedArmor) layerRenderer;
-            }
-        }
-        throw new IllegalStateException();
-    }
-
-    public RenderPlayer initRenderPlayer(AbstractClientPlayer player) {
-        return (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+    public PlayerRenderer initRenderPlayer(AbstractClientPlayer player) {
+        return this.renderPlayer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
     }
 
     public void updateOverriders() {
-        ShapelessRL rl = new ShapelessRL(this.chestPlateItem.getRegistryName());
+        ResourceLocation rli = ForgeRegistries.ITEMS.getKey(this.chestPlate.getItem());
+
+        if (rli == null) {
+            return;
+        }
+
+        ShapelessRL rl = new ShapelessRL(rli);
 
         AtomicReference<IOverriderRender> overriderRender = new AtomicReference<>(this.renderOverriders.get(rl));
         AtomicReference<IOverriderGetTex> overriderGetTex = new AtomicReference<>(this.textureOverriders.get(rl));
@@ -261,8 +230,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
     }
 
-    public void render(IModelOnlyArms arms, ResourceLocation tex, EnumHandSide handSide, IOverriderRender.EnumRenderType type) {
-        this.currentRenderOverrider.render(arms, tex, handSide, this.chestPlate, this.chestPlateItem, type);
+    public void render(IModelOnlyArms arms, ResourceLocation tex, PoseStack pPoseStack, MultiBufferSource pBuffer, HumanoidArm handSide, ItemStack stackArmor, ArmorItem itemArmor, IOverriderRender.EnumRenderType type, int packedLight) {
+        this.currentRenderOverrider.render(arms, tex, pPoseStack, pBuffer, handSide, stackArmor, itemArmor, type, packedLight);
     }
 
     public IModelOnlyArms getArmorModel(AbstractClientPlayer player) {
@@ -270,191 +239,178 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public ResourceLocation getArmorTex(AbstractClientPlayer player, IOverriderGetTex.EnumTexType type) {
-        return this.currentGetTexOverrider.getTexture(player, this.armorLayer, this.layerRenderers, this.chestPlate, this.chestPlateItem, type);
+        return this.currentGetTexOverrider.getTexture(player, this.chestPlate, this.chestPlateItem, type);
     }
 
     public static class DefaultRender implements IOverriderRender {
-        private final Minecraft mc = Minecraft.getMinecraft();
+        private final TextureAtlas armorTrimAtlas = Minecraft.getInstance().getModelManager().getAtlas(Sheets.ARMOR_TRIMS_SHEET);
+        private final Minecraft mc = Minecraft.getInstance();
 
         @Override
-        public void render(IModelOnlyArms arms, ResourceLocation tex, EnumHandSide handSide, ItemStack stackArmor, ItemArmor itemArmor, EnumRenderType type) {
-            if (arms == null || tex == null) {
+        public void render(@Nullable IModelOnlyArms arms, @Nullable ResourceLocation tex, PoseStack pPoseStack, MultiBufferSource pBuffer, HumanoidArm handSide, ItemStack stackArmor, ArmorItem itemArmor, EnumRenderType type, int packedLight) {
+            if (arms == null || this.mc.player == null) {
                 return;
             }
             switch (type) {
                 case ARMOR_ENCHANT:
-                    this.renderEnchant(arms, tex, stackArmor, itemArmor, handSide);
+                    this.renderGlint(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms);
                     break;
                 case ARMOR:
-                    this.renderArmor(arms, tex, stackArmor, itemArmor, handSide);
+                    this.renderBase(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms, tex);
                     break;
                 case ARMOR_OVERLAY:
-                    this.render(arms, tex, stackArmor, itemArmor, handSide);
+                    this.renderOverlay(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms, tex);
+                    break;
+                case ARMOR_TRIM:
+                    this.renderTrim(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms);
                     break;
             }
         }
 
-        private void renderArmor(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumHandSide handSide) {
-            if (itemArmor.hasOverlay(stackArmor)) {
-                int i = itemArmor.getColor(stackArmor);
-                float r = (float) (i >> 16 & 255) / 255.0F;
-                float g = (float) (i >> 8 & 255) / 255.0F;
-                float b = (float) (i & 255) / 255.0F;
-                GlStateManager.color(r, g, b, 1.0F);
-                this.render(arms, tex, stackArmor, itemArmor, handSide);
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            } else {
-                this.render(arms, tex, stackArmor, itemArmor, handSide);
-            }
-        }
-
-        private void render(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumHandSide handSide) {
-            this.mc.getTextureManager().bindTexture(tex);
-            arms.renderArm(this.mc.player, itemArmor, stackArmor, handSide);
-        }
-
-        private void renderEnchant(IModelOnlyArms arms, ResourceLocation tex, ItemStack stackArmor, ItemArmor itemArmor, EnumHandSide handSide) {
-            if (!stackArmor.hasEffect()) {
+        protected void renderBase(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel, ResourceLocation armorResource) {
+            if (armorResource == null) {
                 return;
             }
-            float f = (float) this.mc.player.ticksExisted;
-            GlStateManager.pushMatrix();
-            GlStateManager.pushAttrib();
-            this.mc.getTextureManager().bindTexture(tex);
-            this.mc.entityRenderer.setupFogColor(true);
-            GlStateManager.enableBlend();
-            GlStateManager.depthFunc(514);
-            GlStateManager.depthMask(false);
-            GlStateManager.color(0.5F, 0.5F, 0.5F, 1.0F);
-
-            for (int i = 0; i < 2; ++i) {
-                GlStateManager.disableLighting();
-                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
-                GlStateManager.color(0.38F, 0.19F, 0.608F, 1.0F);
-                GlStateManager.matrixMode(5890);
-                GlStateManager.loadIdentity();
-                GlStateManager.scale(0.33333334F, 0.33333334F, 0.33333334F);
-                GlStateManager.rotate(30.0F - (float)i * 60.0F, 0.0F, 0.0F, 1.0F);
-                GlStateManager.translate(0.0F, f * (0.001F + (float)i * 0.003F) * 20.0F, 0.0F);
-                GlStateManager.matrixMode(5888);
-                arms.renderArm(this.mc.player, itemArmor, stackArmor, handSide);
-                GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            float r = 1.0F, g = 1.0F, b = 1.0F;
+            if (itemArmor instanceof DyeableLeatherItem dye) {
+                int i = dye.getColor(stackArmor);
+                r = (float)(i >> 16 & 255) / 255.0F;
+                g = (float)(i >> 8 & 255) / 255.0F;
+                b = (float)(i & 255) / 255.0F;
             }
+            VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.armorCutoutNoCull(armorResource));
+            pModel.renderArm(pPoseStack, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
+        }
 
-            GlStateManager.matrixMode(5890);
-            GlStateManager.loadIdentity();
-            GlStateManager.matrixMode(5888);
-            GlStateManager.enableLighting();
-            GlStateManager.depthMask(true);
-            GlStateManager.depthFunc(515);
-            GlStateManager.disableBlend();
-            this.mc.entityRenderer.setupFogColor(false);
-            GlStateManager.popMatrix();
-            GlStateManager.popAttrib();
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        protected void renderOverlay(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel, ResourceLocation armorResource) {
+            if (armorResource == null || !(itemArmor instanceof DyeableLeatherItem)) {
+                return;
+            }
+            VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.armorCutoutNoCull(armorResource));
+            pModel.renderArm(pPoseStack, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        }
+
+        protected void renderTrim(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel) {
+            ArmorTrim.getTrim(player.level().registryAccess(), stackArmor).ifPresent((pTrim) -> {
+                TextureAtlasSprite textureatlassprite = this.armorTrimAtlas.getSprite(pTrim.outerTexture(itemArmor.getMaterial()));
+                VertexConsumer vertexconsumer = textureatlassprite.wrap(pBuffer.getBuffer(Sheets.armorTrimsSheet()));
+                pModel.renderArm(pPoseStack, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            });
+        }
+
+        protected void renderGlint(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel) {
+            if (stackArmor.hasFoil()) {
+                pModel.renderArm(pPoseStack, pBuffer.getBuffer(RenderType.armorEntityGlint()), player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            }
         }
     }
 
     public static class DefaultModelGetter implements IOverriderGetModel {
-        private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
-        private Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor;
-        private double modelSize = AAConfig.vanillaArmorModelSize;
-        private Function<ModelBiped, IModelOnlyArms> factory;
-
-        public DefaultModelGetter() {
-            this.extractor = ((modelBase, handSide) -> {
-                switch (handSide) {
-                    case RIGHT:
-                        return modelBase.bipedRightArm;
-                    case LEFT:
-                        return modelBase.bipedLeftArm;
-                    default:
-                        return null;
-                }
-            });
-            this.factory = (modelBiped -> new DefaultModelOnlyArms(modelBiped, this.extractor()));
-        }
 
         @Override
-        public IModelOnlyArms getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
-            ModelBiped mb = itemArmor.getArmorModel(player, stack, EntityEquipmentSlot.CHEST, this.defaultModel);
-            if (mb == null) {
-                if (this.modelSize != AAConfig.vanillaArmorModelSize) {
-                    this.defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
-                    this.modelSize = AAConfig.vanillaArmorModelSize;
-                }
-                mb = this.defaultModel;
+        public IModelOnlyArms getModel(AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stack) {
+            Model model = ForgeHooksClient.getArmorModel(player, stack, EquipmentSlot.CHEST, ArmoredArms.RENDER_ARM_MANAGER.actualHumanoidModel);
+            return this.createModelOnlyArms(model);
+        }
+
+        protected IModelOnlyArms createModelOnlyArms(Model model) {
+            ModelPart[] arms = this.extractArms(model);
+            if (arms == null) return null;
+            return new DefaultModelOnlyArms(model, arms);
+        }
+
+        protected ModelPart[] extractArms(Model model) {
+            System.out.println(model);
+            if (model instanceof HumanoidModel<?> hm) {
+                return new ModelPart[] {hm.leftArm, hm.rightArm};
             }
-            return this.factory.apply(mb);
-        }
-
-        private Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor() {
-            return this.extractor;
-        }
-
-        protected void setArmsExtractor(Function2<ModelBiped, EnumHandSide, ModelRenderer> extractor) {
-            this.extractor = extractor;
-        }
-
-        protected void setFactory(Function<ModelBiped, IModelOnlyArms> factory) {
-            this.factory = factory;
+            return null;
         }
     }
 
     public static class DefaultTextureGetter implements IOverriderGetTex {
 
         @Override
-        public ResourceLocation getTexture(AbstractClientPlayer player, LayerBipedArmor armorLayer, List<LayerRenderer<AbstractClientPlayer>> layerRenderers, ItemStack chestPlate, ItemArmor itemArmor, EnumTexType type) {
+        public ResourceLocation getTexture(AbstractClientPlayer player, ItemStack chestPlate, ArmorItem itemArmor, EnumTexType type) {
             switch (type) {
                 case NULL:
-                    return armorLayer.getArmorResource(player, chestPlate, EntityEquipmentSlot.CHEST, null);
+                    return fmlGetArmorResource(player, chestPlate, EquipmentSlot.CHEST, null);
                 case OVERLAY:
-                    if (itemArmor.hasOverlay(chestPlate)) return armorLayer.getArmorResource(player, chestPlate, EntityEquipmentSlot.CHEST, "overlay");
+                    if (itemArmor instanceof DyeableLeatherItem) fmlGetArmorResource(player, chestPlate, EquipmentSlot.CHEST, "overlay");
             }
             return null;
         }
     }
 
     public static class DefaultModelOnlyArms implements IModelOnlyArms {
-        public final ModelRenderer[] playerArms = MiscUtils.playerArms();
-        public final ModelRenderer[] arms;
-        public final ModelBiped mb;
+        public final ModelPart[] playerArms = MiscUtils.playerArms();
+        public final ModelPart[] arms;
+        public final Model mb;
 
-        public DefaultModelOnlyArms(ModelBiped mb) {
-            this.arms = new ModelRenderer[] {mb.bipedLeftArm, mb.bipedRightArm};
+        public DefaultModelOnlyArms(HumanoidModel<?> mb) {
+            this.arms = new ModelPart[] {mb.leftArm, mb.rightArm};
             this.mb = mb;
         }
 
-        public DefaultModelOnlyArms(ModelBiped mb, Function2<ModelBiped, EnumHandSide, ModelRenderer> armsExtractor) {
-            this.arms = new ModelRenderer[] {armsExtractor.apply(mb, EnumHandSide.LEFT), armsExtractor.apply(mb, EnumHandSide.RIGHT)};
+        public DefaultModelOnlyArms(Model mb, Function2<Model, HumanoidArm, ModelPart> armsExtractor) {
+            this.arms = new ModelPart[] {armsExtractor.apply(mb, HumanoidArm.LEFT), armsExtractor.apply(mb, HumanoidArm.RIGHT)};
             this.mb = mb;
         }
 
-        public DefaultModelOnlyArms(ModelBiped mb, ModelRenderer right, ModelRenderer left) {
-            this.arms = new ModelRenderer[] {left, right};
+        public DefaultModelOnlyArms(Model mb, ModelPart[] arms) {
+            this.arms = arms;
+            this.mb = mb;
+        }
+
+
+        public DefaultModelOnlyArms(Model mb, ModelPart right, ModelPart left) {
+            this.arms = new ModelPart[] {left, right};
             this.mb = mb;
         }
 
         @Override
-        public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
-            ModelRenderer arm = this.arms[side.ordinal()];
-            arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
-            arm.rotationPointY = 2.0F;
-            arm.rotationPointZ = 0.0F;
+        public void renderArm(PoseStack pPoseStack, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+            ModelPart arm = this.arms[side.ordinal()];
             MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
-            boolean h = arm.isHidden;
-            boolean s = arm.showModel;
-            arm.isHidden = false;
-            arm.showModel = true;
-            arm.render(1.0F / 16.0F);
-            arm.isHidden = h;
-            arm.showModel = s;
+            if (this.mb instanceof HumanoidModel<?> model) {
+                model.attackTime = 0.0F;
+                model.crouching = false;
+                model.swimAmount = 0.0F;
+            }
+            boolean s = arm.skipDraw;
+            boolean v = arm.visible;
+            arm.skipDraw = false;
+            arm.visible = true;
+            arm.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            arm.skipDraw = s;
+            arm.visible = v;
         }
 
         @Override
-        public ModelBiped original() {
+        public Model original() {
             return mb;
         }
+    }
+
+    public static ResourceLocation fmlGetArmorResource(net.minecraft.world.entity.Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
+        ArmorItem item = (ArmorItem)stack.getItem();
+        String texture = item.getMaterial().getName();
+        String domain = "minecraft";
+        int idx = texture.indexOf(':');
+        if (idx != -1) {
+            domain = texture.substring(0, idx);
+            texture = texture.substring(idx + 1);
+        }
+        String s1 = String.format(java.util.Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, 1, type == null ? "" : String.format(java.util.Locale.ROOT, "_%s", type));
+
+        s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
+        ResourceLocation resourcelocation = ARMOR_LOCATION_CACHE.get(s1);
+
+        if (resourcelocation == null) {
+            resourcelocation = new ResourceLocation(s1);
+            ARMOR_LOCATION_CACHE.put(s1, resourcelocation);
+        }
+
+        return resourcelocation;
     }
 }

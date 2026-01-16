@@ -1,47 +1,48 @@
 package com.artur114.armoredarms.client.core;
 
-import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.IArmRenderLayer;
 import com.artur114.armoredarms.api.events.AARenderLayerRenderingEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.RMException;
 import com.artur114.armoredarms.client.util.Reflector;
+import com.artur114.armoredarms.main.AAConfig;
 import com.google.common.base.MoreObjects;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemMap;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.storage.MapData;
+import net.minecraft.client.model.HumanoidArmorModel;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.event.TickEvent;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Map;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class RenderArmManager {
-    public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
     public Map<Class<? extends IArmRenderLayer>, IArmRenderLayer> renderLayers = null;
-    public final Minecraft mc = Minecraft.getMinecraft();
+    public HumanoidArmorModel<AbstractClientPlayer> actualHumanoidModel = null;
+    public final Minecraft mc = Minecraft.getInstance();
+    public double lastModelSize = Double.MIN_VALUE;
     public ItemRenderer itemRenderer = null;
     public boolean initTick = true;
     public boolean render = false;
     public boolean died = false;
 
 
-    public void renderHandEvent(RenderHandEvent e) {
+    public void renderArmEvent(RenderArmEvent e) {
         if (this.died || !this.render) {
             return;
         }
@@ -56,7 +57,7 @@ public class RenderArmManager {
     }
 
     public void tickEventClientTickEvent(TickEvent.ClientTickEvent e) {
-        if (e.phase != TickEvent.Phase.START || this.mc.player == null || this.mc.isGamePaused() || this.died) {
+        if (e.phase != TickEvent.Phase.START || this.mc.player == null || this.mc.isPaused() || this.died) {
             return;
         }
 
@@ -69,19 +70,12 @@ public class RenderArmManager {
         }
     }
 
-    public void tryRender(RenderHandEvent e) {
-        boolean flag = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
-        boolean flag1 = this.itemRenderer.itemStackMainHand.isEmpty() || this.itemRenderer.itemStackMainHand.getItem() instanceof ItemMap || this.itemRenderer.itemStackOffHand.getItem() instanceof ItemMap;
-        if (flag1 && this.mc.gameSettings.thirdPersonView == 0 && !flag && !this.mc.gameSettings.hideGUI && !this.mc.playerController.isSpectator()) {
-            this.mc.entityRenderer.enableLightmap();
-            this.renderItemInFirstPerson(e.getPartialTicks());
-            this.mc.entityRenderer.disableLightmap();
-            e.setCanceled(true);
-        }
+    public void tryRender(RenderArmEvent e) {
+        this.renderArm(e.getPoseStack(), e.getMultiBufferSource(), e.getPlayer(), e.getArm(), e.getPackedLight()); e.setCanceled(true);
     }
 
     public void tryTick(TickEvent.ClientTickEvent e) {
-        AbstractClientPlayer player = this.mc.player;
+        LocalPlayer player = this.mc.player;
 
         if (this.initTick) {
             try {
@@ -89,6 +83,10 @@ public class RenderArmManager {
             } catch (Throwable exp) {
                 throw new RMException("It was not possible to load RenderArmManager, custom hands will not be rendered!", exp).setFatal();
             }
+        }
+
+        if (this.lastModelSize != AAConfig.vanillaArmorModelSize) {
+            this.actualHumanoidModel = new HumanoidArmorModel<>(HumanoidArmorModel.createBodyLayer(new CubeDeformation((float) AAConfig.vanillaArmorModelSize)).getRoot().bake(64, 32));
         }
 
         boolean render = false;
@@ -118,7 +116,7 @@ public class RenderArmManager {
         return this.renderLayers.remove(tClass) != null;
     }
 
-    public void init(AbstractClientPlayer player) {
+    public void init(LocalPlayer player) {
         InitRenderLayersEvent event = new InitRenderLayersEvent();
         event.addLayer(ArmRenderLayerVanilla.class);
         event.addLayer(ArmRenderLayerArmor.class);
@@ -135,7 +133,7 @@ public class RenderArmManager {
             }
         }
 
-        this.itemRenderer = Reflector.getItemRenderer(this.mc);
+        this.itemRenderer = this.mc.getItemRenderer();
     }
 
     public void onException(RMException exception) {
@@ -146,204 +144,19 @@ public class RenderArmManager {
             this.renderLayers.remove(exception.fatalLayer().getClass());
         }
 
-        for (ITextComponent message : exception.messageForPlayer()) {
-            this.mc.player.sendMessage(message.setStyle(new Style().setColor(TextFormatting.RED)));
+        for (Component message : exception.messageForPlayer()) {
+//            this.mc.player.displayClientMessage(message.getSiblings().set(new Style().setColor(TextFormatting.RED)), false);
         }
 
         exception.printStackTrace(System.err);
     }
 
-    public void renderItemInFirstPerson(float partialTicks) {
-        AbstractClientPlayer abstractclientplayer = this.mc.player;
-        float f = abstractclientplayer.getSwingProgress(partialTicks);
-        EnumHand enumhand = MoreObjects.firstNonNull(abstractclientplayer.swingingHand, EnumHand.MAIN_HAND);
-        float interpPitch = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
-        float interpYaw = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
-        boolean flag = true;
-        boolean flag1 = true;
-
-        if (abstractclientplayer.isHandActive()) {
-            ItemStack itemstack = abstractclientplayer.getActiveItemStack();
-
-            if (itemstack.getItem() instanceof net.minecraft.item.ItemBow) {
-                flag = abstractclientplayer.getActiveHand() == EnumHand.MAIN_HAND;
-                flag1 = !flag;
-            }
-        }
-
-        this.itemRenderer.rotateArroundXAndY(interpPitch, interpYaw);
-        this.itemRenderer.setLightmap();
-        this.itemRenderer.rotateArm(partialTicks);
-        GlStateManager.enableRescaleNormal();
-
-        if (flag) {
-            float swingProgress = enumhand == EnumHand.MAIN_HAND ? f : 0.0F;
-            float equipProgress = 1.0F - (this.itemRenderer.prevEquippedProgressMainHand + (this.itemRenderer.equippedProgressMainHand - this.itemRenderer.prevEquippedProgressMainHand) * partialTicks);
-            this.callRenderNotTransformed(abstractclientplayer, partialTicks, interpPitch, EnumHand.MAIN_HAND, swingProgress, this.itemRenderer.itemStackMainHand, equipProgress);
-            this.renderItemInFirstPerson(abstractclientplayer, partialTicks, interpPitch, EnumHand.MAIN_HAND, swingProgress, this.itemRenderer.itemStackMainHand, equipProgress);
-        }
-
-        if (flag1) {
-            float swingProgress = enumhand == EnumHand.OFF_HAND ? f : 0.0F;
-            float equipProgress = 1.0F - (this.itemRenderer.prevEquippedProgressOffHand + (this.itemRenderer.equippedProgressOffHand - this.itemRenderer.prevEquippedProgressOffHand) * partialTicks);
-            this.callRenderNotTransformed(abstractclientplayer, partialTicks, interpPitch, EnumHand.OFF_HAND, swingProgress, this.itemRenderer.itemStackOffHand, equipProgress);
-            this.renderItemInFirstPerson(abstractclientplayer, partialTicks, interpPitch, EnumHand.OFF_HAND, swingProgress, this.itemRenderer.itemStackOffHand, equipProgress);
-        }
-
-        GlStateManager.disableRescaleNormal();
-        RenderHelper.disableStandardItemLighting();
-    }
-
-    public void callRenderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {
-        for (IArmRenderLayer renderLayer : this.renderLayers.values()) {
-            renderLayer.renderNotTransformed(player, partialTicks, interpPitch, hand, swingProgress, stack, equipProgress);
-        }
-    }
-
-    public void renderItemInFirstPerson(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {
-        EnumHandSide enumhandside = hand == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
-
-        GlStateManager.pushMatrix();
-
-        if (stack.isEmpty()) {
-            if (hand == EnumHand.MAIN_HAND) {
-                this.renderArmFirstPerson(equipProgress, swingProgress, enumhandside);
-            }
-        } else if (stack.getItem() instanceof ItemMap) {
-            if (hand == EnumHand.MAIN_HAND && player.getHeldItem(EnumHand.OFF_HAND).isEmpty()) {
-                this.renderMapFirstPerson(interpPitch, equipProgress, swingProgress, stack);
-            } else {
-                this.renderMapFirstPersonSide(equipProgress, enumhandside, swingProgress, stack);
-            }
-
-        }
-
-        GlStateManager.popMatrix();
-    }
-
-    public void renderArms() {
-        GlStateManager.disableCull();
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-        this.transAndRenderArm(EnumHandSide.RIGHT);
-        this.transAndRenderArm(EnumHandSide.LEFT);
-        GlStateManager.popMatrix();
-        GlStateManager.enableCull();
-    }
-
-    public float getMapAngleFromPitch(float pitch) {
-        float f = 1.0F - pitch / 45.0F + 0.1F;
-        f = MathHelper.clamp(f, 0.0F, 1.0F);
-        f = -MathHelper.cos(f * (float)Math.PI) * 0.5F + 0.5F;
-        return f;
-    }
-
-    public void transAndRenderArm(EnumHandSide enumHandSide) {
-        GlStateManager.pushMatrix();
-        float f = enumHandSide == EnumHandSide.RIGHT ? 1.0F : -1.0F;
-        GlStateManager.rotate(92.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(45.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(f * -41.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.translate(f * 0.3F, -1.1F, 0.45F);
-
-        this.renderArm(this.mc.player, enumHandSide);
-
-        GlStateManager.popMatrix();
-    }
-
-    public void renderMapFirstPerson(float interPitch, float equipProgress, float swingProgress, ItemStack stack) {
-        float f = MathHelper.sqrt(swingProgress);
-        float f1 = -0.2F * MathHelper.sin(swingProgress * (float)Math.PI);
-        float f2 = -0.4F * MathHelper.sin(f * (float)Math.PI);
-        GlStateManager.translate(0.0F, -f1 / 2.0F, f2);
-        float f3 = this.getMapAngleFromPitch(interPitch);
-        GlStateManager.translate(0.0F, 0.04F + equipProgress * -1.2F + f3 * -0.5F, -0.72F);
-        GlStateManager.rotate(f3 * -85.0F, 1.0F, 0.0F, 0.0F);
-        this.renderArms();
-        float f4 = MathHelper.sin(f * (float)Math.PI);
-        GlStateManager.rotate(f4 * 20.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.scale(2.0F, 2.0F, 2.0F);
-        this.renderMapFirstPerson(stack);
-    }
-
-    public void renderMapFirstPersonSide(float p_187465_1_, EnumHandSide hand, float p_187465_3_, ItemStack stack) {
-        float f = hand == EnumHandSide.RIGHT ? 1.0F : -1.0F;
-        GlStateManager.translate(f * 0.125F, -0.125F, 0.0F);
-
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(f * 10.0F, 0.0F, 0.0F, 1.0F);
-        this.renderArmFirstPerson(p_187465_1_, p_187465_3_, hand);
-        GlStateManager.popMatrix();
-
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(f * 0.51F, -0.08F + p_187465_1_ * -1.2F, -0.75F);
-        float f1 = MathHelper.sqrt(p_187465_3_);
-        float f2 = MathHelper.sin(f1 * (float)Math.PI);
-        float f3 = -0.5F * f2;
-        float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-        float f5 = -0.3F * MathHelper.sin(p_187465_3_ * (float)Math.PI);
-        GlStateManager.translate(f * f3, f4 - 0.3F * f2, f5);
-        GlStateManager.rotate(f2 * -45.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(f * f2 * -30.0F, 0.0F, 1.0F, 0.0F);
-        this.renderMapFirstPerson(stack);
-        GlStateManager.popMatrix();
-    }
-
-    public void renderMapFirstPerson(ItemStack stack) {
-        GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.scale(0.38F, 0.38F, 0.38F);
-        GlStateManager.disableLighting();
-        this.mc.getTextureManager().bindTexture(RES_MAP_BACKGROUND);
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        GlStateManager.translate(-0.5F, -0.5F, 0.0F);
-        GlStateManager.scale(0.0078125F, 0.0078125F, 0.0078125F);
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(-7.0D, 135.0D, 0.0D).tex(0.0D, 1.0D).endVertex();
-        bufferbuilder.pos(135.0D, 135.0D, 0.0D).tex(1.0D, 1.0D).endVertex();
-        bufferbuilder.pos(135.0D, -7.0D, 0.0D).tex(1.0D, 0.0D).endVertex();
-        bufferbuilder.pos(-7.0D, -7.0D, 0.0D).tex(0.0D, 0.0D).endVertex();
-        tessellator.draw();
-        MapData mapdata = ((ItemMap) stack.getItem()).getMapData(stack, this.mc.world);
-
-        if (mapdata != null) {
-            this.mc.entityRenderer.getMapItemRenderer().renderMap(mapdata, false);
-        }
-
-        GlStateManager.enableLighting();
-    }
-
-    public void renderArmFirstPerson(float equipProgress, float swingProgress, EnumHandSide enumhandside) {
-        float f = enumhandside != EnumHandSide.LEFT ? 1.0F : -1.0F;
-        float f1 = MathHelper.sqrt(swingProgress);
-        float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
-        float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-        float f4 = -0.4F * MathHelper.sin(swingProgress * (float)Math.PI);
-        GlStateManager.translate(f * (f2 + 0.64000005F), f3 + -0.6F + equipProgress * -0.6F, f4 + -0.71999997F);
-        GlStateManager.rotate(f * 45.0F, 0.0F, 1.0F, 0.0F);
-        float f5 = MathHelper.sin(swingProgress * swingProgress * (float)Math.PI);
-        float f6 = MathHelper.sin(f1 * (float)Math.PI);
-        GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
-        GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
-        GlStateManager.disableCull();
-
-        this.renderArm(this.mc.player, enumhandside);
-
-        GlStateManager.enableCull();
-    }
-
-    public void renderArm(AbstractClientPlayer player, EnumHandSide handSide) {
+    public void renderArm(PoseStack poseStack, MultiBufferSource buffer, AbstractClientPlayer player, HumanoidArm side, int combinedLight) {
         IArmRenderLayer vanilla = this.getLayer(ArmRenderLayerVanilla.class); // spaghetti!
 
         if (vanilla.needRender(player, this.render)) {
-            if (!MinecraftForge.EVENT_BUS.post(new AARenderLayerRenderingEvent(vanilla, handSide, this.render))) {
-                vanilla.renderTransformed(player, handSide);
+            if (!MinecraftForge.EVENT_BUS.post(new AARenderLayerRenderingEvent(vanilla, side, this.render))) {
+                vanilla.renderTransformed(poseStack, buffer, player, side, combinedLight);
             }
         }
 
@@ -353,8 +166,8 @@ public class RenderArmManager {
             }
             if (layer.needRender(player, this.render)) {
                 try {
-                    if (!MinecraftForge.EVENT_BUS.post(new AARenderLayerRenderingEvent(vanilla, handSide, this.render))) {
-                        layer.renderTransformed(player, handSide);
+                    if (!MinecraftForge.EVENT_BUS.post(new AARenderLayerRenderingEvent(vanilla, side, this.render))) {
+                        layer.renderTransformed(poseStack, buffer, player, side, combinedLight);
                     }
                 } catch (RMException rm) {
                     throw rm;

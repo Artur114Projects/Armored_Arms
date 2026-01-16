@@ -3,62 +3,64 @@ package com.artur114.armoredarms.client.core;
 import com.artur114.armoredarms.api.IArmRenderLayer;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
+import com.artur114.armoredarms.main.ArmoredArms;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import net.minecraft.client.model.HumanoidArmorModel;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ArmRenderLayerVanilla implements IArmRenderLayer {
+    public List<ShapelessRL> noRenderArmWearList = null;
     public List<ShapelessRL> renderArmWearList = null;
-    public boolean currentArmorModelBiped = true;
-    public ModelBiped baseArmorModel = null;
-    public RenderPlayer renderPlayer = null;
+    public PlayerRenderer renderPlayer = null;
     public ItemStack chestPlate = null;
+    public boolean renderWear = true;
     public boolean canceled = false;
 
     @Override
     public void update(AbstractClientPlayer player) {
-        ItemStack chestPlate = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+        ItemStack chestPlate = player.getItemBySlot(EquipmentSlot.CHEST);
 
         if (this.chestPlate != chestPlate) {
             this.chestPlate = chestPlate;
 
-            if (chestPlate.getItem() instanceof ItemArmor) {
-                ModelBiped armor = chestPlate.getItem().getArmorModel(player, chestPlate, EntityEquipmentSlot.CHEST, this.baseArmorModel);
-                this.currentArmorModelBiped = this.renderArmWearList.contains(new ShapelessRL(chestPlate.getItem().getRegistryName())) || armor == null || armor.getClass() == ModelBiped.class;
+            ResourceLocation rl = ForgeRegistries.ITEMS.getKey(chestPlate.getItem());
+
+            if (chestPlate.getItem() instanceof ArmorItem && rl != null) {
+                Model armor = ForgeHooksClient.getArmorModel(player, chestPlate, EquipmentSlot.CHEST, ArmoredArms.RENDER_ARM_MANAGER.actualHumanoidModel);
+                this.renderWear = !this.noRenderArmWearList.contains(new ShapelessRL(rl)) && (this.renderArmWearList.contains(new ShapelessRL(rl)) || armor == null || armor.getClass() == HumanoidArmorModel.class);
             }
         }
     }
 
     @Override
-    public void renderNotTransformed(AbstractClientPlayer player, float partialTicks, float interpPitch, EnumHand hand, float swingProgress, ItemStack stack, float equipProgress) {
-        this.canceled = ForgeHooksClient.renderSpecificFirstPersonHand(hand, partialTicks, interpPitch, swingProgress, equipProgress, stack);
-    }
-
-    @Override
-    public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+    public void renderTransformed(PoseStack poseStack, MultiBufferSource buffer, AbstractClientPlayer player, HumanoidArm side, int combinedLight) {
         if (player.isInvisible() || this.canceled) {
             return;
         }
 
-        this.renderPlayer.bindTexture(player.getLocationSkin());
-        this.renderArm(player, handSide);
+        this.renderArm(poseStack, buffer, combinedLight, player, side, !AAConfig.disableArmWear || (AAConfig.enableArmWearWithVanillaM && this.renderWear));
     }
 
     @Override
@@ -68,9 +70,9 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
 
     @Override
     public void init(AbstractClientPlayer player) {
-        this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
-        this.baseArmorModel = new ModelBiped(1.0F);
+        this.renderPlayer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
         this.renderArmWearList = this.initRenderArmWearList();
+        this.noRenderArmWearList = this.initNoRenderArmWearList();
     }
 
     public List<ShapelessRL> initRenderArmWearList() {
@@ -85,124 +87,61 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
         return ret;
     }
 
-    public void renderArm(AbstractClientPlayer player, EnumHandSide side) {
-        switch (side) {
-            case RIGHT:
-                this.renderRightArmMC(player, !AAConfig.disableArmWear || (AAConfig.enableArmWearWithVanillaM && this.currentArmorModelBiped));
-            break;
-            case LEFT:
-                this.renderLeftArmMC(player, !AAConfig.disableArmWear || (AAConfig.enableArmWearWithVanillaM && this.currentArmorModelBiped));
-            break;
+    public List<ShapelessRL> initNoRenderArmWearList() {
+        List<ShapelessRL> ret = new ArrayList<>(AAConfig.noRenderArmWearList.length);
+        for (String id : AAConfig.noRenderArmWearList) {
+            ShapelessRL rl = new ShapelessRL(id);
+
+            if (!rl.isEmpty()) {
+                ret.add(rl);
+            }
         }
+        return ret;
     }
 
-    public void renderRightArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
-        GlStateManager.color(1.0F, 1.0F, 1.0F);
-        ModelPlayer modelplayer = this.renderPlayer.getMainModel();
-        this.setModelVisibilitiesMC(clientPlayer);
-        GlStateManager.enableBlend();
-        modelplayer.swingProgress = 0.0F;
-        modelplayer.isSneak = false;
-        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
-        modelplayer.bipedRightArm.rotateAngleX = 0.0F;
-        modelplayer.bipedRightArm.render(0.0625F);
+    public void renderArm(PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight, AbstractClientPlayer player, HumanoidArm side, boolean renderWear) {
+        PlayerModel<AbstractClientPlayer> playerModel = this.renderPlayer.getModel();
+        ModelPart pRendererArmWear;
+        ModelPart pRendererArm = switch (side) {
+            case RIGHT -> {
+                pRendererArmWear = playerModel.rightSleeve;
+                yield playerModel.rightArm;
+            }
+            case LEFT -> {
+                pRendererArmWear = playerModel.leftSleeve;
+                yield playerModel.leftArm;
+            }
+        };
+
+        this.setModelProperties(player);
+        playerModel.attackTime = 0.0F;
+        playerModel.crouching = false;
+        playerModel.swimAmount = 0.0F;
+        playerModel.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+        pRendererArm.xRot = 0.0F;
+        pRendererArm.render(pPoseStack, pBuffer.getBuffer(RenderType.entitySolid(player.getSkinTextureLocation())), pCombinedLight, OverlayTexture.NO_OVERLAY);
         if (renderWear) {
-            modelplayer.bipedRightArmwear.rotateAngleX = 0.0F;
-            modelplayer.bipedRightArmwear.render(0.0625F);
-        }
-        GlStateManager.disableBlend();
-    }
-
-    public void renderLeftArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
-        GlStateManager.color(1.0F, 1.0F, 1.0F);
-        ModelPlayer modelplayer = this.renderPlayer.getMainModel();
-        this.setModelVisibilitiesMC(clientPlayer);
-        GlStateManager.enableBlend();
-        modelplayer.isSneak = false;
-        modelplayer.swingProgress = 0.0F;
-        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
-        modelplayer.bipedLeftArm.rotateAngleX = 0.0F;
-        modelplayer.bipedLeftArm.render(0.0625F);
-        if (renderWear) {
-            modelplayer.bipedLeftArmwear.rotateAngleX = 0.0F;
-            modelplayer.bipedLeftArmwear.render(0.0625F);
-        }
-        GlStateManager.disableBlend();
-    }
-
-    private void setModelVisibilitiesMC(AbstractClientPlayer clientPlayer) {
-        ModelPlayer modelplayer = this.renderPlayer.getMainModel();
-
-        if (clientPlayer.isSpectator())
-        {
-            modelplayer.setVisible(false);
-            modelplayer.bipedHead.showModel = true;
-            modelplayer.bipedHeadwear.showModel = true;
-        }
-        else
-        {
-            ItemStack itemstack = clientPlayer.getHeldItemMainhand();
-            ItemStack itemstack1 = clientPlayer.getHeldItemOffhand();
-            modelplayer.setVisible(true);
-            modelplayer.bipedHeadwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.HAT);
-            modelplayer.bipedBodyWear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
-            modelplayer.bipedLeftLegwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
-            modelplayer.bipedRightLegwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
-            modelplayer.bipedLeftArmwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
-            modelplayer.bipedRightArmwear.showModel = clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
-            modelplayer.isSneak = clientPlayer.isSneaking();
-            ModelBiped.ArmPose modelbiped$armpose = ModelBiped.ArmPose.EMPTY;
-            ModelBiped.ArmPose modelbiped$armpose1 = ModelBiped.ArmPose.EMPTY;
-
-            if (!itemstack.isEmpty())
-            {
-                modelbiped$armpose = ModelBiped.ArmPose.ITEM;
-
-                if (clientPlayer.getItemInUseCount() > 0)
-                {
-                    EnumAction enumaction = itemstack.getItemUseAction();
-
-                    if (enumaction == EnumAction.BLOCK)
-                    {
-                        modelbiped$armpose = ModelBiped.ArmPose.BLOCK;
-                    }
-                    else if (enumaction == EnumAction.BOW)
-                    {
-                        modelbiped$armpose = ModelBiped.ArmPose.BOW_AND_ARROW;
-                    }
-                }
-            }
-
-            if (!itemstack1.isEmpty())
-            {
-                modelbiped$armpose1 = ModelBiped.ArmPose.ITEM;
-
-                if (clientPlayer.getItemInUseCount() > 0)
-                {
-                    EnumAction enumaction1 = itemstack1.getItemUseAction();
-
-                    if (enumaction1 == EnumAction.BLOCK)
-                    {
-                        modelbiped$armpose1 = ModelBiped.ArmPose.BLOCK;
-                    }
-                    // FORGE: fix MC-88356 allow offhand to use bow and arrow animation
-                    else if (enumaction1 == EnumAction.BOW)
-                    {
-                        modelbiped$armpose1 = ModelBiped.ArmPose.BOW_AND_ARROW;
-                    }
-                }
-            }
-
-            if (clientPlayer.getPrimaryHand() == EnumHandSide.RIGHT)
-            {
-                modelplayer.rightArmPose = modelbiped$armpose;
-                modelplayer.leftArmPose = modelbiped$armpose1;
-            }
-            else
-            {
-                modelplayer.rightArmPose = modelbiped$armpose1;
-                modelplayer.leftArmPose = modelbiped$armpose;
-            }
+            pRendererArmWear.xRot = 0.0F;
+            pRendererArmWear.render(pPoseStack, pBuffer.getBuffer(RenderType.entityTranslucent(player.getSkinTextureLocation())), pCombinedLight, OverlayTexture.NO_OVERLAY);
         }
     }
+
+    private void setModelProperties(AbstractClientPlayer pClientPlayer) {
+        PlayerModel<AbstractClientPlayer> playermodel = this.renderPlayer.getModel();
+        if (pClientPlayer.isSpectator()) {
+            playermodel.setAllVisible(false);
+            playermodel.head.visible = true;
+            playermodel.hat.visible = true;
+        } else {
+            playermodel.setAllVisible(true);
+            playermodel.hat.visible = pClientPlayer.isModelPartShown(PlayerModelPart.HAT);
+            playermodel.jacket.visible = pClientPlayer.isModelPartShown(PlayerModelPart.JACKET);
+            playermodel.leftPants.visible = pClientPlayer.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
+            playermodel.rightPants.visible = pClientPlayer.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
+            playermodel.leftSleeve.visible = pClientPlayer.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
+            playermodel.rightSleeve.visible = pClientPlayer.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
+            playermodel.crouching = pClientPlayer.isCrouching();
+        }
+    }
+
 }

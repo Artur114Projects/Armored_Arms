@@ -1,20 +1,20 @@
 package com.artur114.armoredarms.api.events;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
-import net.minecraft.util.EnumHandSide;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 @Cancelable
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AARenderLayerRenderingEvent extends Event {
     private final boolean renderManagerState;
     private final IArmRenderLayer layer;
-    private final EnumHandSide side;
+    private final HumanoidArm side;
 
-    public AARenderLayerRenderingEvent(IArmRenderLayer layer, EnumHandSide side, boolean renderManagerState) {
+    public AARenderLayerRenderingEvent(IArmRenderLayer layer, HumanoidArm side, boolean renderManagerState) {
         this.renderManagerState = renderManagerState;
         this.layer = layer;
         this.side = side;
@@ -28,7 +28,7 @@ public class AARenderLayerRenderingEvent extends Event {
         return this.layer;
     }
 
-    public EnumHandSide getHandSide() {
+    public HumanoidArm getHandSide() {
         return this.side;
     }
 }

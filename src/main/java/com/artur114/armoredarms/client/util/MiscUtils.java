@@ -2,13 +2,16 @@ package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.client.core.ArmRenderLayerVanilla;
 import com.artur114.armoredarms.main.ArmoredArms;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.util.EnumHandSide;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class MiscUtils {
-    public static int handSideDelta(EnumHandSide handSide) {
+    public static int handSideDelta(HumanoidArm handSide) {
         switch (handSide) {
             case RIGHT:
                 return 1;
@@ -19,39 +22,31 @@ public class MiscUtils {
         }
     }
 
-    public static ModelRenderer handFromModelBiped(ModelBiped mb, EnumHandSide handSide) {
-        switch (handSide) {
-            case RIGHT:
-                return mb.bipedRightArm;
-            case LEFT:
-                return mb.bipedLeftArm;
-            default:
-                throw new NullPointerException();
-        }
+    public static ModelPart handFromHumanoidModel(HumanoidModel<?> mb, HumanoidArm handSide) {
+        return switch (handSide) {
+            case RIGHT -> mb.rightArm;
+            case LEFT -> mb.leftArm;
+        };
     }
 
-    public static ModelRenderer handFromModelPlayer(ModelPlayer mb, EnumHandSide handSide, boolean wear) {
-        switch (handSide) {
-            case RIGHT:
-                return wear ? mb.bipedRightArmwear : mb.bipedRightArm;
-            case LEFT:
-                return wear ? mb.bipedLeftArmwear : mb.bipedLeftArm;
-            default:
-                throw new NullPointerException();
-        }
+    public static ModelPart handFromModelPlayer(PlayerModel<?> mb, HumanoidArm handSide, boolean wear) {
+        return switch (handSide) {
+            case RIGHT -> wear ? mb.rightArm : mb.rightSleeve;
+            case LEFT -> wear ? mb.leftArm : mb.leftSleeve;
+        };
     }
 
-    public static ModelRenderer[] playerArms() {
-        ModelPlayer player = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class).renderPlayer.getMainModel();
-        return new ModelRenderer[] {player.bipedLeftArm, player.bipedRightArm};
+    public static ModelPart[] playerArms() {
+        PlayerModel<?> player = ((PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(Minecraft.getInstance().player)).getModel();
+        return new ModelPart[] {player.leftArm, player.rightArm};
     }
 
-    public static void setPlayerArmDataToArm(ModelRenderer arm, ModelRenderer playerArm) {
-        arm.rotateAngleX = playerArm.rotateAngleX;
-        arm.rotateAngleY = playerArm.rotateAngleY;
-        arm.rotateAngleZ = playerArm.rotateAngleZ;
-        arm.offsetX = playerArm.offsetX;
-        arm.offsetY = playerArm.offsetY;
-        arm.offsetZ = playerArm.offsetZ;
+    public static void setPlayerArmDataToArm(ModelPart arm, ModelPart playerArm) {
+        arm.xRot = playerArm.xRot;
+        arm.yRot = playerArm.yRot;
+        arm.zRot = playerArm.zRot;
+        arm.x = playerArm.x;
+        arm.y = playerArm.y;
+        arm.z = playerArm.z;
     }
 }
