@@ -9,7 +9,11 @@ import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 @Mod.EventBusSubscriber
 @Mod(ArmoredArms.MODID)
@@ -17,6 +21,10 @@ public class ArmoredArms {
 //    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
     public static final String MODID = "armoredarms";
+
+    public ArmoredArms() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, AAConfig.SPEC);
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     @OnlyIn(Dist.CLIENT)
