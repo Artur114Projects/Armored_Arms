@@ -1,0 +1,17 @@
+{
+  "armoredarms.cfg.disableArmWear": "Disable rendering of arm wear with armor equipped",
+  "armoredarms.cfg.renderBlackList": "Blacklist of armor for rendering",
+  "armoredarms.cfg.renderArmWearList": "List of armors that require arm wear render",
+  "armoredarms.cfg.vanillaArmorModelSize": "Vanilla armor model size",
+  "armoredarms.cfg.useCheckByItem": "Use check by item",
+  "armoredarms.cfg.enableArmWearWithVanillaM": "Enable rendering arm wear for vanilla armor model",
+
+  "armoredarms.error.unknown.tryRender": "An unknown error occurred while trying to render! Details:",
+  "armoredarms.error.unknown.tryTick": "An unknown error occurred while trying to update! Details:",
+  "armoredarms.error.layer.fatal.tryRender": "A fatal error occurred while attempting to render the layer! The layer will be deleted and will not be rendered! Details:",
+  "armoredarms.error.layer.fatal.tryTick": "A fatal error occurred while attempting to update the layer! The layer will be deleted and will not render! Details:",
+  "armoredarms.error.fatal.tryRender": "A fatal error occurred while trying to render! The armor on the hands will not be rendered! Details:",
+  "armoredarms.error.fatal.tryTick": "A fatal error occurred while trying to update! The armor on hands will not be rendered! Details:",
+  "armoredarms.error.layer.armor.tryRender": "An error occurred while trying to render! The armor is blacklisted and will not be rendered! Details:",
+  "armoredarms.error.layer.armor.tryTick": "An error occurred while trying to update! The armor is blacklisted and will not be rendered! Details:"
+}

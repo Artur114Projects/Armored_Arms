@@ -1,37 +1,37 @@
 package com.artur114.armoredarms.client.util;
 
-import net.minecraft.client.Minecraft;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MappingsProcessor {
     private static final Map<String, String> fieldsDeObfObf = new HashMap<>(9656);
     private static final Map<String, String> fieldsObfDeObf = new HashMap<>(9656);
+    private static final String[] gavnoMappings = new String[] {
+            "f_170673_,OVERLAY_SCALE",
+            "f_170674_,HAT_OVERLAY_SCALE",
+            "f_102808_,head",
+            "f_102809_,hat",
+            "f_102810_,body",
+            "f_102811_,rightArm",
+            "f_102812_,leftArm",
+            "f_102813_,rightLeg",
+            "f_102814_,leftLeg"
+    };
 
     public static void load() {
         try {
-            loadCSVMappings(fieldsDeObfObf, fieldsObfDeObf, "fields.csv");
+            loadCSVMappings();
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }
     }
 
-    private static void loadCSVMappings(Map<String, String> deObfObf, Map<String, String> obfDeObf, String fileName) throws IOException {
-        InputStream stream = Minecraft.class.getResourceAsStream("/assets/armoredarms/mappings/" + fileName);
-        if (stream == null) {
-            throw new NullPointerException();
-        }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] values = line.split(",");
-            deObfObf.put(values[1], values[0]);
-            obfDeObf.put(values[0], values[1]);
+    private static void loadCSVMappings() throws IOException {
+        for (int i = 0; i != gavnoMappings.length; i++){
+            String[] values = gavnoMappings[i].split(",");
+            MappingsProcessor.fieldsDeObfObf.put(values[1], values[0]);
+            MappingsProcessor.fieldsObfDeObf.put(values[0], values[1]);
         }
     }
 

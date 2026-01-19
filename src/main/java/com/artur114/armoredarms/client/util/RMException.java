@@ -2,6 +2,8 @@ package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.ArrayList;
 
@@ -85,25 +87,23 @@ public class RMException extends RuntimeException {
     }
 
     public Component[] messageForPlayer() {
-//        ArrayList<Component> list = new ArrayList<>(4);
-//        if (this.messageForPlayer != null) {
-//            list.add(0, new Compo(this.messageForPlayer + "." + this.method.nameString()));
-//        }
-//        if (this.isFatal) {
-//            list.add(0, new TextComponentTranslation("armoredarms.error.fatal." + this.method.nameString()));
-//        }
-//        if (this.isFatalOnLayer()) {
-//            list.add(0, new TextComponentTranslation("armoredarms.error.layer.fatal." + this.method.nameString()));
-//
-//            list.add(new TextComponentString("Layer: " + this.fatalOnLayer.getClass().getName()));
-//        }
-//        if (list.isEmpty()) {
-//            list.add(new TextComponentTranslation("armoredarms.error.unknown." + this.method.nameString()));
-//        }
-//        list.add(new TextComponentString("Message: " + this.getMessage()));
-//        return list.toArray(new ITextComponent[0]);
+        ArrayList<Component> list = new ArrayList<>(4);
+        if (this.messageForPlayer != null) {
+            list.add(0, Component.translatable(this.messageForPlayer + "." + this.method.nameString()));
+        }
+        if (this.isFatal) {
+            list.add(0, Component.translatable("armoredarms.error.fatal." + this.method.nameString()));
+        }
+        if (this.isFatalOnLayer()) {
+            list.add(0, Component.translatable("armoredarms.error.layer.fatal." + this.method.nameString()));
 
-        return new Component[0];
+            list.add(Component.literal("Layer: " + this.fatalOnLayer.getClass().getName()));
+        }
+        if (list.isEmpty()) {
+            list.add(Component.translatable("armoredarms.error.unknown." + this.method.nameString()));
+        }
+        list.add(Component.literal("Message: " + this.getMessage()));
+        return list.toArray(new Component[0]);
     }
 
     public enum Method {

@@ -1,6 +1,6 @@
 package com.artur114.armoredarms.main;
 
-import com.artur114.armoredarms.client.core.RenderArmManager;
+import com.artur114.armoredarms.client.core.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 @Mod.EventBusSubscriber
 @Mod(ArmoredArms.MODID)
 public class ArmoredArms {
-//    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
+    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
     public static final String MODID = "armoredarms";
 
@@ -41,6 +41,6 @@ public class ArmoredArms {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void clientChat(ClientChatEvent e) {
-//        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
+        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
     }
 }

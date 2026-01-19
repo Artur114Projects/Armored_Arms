@@ -8,6 +8,7 @@ import com.artur114.armoredarms.client.util.Reflector;
 import com.artur114.armoredarms.main.AAConfig;
 import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -18,6 +19,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraftforge.api.distmarker.Dist;
@@ -145,7 +148,9 @@ public class RenderArmManager {
         }
 
         for (Component message : exception.messageForPlayer()) {
-//            this.mc.player.displayClientMessage(message.getSiblings().set(new Style().setColor(TextFormatting.RED)), false);
+            if (this.mc.player != null) {
+                this.mc.player.displayClientMessage(((MutableComponent) message).withStyle(ChatFormatting.RED), false);
+            }
         }
 
         exception.printStackTrace(System.err);

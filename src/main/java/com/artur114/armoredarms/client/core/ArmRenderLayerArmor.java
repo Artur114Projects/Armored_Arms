@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,7 +35,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public class ArmRenderLayerArmor implements IArmRenderLayer {
@@ -369,14 +369,18 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void renderArm(PoseStack pPoseStack, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
             ModelPart arm = this.arms[side.ordinal()];
-            MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
-            if (this.mb instanceof HumanoidModel<?> model) {
+            arm.copyFrom(this.playerArms[side.ordinal()]);
+            if (this.mb instanceof HumanoidModel<?>) {
+                HumanoidModel<LivingEntity> model = (HumanoidModel<LivingEntity>) this.mb;
+                model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
                 model.attackTime = 0.0F;
                 model.crouching = false;
                 model.swimAmount = 0.0F;
             }
+            arm.xRot = 0.0F;
             boolean s = arm.skipDraw;
             boolean v = arm.visible;
             arm.skipDraw = false;
