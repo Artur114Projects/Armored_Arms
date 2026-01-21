@@ -318,8 +318,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 
         protected IModelOnlyArms createModelOnlyArms(Model model) {
             if (ModsEnum.GECKO_LIB.suppleIfLoaded(() -> (model instanceof GeoArmorRenderer<?>))) {
-                throw new IllegalStateException("Geo armor models is not support. Please report this on the issues tracker. Armor model class:" + model.getClass().getName());
-//                return new GeckoModelOnlyArms((GeoArmorRenderer<?>) model);
+//                throw new IllegalStateException("Geo armor models is not support. Please report this on the issues tracker. Armor model class:" + model.getClass().getName());
+                return new GeckoModelOnlyArms((GeoArmorRenderer<?>) model);
             } else if (model instanceof HumanoidModel<?> hm) {
                 return new DefaultModelOnlyArms(model, this.extractArms(hm));
             } else {

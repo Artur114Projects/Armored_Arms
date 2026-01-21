@@ -54,7 +54,7 @@ public class AAConfig {
     public static boolean disableArmWear = true;
     public static boolean enableArmWearWithVanillaM = true;
     public static String[] renderBlackList = new String[0];
-    public static String[] renderArmWearList = new String[] {"iceandfire:*", "botania:*"};
+    public static String[] renderArmWearList = new String[] {"iceandfire:*", "botania:*", "warborn:*"};
     public static String[] noRenderArmWearList = new String[] {"create:netherite_backtank"};
     public static double vanillaArmorModelSize = 0.4D;
     public static boolean useForcedRotations = true;
