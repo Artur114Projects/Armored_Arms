@@ -41,6 +41,10 @@ public class AAConfig {
             .comment("Vanilla armor model size")
             .define("vanillaArmorModelSize", 0.4D);
 
+    private static final ForgeConfigSpec.BooleanValue USE_FORCED_ROTATIONS = BUILDER
+            .comment("Eliminates any hand displacements other than those planned; may be incompatible with mods that add hand animations.")
+            .define("useForcedRotations", true);
+
     private static final ForgeConfigSpec.BooleanValue USE_CHECK_BY_ITEM = BUILDER
             .comment("Use check by item")
             .define("useCheckByItem", false);
@@ -53,6 +57,7 @@ public class AAConfig {
     public static String[] renderArmWearList = new String[] {"iceandfire:*", "botania:*"};
     public static String[] noRenderArmWearList = new String[] {"create:netherite_backtank"};
     public static double vanillaArmorModelSize = 0.4D;
+    public static boolean useForcedRotations = true;
     public static boolean useCheckByItem = false;
 
     @SubscribeEvent
@@ -63,6 +68,7 @@ public class AAConfig {
         noRenderArmWearList = RENDER_ARM_WEAR_LIST.getPath().toArray(new String[0]);
         noRenderArmWearList = NO_RENDER_ARM_WEAR_LIST.getPath().toArray(new String[0]);
         vanillaArmorModelSize = VANILLA_ARMOR_MODEL_SIZE.get();
+        useForcedRotations = USE_FORCED_ROTATIONS.get();
         useCheckByItem = USE_CHECK_BY_ITEM.get();
     }
 

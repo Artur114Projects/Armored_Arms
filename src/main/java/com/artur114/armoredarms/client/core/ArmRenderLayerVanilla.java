@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.IArmRenderLayer;
+import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
@@ -119,9 +120,11 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
         playerModel.swimAmount = 0.0F;
         playerModel.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         pRendererArm.xRot = 0.0F;
+        if (AAConfig.useForcedRotations) MiscUtils.setForcedRotations(pRendererArm, side);
         pRendererArm.render(pPoseStack, pBuffer.getBuffer(RenderType.entitySolid(player.getSkinTextureLocation())), pCombinedLight, OverlayTexture.NO_OVERLAY);
         if (renderWear) {
             pRendererArmWear.xRot = 0.0F;
+            if (AAConfig.useForcedRotations) MiscUtils.setForcedRotations(pRendererArmWear, side);
             pRendererArmWear.render(pPoseStack, pBuffer.getBuffer(RenderType.entityTranslucent(player.getSkinTextureLocation())), pCombinedLight, OverlayTexture.NO_OVERLAY);
         }
     }

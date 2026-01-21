@@ -2,6 +2,7 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.client.integration.GeckoModelOnlyArms;
 import com.artur114.armoredarms.client.util.*;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
@@ -31,6 +32,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -314,17 +317,18 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
 
         protected IModelOnlyArms createModelOnlyArms(Model model) {
-            ModelPart[] arms = this.extractArms(model);
-            if (arms == null) return null;
-            return new DefaultModelOnlyArms(model, arms);
+            if (ModsEnum.GECKO_LIB.suppleIfLoaded(() -> (model instanceof GeoArmorRenderer<?>))) {
+                throw new IllegalStateException("Geo armor models is not support. Please report this on the issues tracker. Armor model class:" + model.getClass().getName());
+//                return new GeckoModelOnlyArms((GeoArmorRenderer<?>) model);
+            } else if (model instanceof HumanoidModel<?> hm) {
+                return new DefaultModelOnlyArms(model, this.extractArms(hm));
+            } else {
+                throw new IllegalStateException("Armor model is not support. Please report this on the issues tracker. Armor model class:" + model.getClass().getName());
+            }
         }
 
-        protected ModelPart[] extractArms(Model model) {
-            System.out.println(model);
-            if (model instanceof HumanoidModel<?> hm) {
-                return new ModelPart[] {hm.leftArm, hm.rightArm};
-            }
-            return null;
+        protected ModelPart[] extractArms(HumanoidModel<?> model) {
+            return new ModelPart[] {model.leftArm, model.rightArm};
         }
     }
 
@@ -375,10 +379,10 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             arm.copyFrom(this.playerArms[side.ordinal()]);
             if (this.mb instanceof HumanoidModel<?>) {
                 HumanoidModel<LivingEntity> model = (HumanoidModel<LivingEntity>) this.mb;
-                model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
                 model.attackTime = 0.0F;
                 model.crouching = false;
                 model.swimAmount = 0.0F;
+                model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
             }
             arm.xRot = 0.0F;
             boolean s = arm.skipDraw;

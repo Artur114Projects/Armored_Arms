@@ -11,15 +11,22 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.HumanoidArm;
 
 public class MiscUtils {
+
+    public static void setForcedRotations(ModelPart part, HumanoidArm side) {
+        int delta = handSideDelta(side);
+        part.xRot = 0.0F;
+        part.yRot = 0.0F;
+        part.zRot = 0.1F * delta;
+        part.x = -5.0F * delta;
+        part.y = 2.0F;
+        part.z = 0.0F;
+    }
+
     public static int handSideDelta(HumanoidArm handSide) {
-        switch (handSide) {
-            case RIGHT:
-                return 1;
-            case LEFT:
-                return -1;
-            default:
-                return 0;
-        }
+        return switch (handSide) {
+            case RIGHT -> 1;
+            case LEFT -> -1;
+        };
     }
 
     public static ModelPart handFromHumanoidModel(HumanoidModel<?> mb, HumanoidArm handSide) {

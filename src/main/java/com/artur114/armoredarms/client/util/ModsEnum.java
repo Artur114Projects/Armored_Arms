@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public enum ModsEnum {
-    GECKO_LIB("cosmeticarmorreworked");
+    GECKO_LIB("geckolib");
 
     private AtomicBoolean loaded = null;
     private final String[] modId;
