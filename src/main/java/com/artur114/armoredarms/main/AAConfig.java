@@ -64,9 +64,9 @@ public class AAConfig {
     public static void onLoad(final ModConfigEvent event) {
         disableArmWear = DISABLE_ARM_WEAR.get();
         enableArmWearWithVanillaM = ENABLE_ARM_WEAR_WITH_VANILLA_M.get();
-        renderBlackList = RENDER_BLACK_LIST.getPath().toArray(new String[0]);
-        noRenderArmWearList = RENDER_ARM_WEAR_LIST.getPath().toArray(new String[0]);
-        noRenderArmWearList = NO_RENDER_ARM_WEAR_LIST.getPath().toArray(new String[0]);
+        renderBlackList = RENDER_BLACK_LIST.get().toArray(new String[0]);
+        noRenderArmWearList = RENDER_ARM_WEAR_LIST.get().toArray(new String[0]);
+        noRenderArmWearList = NO_RENDER_ARM_WEAR_LIST.get().toArray(new String[0]);
         vanillaArmorModelSize = VANILLA_ARMOR_MODEL_SIZE.get();
         useForcedRotations = USE_FORCED_ROTATIONS.get();
         useCheckByItem = USE_CHECK_BY_ITEM.get();
