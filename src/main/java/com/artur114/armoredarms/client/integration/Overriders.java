@@ -19,6 +19,7 @@ import com.gildedgames.the_aether.player.PlayerAether;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.loader.ModelRendererObj;
 import com.hbm.render.model.ModelT45Chest;
+import com.mjr.extraplanets.client.model.ArmorCustomModel;
 import epicsquid.mysticallib.client.model.ModelArmorBase;
 import galaxyspace.core.GSItems;
 import galaxyspace.systems.SolarSystem.planets.overworld.render.item.ItemSpaceSuitModel;
@@ -54,6 +55,7 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 import pl.pabilo8.immersiveintelligence.client.model.armor.ModelLightEngineerArmor;
 import pl.pabilo8.immersiveintelligence.client.util.tmt.ModelRendererTurbo;
 import pl.pabilo8.immersiveintelligence.common.IIContent;
@@ -91,6 +93,7 @@ public class Overriders {
         e.registerOverrider("cqrepoured", "chestplate_slime", new SlimeArmorOverrider(), false);
         e.registerOverrider("conarm", "*", new ConstructedArmorOverrider(), false);
         e.registerOverrider("roots", "*", new RootsOverrider(), false);
+        e.registerOverrider("extraplanets", "*", new ExtraPlanetsArmorOverrider(), false);
 
         e.addArmorToBlackList(AAConfig.renderBlackList);
     }
@@ -549,6 +552,47 @@ public class Overriders {
                 GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
                 super.renderArm(player, itemArmor, stackArmor, side);
                 GlStateManager.disableBlend();
+            }
+        }
+    }
+
+    public static class ExtraPlanetsArmorOverrider extends ArmRenderLayerArmor.DefaultModelGetter {
+        public ExtraPlanetsArmorOverrider() {
+            this.setFactory((ExtraPlanetsModelOnlyArms::new));
+        }
+
+        public static class ExtraPlanetsModelOnlyArms extends ArmRenderLayerArmor.DefaultModelOnlyArms {
+
+            public ExtraPlanetsModelOnlyArms(ModelBiped mb) {
+                super(mb);
+            }
+
+            @Override
+            public void renderArm(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stackArmor, EnumHandSide side) {
+                ArmorCustomModel model = (ArmorCustomModel) this.mb;
+                ModelRenderer arm = this.arms[side.ordinal()];
+                arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+                arm.rotationPointY = 2.0F;
+                arm.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
+                arm.rotateAngleX = 0.0F;
+                model.isSneak = false;
+                model.isChild = false;
+
+                GL11.glPushMatrix();
+                GL11.glTranslatef(arm.rotationPointX * (1.0F / 16.0F), arm.rotationPointY * (1.0F / 16.0F), arm.rotationPointZ * (1.0F / 16.0F));
+                GL11.glRotatef(arm.rotateAngleZ * 57.295776F, 0.0F, 0.0F, 1.0F);
+                GL11.glRotatef(arm.rotateAngleY * 57.295776F, 0.0F, 1.0F, 0.0F);
+                GL11.glRotatef(arm.rotateAngleX * 57.295776F, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(180.0F, 0.0F, 1.0F, 0.0F);
+
+                if (side == EnumHandSide.RIGHT) {
+                    model.partRightArm();
+                } else {
+                    model.partLeftArm();
+                }
+                GL11.glPopMatrix();
             }
         }
     }
