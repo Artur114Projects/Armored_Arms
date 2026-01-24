@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public enum ModsEnum {
+    AZURE_LIB("azurelib"),
     GECKO_LIB("geckolib");
 
     private AtomicBoolean loaded = null;

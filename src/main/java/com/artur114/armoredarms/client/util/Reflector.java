@@ -4,7 +4,9 @@ package com.artur114.armoredarms.client.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+/**
+ * Ultra dark magic class.
+ */
 public class Reflector {
 
     @SuppressWarnings("unchecked")

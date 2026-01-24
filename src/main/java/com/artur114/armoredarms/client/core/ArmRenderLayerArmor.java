@@ -2,6 +2,7 @@ package com.artur114.armoredarms.client.core;
 
 import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
+import com.artur114.armoredarms.client.integration.AzureModelOnlyArms;
 import com.artur114.armoredarms.client.integration.GeckoModelOnlyArms;
 import com.artur114.armoredarms.client.util.*;
 import com.artur114.armoredarms.main.AAConfig;
@@ -9,6 +10,7 @@ import com.artur114.armoredarms.main.ArmoredArms;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mod.azure.azurelib.render.armor.AzArmorModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -316,10 +318,11 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
             return this.createModelOnlyArms(model);
         }
 
-        protected IModelOnlyArms createModelOnlyArms(Model model) {
+        protected IModelOnlyArms createModelOnlyArms(Model model) { // spaghetti!
             if (ModsEnum.GECKO_LIB.suppleIfLoaded(() -> (model instanceof GeoArmorRenderer<?>))) {
-//                throw new IllegalStateException("Geo armor models is not support. Please report this on the issues tracker. Armor model class:" + model.getClass().getName());
                 return new GeckoModelOnlyArms((GeoArmorRenderer<?>) model);
+            } else if (ModsEnum.AZURE_LIB.suppleIfLoaded(() -> model instanceof AzArmorModel<?>)) {
+                return new AzureModelOnlyArms((AzArmorModel<?>) model);
             } else if (model instanceof HumanoidModel<?> hm) {
                 return new DefaultModelOnlyArms(model, this.extractArms(hm));
             } else {

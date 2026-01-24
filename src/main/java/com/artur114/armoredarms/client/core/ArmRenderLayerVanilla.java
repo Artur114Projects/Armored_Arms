@@ -71,7 +71,6 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
 
     @Override
     public void init(AbstractClientPlayer player) {
-        this.renderPlayer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
         this.renderArmWearList = this.initRenderArmWearList();
         this.noRenderArmWearList = this.initNoRenderArmWearList();
     }
@@ -101,6 +100,7 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     }
 
     public void renderArm(PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight, AbstractClientPlayer player, HumanoidArm side, boolean renderWear) {
+        this.renderPlayer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
         PlayerModel<AbstractClientPlayer> playerModel = this.renderPlayer.getModel();
         ModelPart pRendererArmWear;
         ModelPart pRendererArm = switch (side) {

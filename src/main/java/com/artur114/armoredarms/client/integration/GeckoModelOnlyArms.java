@@ -25,7 +25,6 @@ import java.lang.Math;
 import java.util.Iterator;
 
 public class GeckoModelOnlyArms implements IModelOnlyArms {
-    public final ModelPart[] playerArms = MiscUtils.playerArms();
     public final GeoArmorRenderer<?> mg;
     public final String[] arms;
 
@@ -34,8 +33,6 @@ public class GeckoModelOnlyArms implements IModelOnlyArms {
         this.mg = model;
 
         this.arms = new String[] {"armorLeftArm", "armorRightArm"};
-
-        System.out.println("Geckolib is gavno");
     }
 
     @Override
@@ -68,7 +65,7 @@ public class GeckoModelOnlyArms implements IModelOnlyArms {
         arm.setRotY(0.0F);
         arm.setRotZ((float) ((Math.PI + 0.1F) * delta));
 
-        arm.setPosX(-4.0F * (delta * 2) * -1);
+        arm.setPosX(arm.getPivotX() * 2);
         arm.setPosY(2.0F * -1 * 10);
         arm.setPosZ(0.0F);
 
