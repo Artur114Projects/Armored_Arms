@@ -61,6 +61,12 @@ import pl.pabilo8.immersiveintelligence.client.util.tmt.ModelRendererTurbo;
 import pl.pabilo8.immersiveintelligence.common.IIContent;
 import pl.pabilo8.immersiveintelligence.common.util.IIColor;
 import pl.pabilo8.immersiveintelligence.common.util.IISkinHandler;
+import techguns.capabilities.TGExtendedPlayer;
+import techguns.client.models.armor.ModelGloves;
+import techguns.client.render.AdditionalSlotRenderRegistry;
+import techguns.client.render.RenderAdditionalSlotItem;
+import techguns.items.armors.GenericArmor;
+import techguns.items.armors.ICamoChangeable;
 
 import java.util.List;
 
@@ -102,6 +108,7 @@ public class Overriders {
     public static void initRenderLayers(InitRenderLayersEvent e) {
         e.addLayerIfModLoad(ThermalPaddingRenderLayer.class, "galacticraftcore");
         e.addLayerIfModLoad(AetherGlovesRenderLayer.class, "aether_legacy");
+        e.addLayerIfModLoad(TechGunsGlovesRenderLayer.class, "techguns");
     }
 
     /**
@@ -594,6 +601,71 @@ public class Overriders {
                 }
                 GL11.glPopMatrix();
             }
+        }
+    }
+
+    public static class TechGunsGlovesRenderLayer implements IArmRenderLayer {
+        public final ModelRenderer[] playerArms = MiscUtils.playerArms();
+        private boolean render = false;
+
+        private ModelBiped model = new ModelGloves((float) AAConfig.vanillaArmorModelSize - 0.01F, false);
+        private ModelBiped model_slim = new ModelGloves((float) AAConfig.vanillaArmorModelSize - 0.01F, true);
+        private ResourceLocation texture = new ResourceLocation("techguns:textures/models/armor/working_gloves.png");
+        private ResourceLocation texture_slim = new ResourceLocation("techguns:textures/models/armor/working_gloves_slim.png");
+
+        @Override
+        public void update(AbstractClientPlayer player) {
+            this.render = this.isGlovesVisible(player);
+        }
+
+        @Override
+        public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+            if (this.render) {
+                boolean slim = false;
+                if (this.model_slim != null && player != null) {
+                    if (player.getSkinType().equals("slim")) {
+                        slim = true;
+                    }
+                }
+
+                ModelBiped m = slim ? this.model_slim : this.model;
+
+                Minecraft.getMinecraft().getTextureManager().bindTexture(slim ? this.texture_slim : this.texture);
+
+                ModelRenderer arm = MiscUtils.handFromModelBiped(m, handSide);
+                arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(handSide);
+                arm.rotationPointY = 2.0F;
+                arm.rotationPointZ = 0.0F;
+                MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[handSide.ordinal()]);
+                arm.rotateAngleX = 0.0F;
+                boolean h = arm.isHidden;
+                boolean s = arm.showModel;
+                arm.isHidden = false;
+                arm.showModel = true;
+                arm.render(1.0F / 16.0F);
+                arm.isHidden = h;
+                arm.showModel = s;
+            }
+        }
+
+        @Override
+        public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {
+            return this.render;
+        }
+
+        @Override
+        public void init(AbstractClientPlayer player) {
+
+        }
+
+        protected boolean isGlovesVisible(EntityPlayer ply) {
+            ItemStack b = ply.inventory.armorInventory.get(2);
+            TGExtendedPlayer props = TGExtendedPlayer.get(ply);
+            if (!b.isEmpty() && b.getItem() instanceof GenericArmor) {
+                GenericArmor a = (GenericArmor)b.getItem();
+                return !a.isHideGloveslot() && !props.tg_inventory.inventory.get(2).isEmpty();
+            }
+            return !props.tg_inventory.inventory.get(2).isEmpty();
         }
     }
 

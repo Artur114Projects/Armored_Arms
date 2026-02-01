@@ -2,9 +2,12 @@ package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.client.core.ArmRenderLayerVanilla;
 import com.artur114.armoredarms.main.ArmoredArms;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.EnumHandSide;
 
 public class MiscUtils {
@@ -42,7 +45,7 @@ public class MiscUtils {
     }
 
     public static ModelRenderer[] playerArms() {
-        ModelPlayer player = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class).renderPlayer.getMainModel();
+        ModelPlayer player = ((RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(Minecraft.getMinecraft().player)).getMainModel();
         return new ModelRenderer[] {player.bipedLeftArm, player.bipedRightArm};
     }
 
