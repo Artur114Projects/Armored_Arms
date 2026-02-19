@@ -1,16 +1,16 @@
 package com.artur114.armoredarms.client.integration;
 
 
-import com.artur114.armoredarms.api.IArmRenderLayer;
-import com.artur114.armoredarms.api.IModelOnlyArms;
-import com.artur114.armoredarms.api.IOverriderGetModel;
-import com.artur114.armoredarms.api.IOverriderGetTex;
+import com.artur114.armoredarms.api.*;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
+import com.artur114.armoredarms.api.events.InitVanillaHandRendererEvent;
 import com.artur114.armoredarms.client.core.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.core.ArmRenderLayerVanilla;
 import com.artur114.armoredarms.client.util.EnumHandSide;
 import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.client.util.Reflector;
+import com.artur114.armoredarms.client.util.ShapelessRL;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
 import com.gildedgames.the_aether.api.accessories.AccessoryType;
@@ -22,6 +22,10 @@ import com.gildedgames.the_aether.player.PlayerAether;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.loader.ModelRendererObj;
 import com.hbm.render.model.ModelT45Chest;
+import com.unascribed.ears.Ears;
+import com.unascribed.ears.LayerEars;
+import com.unascribed.ears.common.legacy.PartiallyUnmanagedEarsRenderDelegate;
+import com.unascribed.ears.common.render.EarsRenderDelegate;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -30,12 +34,16 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Here i ultrashitcoding
@@ -75,6 +83,12 @@ public class Overriders {
     @SubscribeEvent
     public void initRenderLayers(InitRenderLayersEvent e) {
         e.addLayerIfModLoad(AetherGlovesRenderLayer.class, "aether_legacy");
+    }
+
+    @SubscribeEvent
+    public void initVanillaRenderers(InitVanillaHandRendererEvent e) {
+        e.setRendererIfModLoaded(SkinPortVanillaHandRenderer.class, "skinport");
+        e.setRendererIfModLoaded(EarsVanillaHandRenderer.class, "ears");
     }
 
     public static class OverriderBotania extends ArmRenderLayerArmor.DefaultModelGetter {
@@ -286,6 +300,102 @@ public class Overriders {
         @Override
         public void init(AbstractClientPlayer player) {
             this.renderPlayer = (RenderPlayer) RenderManager.instance.getEntityRenderObject(player);
+        }
+    }
+
+    public static class SkinPortVanillaHandRenderer implements IVanillaHandRenderer {
+        private final ModelBiped defaultModel = new ModelBiped(1.0F);
+        public List<ShapelessRL> renderArmWearList = null;
+        private boolean isCurrentModelBiped = false;
+        public ItemStack chestPlate = null;
+
+        @Override
+        public void update(AbstractClientPlayer player, RenderPlayer renderPlayer) {
+            ItemStack chestPlate = player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID + 1);
+
+            if (this.renderArmWearList == null) {
+                this.renderArmWearList = this.initRenderArmWearList();
+            }
+
+            if (this.chestPlate != chestPlate) {
+                this.chestPlate = chestPlate;
+
+                if (chestPlate != null && chestPlate.getItem() instanceof ItemArmor) {
+                    ModelBiped armor = ForgeHooksClient.getArmorModel(player, chestPlate, ArmoredArms.CHEST_PLATE_ID, this.defaultModel);
+                    this.isCurrentModelBiped = this.renderArmWearList.contains(new ShapelessRL(Item.itemRegistry.getNameForObject(this.chestPlate.getItem()))) || armor == null || armor.getClass() == ModelBiped.class;
+                }
+            }
+        }
+
+        @Override
+        public void renderHand(AbstractClientPlayer player, RenderPlayer renderPlayer, EnumHandSide side) {
+            ModelBiped mb = renderPlayer.modelBipedMain;
+            float f = 1.0F;
+            GL11.glColor3f(f, f, f);
+            mb.swingProgress = 0.0F;
+            mb.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, player);
+            ModelRenderer renderer = side.handFromModelBiped(mb);
+            if (!AAConfig.disableArmWear || (AAConfig.enableArmWearWithVanillaM && this.isCurrentModelBiped)) {
+                renderer.render(0.0625F);
+            } else {
+                List child = renderer.childModels;
+                renderer.childModels = null;
+                renderer.render(0.0625F);
+                renderer.childModels = child;
+            }
+        }
+
+        @Override
+        public boolean isCombinable() {
+            return true;
+        }
+
+        public List<ShapelessRL> initRenderArmWearList() {
+            List<ShapelessRL> ret = new ArrayList<>(AAConfig.renderArmWearList.length);
+            for (String id : AAConfig.renderArmWearList) {
+                ShapelessRL rl = new ShapelessRL(id);
+
+                if (!rl.isEmpty()) {
+                    ret.add(rl);
+                }
+            }
+            return ret;
+        }
+    }
+
+    public static class EarsVanillaHandRenderer implements IVanillaHandRenderer {
+        private final IVanillaHandRenderer defaultRender = new ArmRenderLayerVanilla.DefaultHandRender();
+        private PartiallyUnmanagedEarsRenderDelegate<AbstractClientPlayer, ModelRenderer> delegate = null;
+        private boolean isDead = false;
+
+        @Override
+        public void update(AbstractClientPlayer player, RenderPlayer renderPlayer) {
+            this.defaultRender.update(player, renderPlayer);
+        }
+
+        @Override
+        public void renderHand(AbstractClientPlayer player, RenderPlayer renderPlayer, EnumHandSide side) {
+            this.defaultRender.renderHand(player, renderPlayer, side);
+
+            if (this.isDead) {
+                return;
+            }
+
+            if (this.delegate == null) {
+                try {
+                    this.delegate = Reflector.getPrivateField(LayerEars.class, Reflector.getPrivateField(Ears.class, null, "layer"), "delegate");
+                } catch (Exception e) {
+                    this.isDead = true;
+                }
+            }
+
+            EarsRenderDelegate.BodyPart bodyPart = side == EnumHandSide.RIGHT ? EarsRenderDelegate.BodyPart.RIGHT_ARM : EarsRenderDelegate.BodyPart.LEFT_ARM;
+            this.delegate.render(player, bodyPart);
+        }
+
+        @Override
+        public boolean isCombinable() {
+            return true;
         }
     }
 }

@@ -25,7 +25,7 @@ public class ArmoredArms {
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
     public static final AAConfig CONFIGS = new AAConfig();
     public static final String GUI_FACTORY = "com.artur114.armoredarms.main.AAConfig$ConfigGuiFactory";
-    public static final String VERSION = "v1.2.0-1.7.10-release";
+    public static final String VERSION = "v1.2.1-1.7.10-release";
     public static final String MODID = "armoredarms";
     public static final String NAME = "Armored Arms";
 

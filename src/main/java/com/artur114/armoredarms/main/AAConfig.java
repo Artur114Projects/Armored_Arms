@@ -18,14 +18,21 @@ import java.util.Set;
 public class AAConfig {
     public static Configuration config;
 
+    public static String[] renderArmWearList = new String[0];
     public static String[] renderBlackList = new String[0];
+    public static boolean enableArmWearWithVanillaM = true;
     public static double vanillaArmorModelSize = 0.4D;
     public static boolean useCheckByItem = false;
+    public static boolean disableArmWear = true;
 
     private void sync() {
         renderBlackList = config.get("base", "renderBlackList", new String[0], "Blacklist of armor for rendering").getStringList();
         vanillaArmorModelSize = config.get("base", "vanillaArmorModelSize", 0.4D, "Vanilla armor model size").getDouble();
         useCheckByItem = config.get("base", "useCheckByItem", false, "Use check by item").getBoolean();
+
+        renderArmWearList = config.get("base", "renderArmWearList", new String[0], "List of armors that require arm wear render. Works with the mod installed that ports new skins.").getStringList();
+        enableArmWearWithVanillaM = config.get("base", "enableArmWearWithVanillaM", true, "Enable rendering arm wear for vanilla armor model. Works with the mod installed that ports new skins.").getBoolean();
+        disableArmWear = config.get("base", "disableArmWear", true, "Disable rendering of arm wear with armor equipped. Works with the mod installed that ports new skins.").getBoolean();
 
         if (config.hasChanged()) {
             config.save();
