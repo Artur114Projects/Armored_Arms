@@ -6,11 +6,15 @@ import com.artur114.armoredarms.api.events.AARenderLayerRenderingEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.util.RMException;
 import com.artur114.armoredarms.client.util.Reflector;
+import com.artur114.armoredarms.main.AAConfig;
 import com.google.common.base.MoreObjects;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -40,9 +44,11 @@ import java.util.Map;
 public class RenderArmManager {
     public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
     public Map<Class<? extends IArmRenderLayer>, IArmRenderLayer> renderLayers = null;
+    public final Int2ObjectMap<ModelBiped> actualModels = new Int2ObjectOpenHashMap<>();
     public final Minecraft mc = Minecraft.getMinecraft();
     public ItemRenderer itemRenderer = null;
     public RenderItem renderItem = null;
+    public float lastModelSize = -1.0F;
     public boolean initTick = true;
     public boolean render = false;
     public boolean died = false;
@@ -114,6 +120,22 @@ public class RenderArmManager {
         }
 
         this.render = render;
+    }
+
+    public ModelBiped actualDefaultModel(float delta) {
+        if (this.lastModelSize != AAConfig.vanillaArmorModelSize) {
+            this.lastModelSize = (float) AAConfig.vanillaArmorModelSize;
+            this.actualModels.clear();
+        }
+
+        ModelBiped model = this.actualModels.get(Float.floatToIntBits(delta));
+
+        if (model == null) {
+            model = new ModelBiped((float) (AAConfig.vanillaArmorModelSize + delta));
+            this.actualModels.put(Float.floatToIntBits(delta), model);
+        }
+
+        return model;
     }
 
     @SuppressWarnings("unchecked")

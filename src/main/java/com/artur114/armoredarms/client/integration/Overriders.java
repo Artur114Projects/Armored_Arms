@@ -1,5 +1,8 @@
 package com.artur114.armoredarms.client.integration;
 
+import artifacts.common.init.ModItems;
+import baubles.api.BaubleType;
+import baubles.api.BaublesApi;
 import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
 import c4.conarm.client.models.ModelConstructsArmor;
 import com.artur114.armoredarms.api.*;
@@ -37,8 +40,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
@@ -53,7 +58,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 import pl.pabilo8.immersiveintelligence.client.model.armor.ModelLightEngineerArmor;
@@ -68,6 +76,8 @@ import techguns.client.render.RenderAdditionalSlotItem;
 import techguns.items.armors.GenericArmor;
 import techguns.items.armors.ICamoChangeable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -109,6 +119,7 @@ public class Overriders {
         e.addLayerIfModLoad(ThermalPaddingRenderLayer.class, "galacticraftcore");
         e.addLayerIfModLoad(AetherGlovesRenderLayer.class, "aether_legacy");
         e.addLayerIfModLoad(TechGunsGlovesRenderLayer.class, "techguns");
+        e.addLayerIfModLoad(ArtifactsGlovesRenderLayer.class, "artifacts");
     }
 
     /**
@@ -604,6 +615,111 @@ public class Overriders {
         }
     }
 
+    public static class ArtifactsGlovesRenderLayer implements IArmRenderLayer {
+        public ResourceLocation feralClawsTextures;
+        public ResourceLocation powerGloveTextures;
+        public ResourceLocation mechanicalGloveTextures;
+        public ResourceLocation fireGauntletTextures;
+        public ResourceLocation fireGauntletOverlayTextures;
+        public ResourceLocation pocketPistonTextures;
+        public RenderPlayer renderPlayer;
+        public ModelPlayer defaultModel;
+        public boolean needRender = false;
+
+        @Override
+        public void update(AbstractClientPlayer player) {
+            this.needRender = this.setTextures(player, EnumHandSide.RIGHT, false, true) || this.setTextures(player, EnumHandSide.LEFT, false, true);
+        }
+
+        @Override
+        public void renderTransformed(AbstractClientPlayer player, EnumHandSide handSide) {
+            float lastLightmapX = OpenGlHelper.lastBrightnessX;
+            float lastLightmapY = OpenGlHelper.lastBrightnessY;
+            int light = 15728880;
+            int lightmapX = light % 65536;
+            int lightmapY = light / 65536;
+            this.renderArm(handSide, player, false);
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)lightmapX, (float)lightmapY);
+            GlStateManager.disableLighting();
+            this.renderArm(handSide, player, true);
+            GlStateManager.enableLighting();
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastLightmapX, lastLightmapY);
+        }
+
+        @Override
+        public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {
+            return this.needRender;
+        }
+
+        @Override
+        public void init(AbstractClientPlayer player) {
+            this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+            boolean smallArms = player.getSkinType().equals("slim");
+            this.defaultModel = new ModelPlayer(0.26F, smallArms);
+            this.feralClawsTextures = new ResourceLocation("artifacts", "textures/entity/layer/feral_claws_" + (smallArms ? "slim" : "normal") + ".png");
+            this.powerGloveTextures = new ResourceLocation("artifacts", "textures/entity/layer/power_glove_" + (smallArms ? "slim" : "normal") + ".png");
+            this.mechanicalGloveTextures = new ResourceLocation("artifacts", "textures/entity/layer/mechanical_glove_" + (smallArms ? "slim" : "normal") + ".png");
+            this.fireGauntletTextures = new ResourceLocation("artifacts", "textures/entity/layer/fire_gauntlet_" + (smallArms ? "slim" : "normal") + ".png");
+            this.fireGauntletOverlayTextures = new ResourceLocation("artifacts", "textures/entity/layer/fire_gauntlet_overlay_" + (smallArms ? "slim" : "normal") + ".png");
+            this.pocketPistonTextures = new ResourceLocation("artifacts", "textures/entity/layer/pocket_piston_" + (smallArms ? "slim" : "normal") + ".png");
+        }
+
+        private void renderArm(EnumHandSide hand, EntityPlayer player, boolean overlay) {
+            if (this.setTextures(player, hand, overlay, false)) {
+                ModelRenderer playerArm = MiscUtils.handFromModelBiped(this.renderPlayer.getMainModel(), hand);
+
+                this.render(hand, MiscUtils.handFromModelPlayer(this.defaultModel, hand, false), playerArm);
+                this.render(hand, MiscUtils.handFromModelPlayer(this.defaultModel, hand, true), playerArm);
+            }
+        }
+
+        private void render(EnumHandSide side, ModelRenderer arm, ModelRenderer playerArm) {
+            arm.rotationPointX = -5.0F * MiscUtils.handSideDelta(side);
+            arm.rotationPointY = 2.0F;
+            arm.rotationPointZ = 0.0F;
+            MiscUtils.setPlayerArmDataToArm(arm, playerArm);
+            arm.rotateAngleX = 0.0F;
+            boolean h = arm.isHidden;
+            boolean s = arm.showModel;
+            arm.isHidden = false;
+            arm.showModel = true;
+            arm.render(1.0F / 16.0F);
+            arm.isHidden = h;
+            arm.showModel = s;
+        }
+
+        private boolean setTextures(EntityPlayer player, EnumHandSide hand, boolean overlay, boolean simulate) {
+            ItemStack stack = BaublesApi.getBaublesHandler(player).getStackInSlot(BaubleType.RING.getValidSlots()[hand == EnumHandSide.LEFT ? 0 : 1]);
+            ResourceLocation textures = overlay ? this.getOverlayTextures(stack) : this.getTextures(stack);
+            if (textures != null) {
+                if (!simulate) Minecraft.getMinecraft().getTextureManager().bindTexture(textures);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Nullable
+        private ResourceLocation getTextures(ItemStack stack) {
+            if (stack.getItem() == ModItems.POWER_GLOVE) {
+                return this.powerGloveTextures;
+            } else if (stack.getItem() == ModItems.FERAL_CLAWS) {
+                return this.feralClawsTextures;
+            } else if (stack.getItem() == ModItems.MECHANICAL_GLOVE) {
+                return this.mechanicalGloveTextures;
+            } else if (stack.getItem() == ModItems.FIRE_GAUNTLET) {
+                return this.fireGauntletTextures;
+            } else {
+                return stack.getItem() == ModItems.POCKET_PISTON ? this.pocketPistonTextures : null;
+            }
+        }
+
+        @Nullable
+        private ResourceLocation getOverlayTextures(ItemStack stack) {
+            return stack.getItem() != ModItems.FIRE_GAUNTLET && stack.getItem() != ModItems.MAGMA_STONE ? null : this.fireGauntletOverlayTextures;
+        }
+    }
+
     public static class TechGunsGlovesRenderLayer implements IArmRenderLayer {
         public final ModelRenderer[] playerArms = MiscUtils.playerArms();
         private boolean render = false;
@@ -810,6 +926,7 @@ public class Overriders {
     public static class AetherGlovesRenderLayer implements IArmRenderLayer {
         private RenderPlayer renderPlayer;
         public ModelBiped modelMisc = null;
+        private boolean shouldRenderGloves;
         private double modelSize = -1.0D;
         private boolean render = false;
 
@@ -817,12 +934,12 @@ public class Overriders {
         public void update(AbstractClientPlayer player) {
             IPlayerAether playerAether = AetherAPI.getInstance().get(player);
             IAccessoryInventory accessories = playerAether.getAccessoryInventory();
-            boolean flag = !accessories.getStackInSlot(6).isEmpty() && ((PlayerAether)playerAether).shouldRenderGloves;
+            boolean flag = !accessories.getStackInSlot(6).isEmpty() && ((PlayerAether) playerAether).shouldRenderGloves;
             if (flag && this.modelSize != AAConfig.vanillaArmorModelSize) {
                 this.modelMisc = new ModelBiped(((float) AAConfig.vanillaArmorModelSize + 0.01F));
                 this.modelSize = AAConfig.vanillaArmorModelSize;
             }
-            this.render = flag;
+            this.render = flag && this.shouldRenderGloves;
         }
 
         @Override
@@ -836,13 +953,13 @@ public class Overriders {
 
             GlStateManager.pushMatrix();
 
-            if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessory.class && ((PlayerAether)playerAether).shouldRenderGloves) {
-                ItemAccessory shield = (ItemAccessory)accessories.getStackInSlot(6).getItem();
+            if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessory.class) {
+                ItemAccessory shield = (ItemAccessory) accessories.getStackInSlot(6).getItem();
                 manager.renderEngine.bindTexture(shield.texture);
                 int j = shield.getColorFromItemStack(accessories.getStackInSlot(6), 0);
-                float red = (float)(j >> 16 & 255) / 255.0F;
-                float green = (float)(j >> 8 & 255) / 255.0F;
-                red = (float)(j & 255) / 255.0F;
+                float red = (float) (j >> 16 & 255) / 255.0F;
+                float green = (float) (j >> 8 & 255) / 255.0F;
+                red = (float) (j & 255) / 255.0F;
                 if (shield != ItemsAether.phoenix_gloves) {
                     GlStateManager.color(red, green, red);
                 }
@@ -861,13 +978,13 @@ public class Overriders {
                 renderer.showModel = s;
 
                 GlStateManager.color(1.0F, 1.0F, 1.0F);
-            } else if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessoryDyable.class && ((PlayerAether)playerAether).shouldRenderGloves) {
-                ItemAccessoryDyable gloves = (ItemAccessoryDyable)accessories.getStackInSlot(6).getItem();
+            } else if (accessories.getStackInSlot(6).getItem().getClass() == ItemAccessoryDyable.class) {
+                ItemAccessoryDyable gloves = (ItemAccessoryDyable) accessories.getStackInSlot(6).getItem();
                 manager.renderEngine.bindTexture(gloves.texture);
                 int j = gloves.getColor(accessories.getStackInSlot(6));
-                float red = (float)(j >> 16 & 255) / 255.0F;
-                float green = (float)(j >> 8 & 255) / 255.0F;
-                red = (float)(j & 255) / 255.0F;
+                float red = (float) (j >> 16 & 255) / 255.0F;
+                float green = (float) (j >> 8 & 255) / 255.0F;
+                red = (float) (j & 255) / 255.0F;
                 GlStateManager.color(red, green, red);
 
                 renderer.rotationPointX = -5.0F * MiscUtils.handSideDelta(handSide);
@@ -892,11 +1009,27 @@ public class Overriders {
         @Override
         public void init(AbstractClientPlayer player) {
             this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
+            MinecraftForge.EVENT_BUS.register(this);
         }
 
         @Override
         public boolean needRender(AbstractClientPlayer player, boolean renderManagerState) {
             return this.render;
+        }
+
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public void renderHandHeight(RenderSpecificHandEvent e) {
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            PlayerAether playerAether = (PlayerAether) AetherAPI.getInstance().get(player);
+            this.shouldRenderGloves = playerAether.shouldRenderGloves;
+            playerAether.shouldRenderGloves = false;
+        }
+
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public void renderHandLow(RenderSpecificHandEvent e) {
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            PlayerAether playerAether = (PlayerAether) AetherAPI.getInstance().get(player);
+            playerAether.shouldRenderGloves = this.shouldRenderGloves;
         }
     }
 }

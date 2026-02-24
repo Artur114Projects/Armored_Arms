@@ -14,13 +14,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod.EventBusSubscriber
-@Mod(modid = ArmoredArms.MODID, name = ArmoredArms.NAME, version = ArmoredArms.VERSION, useMetadata = true, clientSideOnly = true)
+@Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
 public class ArmoredArms {
     public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
     public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
-    public static final String VERSION = "v1.4.6-1.12.2-release";
     public static final String MODID = "armoredarms";
-    public static final String NAME = "Armored Arms";
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
