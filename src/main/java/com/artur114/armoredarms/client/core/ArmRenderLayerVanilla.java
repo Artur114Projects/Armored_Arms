@@ -37,7 +37,6 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
     public PlayerRenderer renderPlayer = null;
     public ItemStack chestPlate = null;
     public boolean renderWear = true;
-    public boolean canceled = false;
 
     @Override
     public void update(AbstractClientPlayer player) {
@@ -57,7 +56,7 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
 
     @Override
     public void renderTransformed(PoseStack poseStack, MultiBufferSource buffer, AbstractClientPlayer player, HumanoidArm side, int combinedLight) {
-        if (player.isInvisible() || this.canceled) {
+        if (player.isInvisible() || player.isSpectator()) {
             return;
         }
 
@@ -146,5 +145,4 @@ public class ArmRenderLayerVanilla implements IArmRenderLayer {
             playermodel.crouching = pClientPlayer.isCrouching();
         }
     }
-
 }

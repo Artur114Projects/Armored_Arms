@@ -34,7 +34,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
-import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 import javax.annotation.Nullable;
@@ -284,7 +283,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
                 b = (float)(i & 255) / 255.0F;
             }
             VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.armorCutoutNoCull(armorResource));
-            pModel.renderArm(pPoseStack, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
+            pModel.renderArm(pPoseStack, pBuffer, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
         }
 
         protected void renderOverlay(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel, ResourceLocation armorResource) {
@@ -292,20 +291,20 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
                 return;
             }
             VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.armorCutoutNoCull(armorResource));
-            pModel.renderArm(pPoseStack, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            pModel.renderArm(pPoseStack, pBuffer, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         protected void renderTrim(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel) {
             ArmorTrim.getTrim(player.level().registryAccess(), stackArmor).ifPresent((pTrim) -> {
                 TextureAtlasSprite textureatlassprite = this.armorTrimAtlas.getSprite(pTrim.outerTexture(itemArmor.getMaterial()));
                 VertexConsumer vertexconsumer = textureatlassprite.wrap(pBuffer.getBuffer(Sheets.armorTrimsSheet()));
-                pModel.renderArm(pPoseStack, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                pModel.renderArm(pPoseStack, pBuffer, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
             });
         }
 
         protected void renderGlint(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel) {
             if (stackArmor.hasFoil()) {
-                pModel.renderArm(pPoseStack, pBuffer.getBuffer(RenderType.armorEntityGlint()), player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                pModel.renderArm(pPoseStack, pBuffer, pBuffer.getBuffer(RenderType.armorEntityGlint()), player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
     }
@@ -377,7 +376,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 
         @Override
         @SuppressWarnings("unchecked")
-        public void renderArm(PoseStack pPoseStack, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+        public void renderArm(PoseStack pPoseStack, MultiBufferSource multiBuffer, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
             ModelPart arm = this.arms[side.ordinal()];
             arm.copyFrom(this.playerArms[side.ordinal()]);
             if (this.mb instanceof HumanoidModel<?>) {
@@ -387,7 +386,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
                 model.swimAmount = 0.0F;
                 model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
             }
-            arm.xRot = 0.0F;
+//            arm.xRot = 0.0F;
             boolean s = arm.skipDraw;
             boolean v = arm.visible;
             arm.skipDraw = false;

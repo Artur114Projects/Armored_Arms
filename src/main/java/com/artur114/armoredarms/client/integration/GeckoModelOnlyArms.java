@@ -15,16 +15,14 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.joml.*;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.cache.object.*;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-import software.bernie.geckolib.util.RenderUtils;
 
 import java.lang.Math;
-import java.util.Iterator;
 
 public class GeckoModelOnlyArms implements IModelOnlyArms {
+    public final ModelPart[] playerArms = MiscUtils.playerArms();
     public final GeoArmorRenderer<?> mg;
     public final String[] arms;
 
@@ -36,34 +34,29 @@ public class GeckoModelOnlyArms implements IModelOnlyArms {
     }
 
     @Override
-    public void renderArm(PoseStack pPoseStack, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
-        this.render(pPoseStack, pBuffer, player, itemArmor, stackArmor, side, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+    public void renderArm(PoseStack pPoseStack, MultiBufferSource multiBuffer, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+        this.render(pPoseStack, multiBuffer, pBuffer, player, itemArmor, stackArmor, side, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Item & GeoItem> void render(PoseStack pPoseStack, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+    public <T extends Item & GeoItem> void render(PoseStack pPoseStack, MultiBufferSource multiBuffer, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
         T t = (T) itemArmor;
         GeoArmorRenderer<T> model = (GeoArmorRenderer<T>) this.mg;
         BakedGeoModel baked = model.getGeoModel().getBakedModel(model.getGeoModel().getModelResource(t, model));
+        RenderType renderType = model.getRenderType(t, model.getTextureLocation(t), multiBuffer, Minecraft.getInstance().getPartialTick());
+        pBuffer = ItemRenderer.getArmorFoilBuffer(multiBuffer, renderType, false, stackArmor.hasFoil());
 
-        MultiBufferSource bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
-        if (Minecraft.getInstance().levelRenderer.shouldShowEntityOutlines() && Minecraft.getInstance().shouldEntityAppearGlowing(player)) {
-            bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
-        }
-        RenderType renderType = model.getRenderType(t, model.getTextureLocation(t), bufferSource, Minecraft.getInstance().getPartialTick());
-        pBuffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, stackArmor.hasFoil());
-
+        ModelPart playerArm = this.playerArms[side.ordinal()];
         GeoBone arm = baked.getBone(this.arms[side.ordinal()]).get();
-        arm.setTrackingMatrices(false);
         this.mg.attackTime = 0.0F;
         this.mg.crouching = false;
         this.mg.swimAmount = 0.0F;
         this.mg.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 
         int delta = MiscUtils.handSideDelta(side);
-        arm.setRotX(0.0F);
-        arm.setRotY(0.0F);
-        arm.setRotZ((float) ((Math.PI + 0.1F) * delta));
+        arm.setRotX(playerArm.xRot);
+        arm.setRotY(playerArm.yRot);
+        arm.setRotZ((float) (Math.PI * delta) + playerArm.zRot);
 
         arm.setPosX(arm.getPivotX() * 2);
         arm.setPosY(2.0F * -1 * 10);
@@ -75,7 +68,7 @@ public class GeckoModelOnlyArms implements IModelOnlyArms {
 
         boolean h = arm.isHidden();
         arm.setHidden(false);
-        model.renderRecursively(pPoseStack, t, arm, renderType, bufferSource, pBuffer, false, Minecraft.getInstance().getPartialTick(), pPackedLight, pPackedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.renderRecursively(pPoseStack, t, arm, renderType, multiBuffer, pBuffer, false, Minecraft.getInstance().getPartialTick(), pPackedLight, pPackedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
         arm.setHidden(h);
     }
 

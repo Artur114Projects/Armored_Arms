@@ -13,12 +13,12 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ArmorItem;
@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class AzureModelOnlyArms implements IModelOnlyArms {
+    public final ModelPart[] playerArms = MiscUtils.playerArms();
     public final AzModelRenderer<UUID, ItemStack> renderer;
     public final AzArmorRendererPipeline pipeline;
     public final AzArmorModel<?> ma;
@@ -43,43 +44,38 @@ public class AzureModelOnlyArms implements IModelOnlyArms {
     }
 
     @Override
-    public void renderArm(PoseStack pPoseStack, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+    public void renderArm(PoseStack pPoseStack, MultiBufferSource multiBuffer, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
         Minecraft mc = Minecraft.getInstance();
         AzArmorRendererPipelineContext context = this.pipeline.context();
-        MultiBufferSource bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
-        if (Minecraft.getInstance().levelRenderer.shouldShowEntityOutlines() && Minecraft.getInstance().shouldEntityAppearGlowing(player)) {
-            bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
-        }
-
         context.prepare(player, stackArmor, EquipmentSlot.CHEST, this.ma);
         float partialTick = mc.getPartialTick();
         AzArmorRendererConfig config = this.pipeline.config();
         ItemStack anim = Optional.ofNullable(context.animatable()).orElse(stackArmor);
         ResourceLocation textureLocation = config.textureLocation(player, anim);
-        RenderType renderType = context.getDefaultRenderType(anim, textureLocation, bufferSource, partialTick, config.getRenderType(context.currentEntity(), anim), config.alpha(anim));
-        pBuffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, stackArmor.hasFoil());
+        RenderType renderType = context.getDefaultRenderType(anim, textureLocation, multiBuffer, partialTick, config.getRenderType(context.currentEntity(), anim), config.alpha(anim));
+        pBuffer = ItemRenderer.getArmorFoilBuffer(multiBuffer, renderType, false, stackArmor.hasFoil());
         AzBakedModel model = this.pipeline.renderer().provider().provideBakedModel(player, anim);
-        context.populate(stackArmor, model, bufferSource, pPackedLight, partialTick, pPoseStack, renderType, pBuffer);
+        context.populate(stackArmor, model, multiBuffer, pPackedLight, partialTick, pPoseStack, renderType, pBuffer);
 
         if (model == null) {
             return;
         }
 
+        ModelPart playerArm = this.playerArms[side.ordinal()];
         AzBone arm = model.getBoneOrNull(this.arms[side.ordinal()]);
 
         if (arm == null) {
             return;
         }
 
-        arm.setTrackingMatrices(false);
         this.ma.attackTime = 0.0F;
         this.ma.crouching = false;
         this.ma.swimAmount = 0.0F;
 
         int delta = MiscUtils.handSideDelta(side);
-        arm.setRotX(0.0F);
-        arm.setRotY(0.0F);
-        arm.setRotZ((float) ((Math.PI + 0.1F) * delta));
+        arm.setRotX(playerArm.xRot);
+        arm.setRotY(playerArm.yRot);
+        arm.setRotZ((float) (Math.PI * delta) + playerArm.zRot);
 
         arm.setPosX(arm.getPivotX() * 2);
         arm.setPosY(2.0F * -1 * 10);
