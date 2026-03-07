@@ -6,14 +6,12 @@ import com.artur114.armoredarms.api.IOverriderGetModel;
 import com.artur114.armoredarms.api.events.InitArmorRenderLayerEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.core.ArmRenderLayerArmor;
-import com.artur114.armoredarms.client.util.MiscUtils;
 import com.artur114.armoredarms.main.AAConfig;
+import com.artur114.armoredarms.main.ArmoredArms;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -24,11 +22,15 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Here i ultrashitcoding
@@ -38,7 +40,7 @@ public class Overriders {
     @SubscribeEvent
     public static void initArmorRenderLayer(InitArmorRenderLayerEvent e) {
         e.registerOverrider("create", "netherite_backtank", new CreateBackTankOverrider(), false);
-
+        e.registerOverrider("magistuarmoryaddon", "*", new ECAOverrider(), false);
 
         e.addArmorToBlackList(AAConfig.renderBlackList);
     }
@@ -76,6 +78,39 @@ public class Overriders {
         @Override
         public IModelOnlyArms getModel(AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stack) {
             return new ArmRenderLayerArmor.DefaultModelOnlyArms(this.mb);
+        }
+    }
+
+    public static class ECAOverrider extends ArmRenderLayerArmor.DefaultRender {
+
+        @Override
+        public void render(@Nullable IModelOnlyArms arms, @Nullable ResourceLocation tex, PoseStack pPoseStack, MultiBufferSource pBuffer, HumanoidArm handSide, ItemStack stackArmor, ArmorItem itemArmor, EnumRenderType type, int packedLight) {
+            if (arms == null || this.mc.player == null || stackArmor.getItem() == Items.AIR) {
+                return;
+            }
+            switch (type) {
+                case ARMOR_ENCHANT:
+                    this.renderGlint(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms);
+                    break;
+                case ARMOR:
+                    this.renderBase(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms, ArmRenderLayerArmor.fmlGetArmorResource(this.mc.player, stackArmor, EquipmentSlot.CHEST, null));
+                    break;
+                case ARMOR_OVERLAY:
+                    this.renderOverlay(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms, ArmRenderLayerArmor.fmlGetArmorResource(this.mc.player, stackArmor, EquipmentSlot.CHEST, "overlay"));
+                    break;
+                case ARMOR_TRIM:
+                    this.renderTrim(pPoseStack, pBuffer, this.mc.player, itemArmor, stackArmor, handSide, packedLight, arms);
+                    break;
+            }
+        }
+
+        @Override
+        protected void renderOverlay(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel, ResourceLocation armorResource) {
+            if (armorResource == null || !(itemArmor instanceof DyeableLeatherItem)) {
+                return;
+            }
+            VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.armorCutoutNoCull(armorResource));
+            pModel.renderArm(pPoseStack, pBuffer, vertexconsumer, player, itemArmor, stackArmor, side, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
 }

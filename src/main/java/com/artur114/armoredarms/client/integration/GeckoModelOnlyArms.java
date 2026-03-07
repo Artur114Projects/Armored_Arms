@@ -51,7 +51,6 @@ public class GeckoModelOnlyArms implements IModelOnlyArms {
         this.mg.attackTime = 0.0F;
         this.mg.crouching = false;
         this.mg.swimAmount = 0.0F;
-        this.mg.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 
         int delta = MiscUtils.handSideDelta(side);
         arm.setRotX(playerArm.xRot);

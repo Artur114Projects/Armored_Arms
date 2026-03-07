@@ -146,8 +146,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         IModelOnlyArms armorModel = this.currentArmorModel;
         ResourceLocation armorTex = this.currentArmorTex;
 
-        this.render(armorModel, armorTexOv, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_OVERLAY, combinedLight);
         this.render(armorModel, armorTex, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR, combinedLight);
+        this.render(armorModel, armorTexOv, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_OVERLAY, combinedLight);
 
         this.render(armorModel, null, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_ENCHANT, combinedLight);
         this.render(armorModel, null, poseStack, buffer, side, this.chestPlate, this.chestPlateItem, IOverriderRender.EnumRenderType.ARMOR_TRIM, combinedLight);
@@ -247,8 +247,8 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public static class DefaultRender implements IOverriderRender {
-        private final TextureAtlas armorTrimAtlas = Minecraft.getInstance().getModelManager().getAtlas(Sheets.ARMOR_TRIMS_SHEET);
-        private final Minecraft mc = Minecraft.getInstance();
+        protected final TextureAtlas armorTrimAtlas = Minecraft.getInstance().getModelManager().getAtlas(Sheets.ARMOR_TRIMS_SHEET);
+        protected final Minecraft mc = Minecraft.getInstance();
 
         @Override
         public void render(@Nullable IModelOnlyArms arms, @Nullable ResourceLocation tex, PoseStack pPoseStack, MultiBufferSource pBuffer, HumanoidArm handSide, ItemStack stackArmor, ArmorItem itemArmor, EnumRenderType type, int packedLight) {
@@ -287,7 +287,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
 
         protected void renderOverlay(PoseStack pPoseStack, MultiBufferSource pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, IModelOnlyArms pModel, ResourceLocation armorResource) {
-            if (armorResource == null || !(itemArmor instanceof DyeableLeatherItem)) {
+            if (armorResource == null) {
                 return;
             }
             VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.armorCutoutNoCull(armorResource));
@@ -375,18 +375,9 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void renderArm(PoseStack pPoseStack, MultiBufferSource multiBuffer, VertexConsumer pBuffer, AbstractClientPlayer player, ArmorItem itemArmor, ItemStack stackArmor, HumanoidArm side, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
             ModelPart arm = this.arms[side.ordinal()];
             arm.copyFrom(this.playerArms[side.ordinal()]);
-            if (this.mb instanceof HumanoidModel<?>) {
-                HumanoidModel<LivingEntity> model = (HumanoidModel<LivingEntity>) this.mb;
-                model.attackTime = 0.0F;
-                model.crouching = false;
-                model.swimAmount = 0.0F;
-                model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-            }
-//            arm.xRot = 0.0F;
             boolean s = arm.skipDraw;
             boolean v = arm.visible;
             arm.skipDraw = false;
@@ -403,7 +394,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public static ResourceLocation fmlGetArmorResource(net.minecraft.world.entity.Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
-        ArmorItem item = (ArmorItem)stack.getItem();
+        ArmorItem item = (ArmorItem) stack.getItem();
         String texture = item.getMaterial().getName();
         String domain = "minecraft";
         int idx = texture.indexOf(':');
