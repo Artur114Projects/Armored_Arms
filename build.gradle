@@ -1,72 +1,40 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-    }
+plugins {
+    id 'java'
 }
-        
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 
-String v = 'v1.4.0-release'
+version = coreVersion
+group = 'com.artur114.armoredarms.core'
+archivesBaseName = 'ArmoredArmsCore'
 
-version = v
-group = 'com.artur114.armoredarms'
-archivesBaseName = 'ArmoredArms'
-
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-
-minecraft {
-    accessTransformer = file('src/main/resources/META-INF/aa_at.cfg')
-    mappings channel: 'snapshot', version: '20171003-1.12'
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-
-        server {
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-    }
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
-    compile fileTree(dir: "libs", includes: ['*.jar'])
+    compile 'it.unimi.dsi:fastutil:8.5.14'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 jar {
     manifest {
         attributes([
-            "Specification-Title": "Armored Arms",
-            "Specification-Vendor": "armoredarms",
-            "Specification-Version": v,
+            "Specification-Title": "Armored Arms Core",
+            "Specification-Vendor": "armoredarmscore",
+            "Specification-Version": coreVersion,
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"armoredarms",
+            "Implementation-Vendor" :"armoredarmscore",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
 
-jar.finalizedBy('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
-    }
+test {
+    useJUnitPlatform()
 }

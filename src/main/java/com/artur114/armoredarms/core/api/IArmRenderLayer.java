@@ -1,15 +1,17 @@
 package com.artur114.armoredarms.core.api;
 
+import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.util.IAAModContainer;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
 
-public interface IArmRenderLayer<E extends IArmRenderEngine<?>> {
-    void update(E engine, AbstractClientPlayer player);
-    void render(E engine, AbstractClientPlayer player, EnumHandSide handSide);
-    void init(E engine, IAAModContainer mod, AbstractClientPlayer player);
-    boolean needRender(E engine, AbstractClientPlayer player, boolean renderEngineState);
+public interface IArmRenderLayer<E extends IArmRenderEngine<?>> extends IPrioritised, IArmRenderComponent {
+    void update(E engine);
+    void render(E engine, EnumHandSide handSide);
+    void init(E engine, IAAModContainer mod);
+    boolean needRender(E engine, boolean renderEngineState);
     Class<E> targetEngine();
+
+    @Override
+    default String type() {
+        return "layer";
+    }
 }
