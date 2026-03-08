@@ -7,67 +7,90 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
-        
+
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 
-String v = 'v1.4.7-1.12.2-release'
-
-version = v
-group = 'com.artur114.armoredarms'
-archivesBaseName = 'ArmoredArms'
+version = modVersion
+group = modGroup
+archivesBaseName = modFileName
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    accessTransformer = file('src/main/resources/META-INF/aa_at.cfg')
     mappings channel: 'snapshot', version: '20171003-1.12'
+    if (atfile != "null") {
+        accessTransformer = file('src/main/resources/META-INF/' + atfile)
+    }
     runs {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
+            if (properties.get("coreModClass") != "null") {
+                jvmArg '-Dfml.coreMods.load=' + properties.get("coreModClass")
+            }
         }
 
         server {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
+            if (properties.get("coreModClass") != "null") {
+                jvmArg '-Dfml.coreMods.load=' + properties.get("coreModClass")
+            }
+        }
+    }
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/Artur114Projects/Armored_Arms")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
         }
     }
 }
 
 dependencies {
+    implementation 'org.jetbrains:annotations:24.0.0'
+
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
     compile fileTree(dir: "libs", includes: ['*.jar'])
+
+    shade 'com.artur114.armoredarms.core:armored_arms_core:v0.0.3-SNAPSHOT'
 }
 
 jar {
+    from {
+        configurations.shade.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     manifest {
         attributes([
-            "Specification-Title": "Armored Arms",
-            "Specification-Vendor": "armoredarms",
-            "Specification-Version": v,
+            "Specification-Title": modId,
+            "Specification-Vendor": modId,
+            "Specification-Version": modVersion,
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"armoredarms",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "FMLAT": "aa_at.cfg"
+            "Implementation-Vendor" : modId,
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
+        if (coreModClass != "null") {
+            attributes "FMLCorePlugin": coreModClass
+            attributes "FMLCorePluginContainsFMLMod": "true"
+        }
+        if (atfile != "null") {
+            attributes "FMLAT": atfile
+        }
     }
 }
 
 jar.finalizedBy('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
