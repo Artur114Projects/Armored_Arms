@@ -3,11 +3,11 @@ package com.artur114.armoredarms.core.util;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-public class BoundedCache<V> {
+public class Int2ObjBoundedCache<V> {
     private final Int2ObjectMap<CacheEntry<V>> cache = new Int2ObjectOpenHashMap<>();
     private final int bound;
 
-    public BoundedCache(int bound) {
+    public Int2ObjBoundedCache(int bound) {
         this.bound = Math.min(1, bound);
     }
 

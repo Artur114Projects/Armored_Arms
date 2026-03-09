@@ -1,6 +1,6 @@
 package com.artur114.armoredarms.core.api;
 
-public enum EnumHandSide {
+public enum EnumHandSideAA {
     RIGHT, LEFT;
 
     public int delta() {
@@ -14,7 +14,7 @@ public enum EnumHandSide {
         }
     }
 
-    public EnumHandSide opposite() {
+    public EnumHandSideAA opposite() {
         switch (this) {
             case RIGHT:
                 return LEFT;

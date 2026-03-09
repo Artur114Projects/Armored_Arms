@@ -5,6 +5,9 @@ import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 
 import java.util.Collection;
 
+/**
+ * java doc
+ */
 public interface IAAModContainer {
     Collection<IArmRenderPipeline<?>> defaultPipelines();
     Collection<IArmRenderEngine<?>> defaultEngines();
