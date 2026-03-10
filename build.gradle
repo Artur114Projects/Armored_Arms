@@ -28,8 +28,10 @@ publishing {
     }
     publications {
         gpr(MavenPublication) {
+            artifact sourcesJar
+            artifact javadocJar
             artifactId = 'core'
-            from(components.java)
+            from components.java
         }
     }
 }
@@ -45,6 +47,21 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
 
 jar {

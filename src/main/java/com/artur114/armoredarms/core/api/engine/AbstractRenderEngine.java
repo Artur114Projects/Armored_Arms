@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>, P extends IArmRenderPipeline<?>> implements IArmRenderEngine<P> {
-    protected Map<Class<IArmRenderLayer<E>>, IArmRenderLayer<E>> layerMap;
+    protected Map<Class<? extends IArmRenderLayer<E>>, IArmRenderLayer<E>> layerMap;
     protected List<IArmRenderLayer<E>> sortedLayers;
 
     @Override
@@ -31,5 +31,5 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         return null;
     }
 
-    protected abstract Map<Class<IArmRenderLayer<E>>, IArmRenderLayer<E>> initLayers();
+    protected abstract Map<Class<? extends IArmRenderLayer<E>>, IArmRenderLayer<E>> initLayers();
 }

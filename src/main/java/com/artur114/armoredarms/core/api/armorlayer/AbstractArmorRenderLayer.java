@@ -13,54 +13,73 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 
 public abstract class AbstractArmorRenderLayer<T extends AbstractArmorRenderLayer<?, ?, ?>, I extends IItemStack, E extends IArmRenderEngine<?>> implements IArmRenderLayer<E> {
-    protected static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
 
-    protected ShapelessLocationMap<IArmModelRenderContainer<IArmModelManager<?, T>>> renderContainers;
-    protected ShapelessLocationMap<IArmModelManager<?, T>> modelManagers;
-    protected List<ShapelessLocation> blackList;
-    protected Set<IItemStack> killingArmor;
-    protected boolean render = false;
-    protected I chestPlate;
+    public ShapelessLocationMap<IArmModelRenderContainer<? extends IArmModelManager<?, T>>> renderContainers;
+    public ShapelessLocationMap<IArmModelManager<?, T>> modelManagers;
+    public List<ShapelessLocation> blackList;
+    public Set<IItemStack> killingArmor;
+    public boolean deactivated = false;
+    public boolean render = false;
+    public I chestPlate;
 
-    protected IArmModelManager<?, T> modelManager = null;
-    protected IArmModelRenderer<IArmModelManager<?, T>> model = null;
+    public IArmModelManager<?, T> modelManager = null;
+    public IArmModelRenderer<IArmModelManager<?, T>> model = null;
 
     @Override
     public void init(E engine, IAAModContainer mod) {
         try {
             this.tryInit(engine, mod);
         } catch (Throwable t) {
-
+            t.printStackTrace(System.err);
         }
     }
 
     @Override
     public void update(E engine) {
+        if (this.deactivated) {
+            return;
+        }
+
         try {
             this.tryTick(engine);
         } catch (Throwable t) {
-
+            t.printStackTrace(System.err);
         }
     }
 
     @Override
     public void render(E engine, EnumHandSideAA handSide) {
+        if (this.deactivated) {
+            return;
+        }
+
         try {
             this.tryRender(engine, handSide);
         } catch (Throwable t) {
-
+            t.printStackTrace(System.err);
         }
     }
 
-    protected IArmModelManager<?, T> pickUpModelManager(ShapelessLocation location) {
+    @Override
+    public boolean needRender(E engine, boolean renderEngineState) {
+        return this.render;
+    }
+
+    @Override
+    public void deactivate() {
+        this.deactivated = true;
+    }
+
+    public IArmModelManager<?, T> pickUpModelManager(ShapelessLocation location) {
         return this.modelManagers.get(location);
     }
 
     @SuppressWarnings("unchecked")
-    protected IArmModelRenderer<IArmModelManager<?, T>> cacheRenderer(IArmModelManager<?, T> modelManager, ShapelessLocation location) {
-        List<IArmModelRenderContainer<IArmModelManager<?, T>>> containers = this.renderContainers.getAll(location);
+    public IArmModelRenderer<IArmModelManager<?, T>> cacheRenderer(IArmModelManager<?, T> modelManager, ShapelessLocation location) {
+        List<IArmModelRenderContainer<? extends IArmModelManager<?, T>>> containers = this.renderContainers.getAll(location);
 
-        for (IArmModelRenderContainer<IArmModelManager<?, T>> container : CoreUtils.sortPrioritisedList(containers)) {
+        for (IArmModelRenderContainer<?> container : CoreUtils.sortPrioritisedList(containers)) {
             if (container.targetManager().isAssignableFrom(modelManager.clazz())) {
                 return (IArmModelRenderer<IArmModelManager<?, T>>) modelManager.cacheRenderer((T) this, (IArmModelRenderContainer) container);
             }
@@ -70,20 +89,20 @@ public abstract class AbstractArmorRenderLayer<T extends AbstractArmorRenderLaye
         return null;
     }
 
-    protected abstract I currentChestPlate();
-    protected abstract I emptyStack();
+    public abstract I currentChestPlate();
+    public abstract I emptyStack();
 
-    protected abstract List<ShapelessLocation> initBlackList();
-    protected abstract ShapelessLocationMap<IArmModelManager<?, T>> initModelManagers();
-    protected abstract ShapelessLocationMap<IArmModelRenderContainer<IArmModelManager<?, T>>> initRenderContainers();
+    public abstract List<ShapelessLocation> initBlackList();
+    public abstract ShapelessLocationMap<IArmModelManager<?, T>> initModelManagers();
+    public abstract ShapelessLocationMap<IArmModelRenderContainer<? extends IArmModelManager<?, T>>> initRenderContainers();
 
-    protected void tryInit(E engine, IAAModContainer mod) {
+    public void tryInit(E engine, IAAModContainer mod) {
         this.renderContainers = this.initRenderContainers();
         this.modelManagers = this.initModelManagers();
         this.blackList = new ArrayList<>(this.initBlackList());
     }
 
-    protected void tryTick(E engine) {
+    public void tryTick(E engine) {
         I chestPlate = this.currentChestPlate();
 
         if (chestPlate.isEmpty() || this.killingArmor.contains(chestPlate)) {
@@ -115,7 +134,7 @@ public abstract class AbstractArmorRenderLayer<T extends AbstractArmorRenderLaye
     }
 
     @SuppressWarnings("unchecked")
-    protected void tryRender(E engine, EnumHandSideAA handSide) {
+    public void tryRender(E engine, EnumHandSideAA handSide) {
         if (this.modelManager != null && this.model != null) {
             this.modelManager.render((T) this, (IArmModelRenderer) this.model, handSide);
         }

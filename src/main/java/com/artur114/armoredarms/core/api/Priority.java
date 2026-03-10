@@ -7,9 +7,4 @@ public enum Priority implements IPriority {
     public int toInt() {
         return this.ordinal() - 2;
     }
-
-    @Override
-    public int applyAsInt(IPriority value) {
-        return value.toInt();
-    }
 }
