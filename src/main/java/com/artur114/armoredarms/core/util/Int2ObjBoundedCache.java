@@ -8,7 +8,7 @@ public class Int2ObjBoundedCache<V> {
     private final int bound;
 
     public Int2ObjBoundedCache(int bound) {
-        this.bound = Math.min(1, bound);
+        this.bound = Math.max(1, bound);
     }
 
     public V get(int hash) {
@@ -23,7 +23,7 @@ public class Int2ObjBoundedCache<V> {
         }
 
         if (this.cache.size() + 1 >= this.bound) {
-            int min = Integer.MAX_VALUE;
+            long min = Long.MAX_VALUE;
             int minHash = 0;
 
             for (CacheEntry<V> cache : this.cache.values()) {
@@ -43,7 +43,7 @@ public class Int2ObjBoundedCache<V> {
     private static class CacheEntry<V> {
         private final int hash;
         private final V value;
-        private int getCount;
+        private long getCount;
 
         private CacheEntry(int hash, V value) {
             this.value = value;

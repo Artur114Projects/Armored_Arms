@@ -30,10 +30,10 @@ public class ShapelessLocation {
         return new Location(location);
     }
 
-    protected final Location domain;
-    protected final Location path;
+    private final Location domain;
+    private final Location path;
 
-    public ShapelessLocation(String location) {
+    public ShapelessLocation(String location) { // TODO: 10.03.2026 Доделать
         String[] strings = location.split(":");
         this.domain = createLocation(strings[0]);
         this.path = createLocation(strings[1]);
