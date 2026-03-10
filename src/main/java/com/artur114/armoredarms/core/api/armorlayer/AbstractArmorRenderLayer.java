@@ -21,7 +21,7 @@ public abstract class AbstractArmorRenderLayer<T extends AbstractArmorRenderLaye
     public Set<IItemStack> killingArmor;
     public boolean deactivated = false;
     public boolean render = false;
-    public I chestPlate;
+    public I chestPlate = this.emptyStack();
 
     public IArmModelManager<?, T> modelManager = null;
     public IArmModelRenderer<IArmModelManager<?, T>> model = null;
@@ -100,6 +100,7 @@ public abstract class AbstractArmorRenderLayer<T extends AbstractArmorRenderLaye
         this.renderContainers = this.initRenderContainers();
         this.modelManagers = this.initModelManagers();
         this.blackList = new ArrayList<>(this.initBlackList());
+        this.killingArmor = new HashSet<>();
     }
 
     public void tryTick(E engine) {
