@@ -1,0 +1,51 @@
+package com.artur114.armoredarms.client.armorlayer;
+
+import com.artur114.armoredarms.core.api.IPriority;
+import com.artur114.armoredarms.core.api.Priority;
+import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderContainer;
+import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.IMultiTexture;
+import net.minecraft.client.model.ModelBiped;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmModelManagerBiped> {
+    private final IConstructor creator;
+
+    public ArmModelRenderContainerDef(Class<? extends IArmModelRenderer<ArmModelManagerBiped>> clazz) {
+        try {
+            Constructor<? extends IArmModelRenderer<ArmModelManagerBiped>> constructor = clazz.getDeclaredConstructor(ModelBiped.class, IMultiTexture.class);
+            constructor.setAccessible(true);
+            creator = (mb, texture) -> {
+                try {
+                    return constructor.newInstance(mb, texture);
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public IArmModelRenderer<ArmModelManagerBiped> create(ArmModelManagerBiped manager) {
+        return this.creator.create(manager.model, manager.texture);
+    }
+
+    @Override
+    public Class<ArmModelManagerBiped> targetManager() {
+        return ArmModelManagerBiped.class;
+    }
+
+    @Override
+    public IPriority priority() {
+        return Priority.NORMAL;
+    }
+
+    private interface IConstructor {
+        IArmModelRenderer<ArmModelManagerBiped> create(ModelBiped mb, IMultiTexture texture);
+    }
+}

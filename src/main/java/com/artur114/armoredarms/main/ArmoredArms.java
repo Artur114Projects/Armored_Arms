@@ -1,45 +1,80 @@
 package com.artur114.armoredarms.main;
 
-import com.artur114.armoredarms.client.core.AAClientCommandsManager;
-import com.artur114.armoredarms.client.core.RenderArmManager;
-import com.artur114.armoredarms.client.integration.EventsRetranslators;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
+import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
+import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
+import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.IEvent;
+import com.artur114.armoredarms.core.util.RenderException;
+import com.artur114.armoredarms.core.util.RenderPipelines;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod.EventBusSubscriber
+import java.util.Collection;
+import java.util.Collections;
+
 @Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
-public class ArmoredArms {
-    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
-    public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
+public class ArmoredArms implements IAAModContainer {
+    public static final Logger LOGGER = LogManager.getLogger("ARMOREDARMS");
+    protected static IArmRenderPipeline<?> pipeline = null;
     public static final String MODID = "armoredarms";
 
+    @Mod.Instance
+    public static ArmoredArms ARMORED_ARMS;
+
+    public static IArmRenderPipeline<?> pipeline() {
+        return pipeline;
+    }
+
+    public static boolean isPipelineLoaded() {
+        return pipeline != null;
+    }
+
     @Mod.EventHandler
-    public void init(FMLInitializationEvent e) {
-        EventsRetranslators.init();
+    public void postInit(FMLPostInitializationEvent e) {
+        pipeline = RenderPipelines.pickUpAndRegister(this);
+
+        if (isPipelineLoaded()) {
+            LOGGER.debug("Rendering pipeline successfully loaded, pipeline: {}", pipeline.getClass());
+        } else {
+            LOGGER.fatal("Rendering pipeline could not be loaded!");
+        }
     }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public static void renderHand(RenderHandEvent e) {
-        RENDER_ARM_MANAGER.renderHandEvent(e);
+    @Override
+    public Collection<IArmRenderPipeline<?>> defaultPipelines() {
+        return Collections.singletonList(new ArmRenderPipelineForge());
     }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public static void clientTick(TickEvent.ClientTickEvent e) {
-        RENDER_ARM_MANAGER.tickEventClientTickEvent(e);
+    @Override
+    public Collection<IArmRenderEngine<?>> defaultEngines() {
+        return Collections.singletonList(new ArmRenderEngineForge());
     }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public static void clientChat(ClientChatEvent e) {
-        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
+    @Override
+    public void processException(RenderException exp) {
+        LOGGER.error(exp);
+        exp.printStackTrace(System.err);
+    }
+
+    @Override
+    public boolean isModLoaded(String modId) {
+        return Loader.isModLoaded(modId);
+    }
+
+    @Override
+    public <R> R post(IEvent<R> event) {
+        if (event instanceof Event) {
+            MinecraftForge.EVENT_BUS.post((Event) event);
+            return event.result();
+        }
+        return null;
     }
 }
