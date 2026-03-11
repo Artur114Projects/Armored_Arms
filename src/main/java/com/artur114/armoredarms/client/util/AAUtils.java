@@ -13,6 +13,9 @@ import net.minecraft.util.ResourceLocation;
 
 public class AAUtils {
     public static ShapelessLocation fromMc(ResourceLocation location) {
+        if (location == null) {
+            return null;
+        }
         return ShapelessLocation.location(location.getResourceDomain(), location.getResourcePath());
     }
 

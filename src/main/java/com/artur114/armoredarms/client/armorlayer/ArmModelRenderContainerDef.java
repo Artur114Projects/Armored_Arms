@@ -1,19 +1,26 @@
 package com.artur114.armoredarms.client.armorlayer;
 
+import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderContainer;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import net.minecraft.client.model.ModelBiped;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmModelManagerBiped> {
+public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerBiped> {
     private final IConstructor creator;
+    private final IPriority priority;
 
     public ArmModelRenderContainerDef(Class<? extends IArmModelRenderer<ArmModelManagerBiped>> clazz) {
+        this(clazz, Priority.NORMAL);
+    }
+
+    public ArmModelRenderContainerDef(Class<? extends IArmModelRenderer<ArmModelManagerBiped>> clazz, IPriority priority) {
+        this.priority = priority;
         try {
             Constructor<? extends IArmModelRenderer<ArmModelManagerBiped>> constructor = clazz.getDeclaredConstructor(ModelBiped.class, IMultiTexture.class);
             constructor.setAccessible(true);
@@ -36,13 +43,23 @@ public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmM
     }
 
     @Override
+    public boolean needWork(ArmModelManagerBiped manager) {
+        return true;
+    }
+
+    @Override
     public Class<ArmModelManagerBiped> targetManager() {
         return ArmModelManagerBiped.class;
     }
 
     @Override
+    public Class<ArmRenderLayerArmor> targetLayer() {
+        return ArmRenderLayerArmor.class;
+    }
+
+    @Override
     public IPriority priority() {
-        return Priority.NORMAL;
+        return this.priority;
     }
 
     private interface IConstructor {

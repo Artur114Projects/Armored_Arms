@@ -2,8 +2,8 @@ package com.artur114.armoredarms.client.armorlayer;
 
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelManager;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import net.minecraft.client.model.ModelRenderer;
 
 public interface IArmModelRendererBase<M extends IArmModelManager<?, ?>> extends IArmModelRenderer<M> {

@@ -64,7 +64,27 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
     compile fileTree(dir: "libs", includes: ['*.jar'])
 
-    shade 'com.artur114.armoredarms:core:0.0.10-SNAPSHOT'
+    shade 'com.artur114.armoredarms:core:' + coreVersion
+}
+
+processResources {
+    inputs.property "version", modVersion
+    inputs.property "description", coreVersion
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        filesMatching('mcmod.info') {
+            expand([
+                    version: modVersion,
+                    description: coreVersion
+            ])
+        }
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 jar {
@@ -81,7 +101,8 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Vendor" : modId,
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "Core-Version": coreVersion
         ])
         if (coreModClass != "null") {
             attributes "FMLCorePlugin": coreModClass

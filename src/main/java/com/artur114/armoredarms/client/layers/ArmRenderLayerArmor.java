@@ -3,20 +3,19 @@ package com.artur114.armoredarms.client.layers;
 import com.artur114.armoredarms.client.armorlayer.ArmModelManagerBiped;
 import com.artur114.armoredarms.client.armorlayer.ArmModelRenderContainerDef;
 import com.artur114.armoredarms.client.armorlayer.ArmModelRendererBiped;
-import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.util.AAItemStack;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.artur114.armoredarms.core.api.armorlayer.AbstractArmorRenderLayer;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelManager;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderContainer;
-import com.artur114.armoredarms.core.util.IAAModContainer;
-import com.artur114.armoredarms.core.util.RenderException;
-import com.artur114.armoredarms.core.util.ShapelessLocation;
-import com.artur114.armoredarms.core.util.ShapelessLocationMap;
+import com.artur114.armoredarms.core.api.layer.AbstractArmorRenderLayer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
+import com.artur114.armoredarms.core.util.*;
 //import lain.mods.cos.api.CosArmorAPI;
 //import lain.mods.cos.api.inventory.CAStacksBase;
+import lain.mods.cos.api.CosArmorAPI;
+import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -25,22 +24,21 @@ import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Loader;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, AAItemStack, ArmRenderEngineForge> {
+public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, AAItemStack, AbstractRenderEngineForge<?, ?>> {
     public List<LayerRenderer<AbstractClientPlayer>> layerRenderers = null;
-    public AbstractClientPlayer player = null;
+    public Minecraft mc = Minecraft.getMinecraft();
     public LayerBipedArmor armorLayer = null;
     public RenderPlayer renderPlayer = null;
 
 
     @Override
     public AAItemStack currentChestPlate() {
-        return this.itemStackArmor(this.player);
+        return this.itemStackArmor(this.mc.player);
     }
 
     @Override
@@ -54,44 +52,43 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
     }
 
     @Override
-    public void init(ArmRenderEngineForge engine, IAAModContainer mod) {
+    public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
         super.init(engine, mod);
 
-        this.player = engine.mc.player;
-        this.renderPlayer = this.initRenderPlayer(this.player);
+        this.renderPlayer = this.initRenderPlayer(this.mc.player);
         this.layerRenderers = this.initLayerRenderers();
         this.armorLayer = this.findArmorLayer();
     }
 
     @Override
-    public ShapelessLocationMap<IArmModelManager<?, ArmRenderLayerArmor>> initModelManagers() {
-        ShapelessLocationMap<IArmModelManager<?, ArmRenderLayerArmor>> map = new ShapelessLocationMap<>();
-        map.put(ShapelessLocation.location("*", "*"), new ArmModelManagerBiped());
+    public ShapelessLocationList<IArmModelManager<?, ?>> initModelManagers() {
+        ShapelessLocationList<IArmModelManager<?, ?>> map = new ShapelessLocationList<>();
+        map.add(ShapelessLocation.location("*", "*"), new ArmModelManagerBiped());
         return map;
     }
 
     @Override
-    public ShapelessLocationMap<IArmModelRenderContainer<? extends IArmModelManager<?, ArmRenderLayerArmor>>> initRenderContainers() {
-        ShapelessLocationMap<IArmModelRenderContainer<? extends IArmModelManager<?, ArmRenderLayerArmor>>> map = new ShapelessLocationMap<>();
-        map.put(ShapelessLocation.location("*", "*"), new ArmModelRenderContainerDef(ArmModelRendererBiped.class));
+    public ShapelessLocationList<IArmModelRenderContainer<?, ?>> initRenderContainers() {
+        ShapelessLocationList<IArmModelRenderContainer<?, ?>> map = new ShapelessLocationList<>();
+        map.add(ShapelessLocation.location("*", "*"), new ArmModelRenderContainerDef(ArmModelRendererBiped.class, Priority.LOWEST));
         return map;
     }
 
     public AAItemStack itemStackArmor(AbstractClientPlayer player) {
-//        if (EnumMods.COSMETIC_ARMOR.isLoaded()) {
-//            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
-//            int chestId = EntityEquipmentSlot.CHEST.getIndex();
-//
-//            if (stacks.isSkinArmor(chestId)) {
-//                return AAItemStack.EMPTY;
-//            }
-//
-//            ItemStack stack = stacks.getStackInSlot(chestId);
-//
-//            if (!stack.isEmpty()) {
-//                return AAItemStack.from(stack);
-//            }
-//        }
+        if (EnumMods.COSMETIC_ARMOR.isLoaded()) {
+            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
+            int chestId = EntityEquipmentSlot.CHEST.getIndex();
+
+            if (stacks.isSkinArmor(chestId)) {
+                return AAItemStack.EMPTY;
+            }
+
+            ItemStack stack = stacks.getStackInSlot(chestId);
+
+            if (!stack.isEmpty()) {
+                return AAItemStack.from(stack);
+            }
+        }
 
         return AAItemStack.from(player.getItemStackFromSlot(EntityEquipmentSlot.CHEST));
     }
@@ -139,8 +136,9 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
     }
 
     @Override
-    public Class<ArmRenderEngineForge> targetEngine() {
-        return ArmRenderEngineForge.class;
+    @SuppressWarnings("unchecked")
+    public Class<AbstractRenderEngineForge<?, ?>> targetEngine() {
+        return (Class<AbstractRenderEngineForge<?,?>>) (Class<?>) AbstractRenderEngineForge.class;
     }
 
     @Override

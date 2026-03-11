@@ -1,13 +1,14 @@
 package com.artur114.armoredarms.client.engines;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
-import com.artur114.armoredarms.core.api.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.AbstractRenderEngine;
+import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.RenderException;
 import com.google.common.base.MoreObjects;
@@ -36,45 +37,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ArmRenderEngineForge extends AbstractRenderEngine<ArmRenderEngineForge, ArmRenderPipelineForge> {
-    public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
-    public final Minecraft mc = Minecraft.getMinecraft();
-    public ItemRenderer itemRenderer = null;
-    public RenderItem renderItem = null;
-    public boolean deactivated = false;
-    public boolean render = false;
-
+public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEngineForge, ArmRenderPipelineForge> {
     @Override
-    protected Map<Class<? extends IArmRenderLayer<ArmRenderEngineForge>>, IArmRenderLayer<ArmRenderEngineForge>> initLayers() {
-        this.renderItem = this.mc.getRenderItem();
-        this.itemRenderer = this.mc.getItemRenderer();
-
-        Map<Class<? extends IArmRenderLayer<ArmRenderEngineForge>>, IArmRenderLayer<ArmRenderEngineForge>> map = new HashMap<>();
+    protected Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers() {
+        Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> map = new HashMap<>();
         map.put(ArmRenderLayerArmor.class, new ArmRenderLayerArmor());
+        map.put(ArmRenderLayerHand.class, new ArmRenderLayerHand());
         return map;
-    }
-
-    @Override
-    public void tryRender(ArmRenderPipelineForge context) {
-        if (this.deactivated || !this.render) {
-            return;
-        }
-
-        this.render(context);
-    }
-
-    @Override
-    public void tryTick(ArmRenderPipelineForge context) {
-        if (this.deactivated) {
-            return;
-        }
-
-        this.tick();
-    }
-
-    @Override
-    public boolean canWork(IAAModContainer mod) {
-        return true;
     }
 
     @Override
@@ -83,15 +52,11 @@ public class ArmRenderEngineForge extends AbstractRenderEngine<ArmRenderEngineFo
     }
 
     @Override
-    public void deactivate() {
-        this.deactivated = true;
-    }
-
-    @Override
     public IPriority priority() {
         return Priority.NORMAL;
     }
 
+    @Override
     public void render(ArmRenderPipelineForge context) {
         RenderHandEvent e = context.renderContext;
         boolean flag = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
@@ -104,7 +69,8 @@ public class ArmRenderEngineForge extends AbstractRenderEngine<ArmRenderEngineFo
         }
     }
 
-    public void tick() {
+    @Override
+    public void tick(ArmRenderPipelineForge context) {
         boolean render = false;
 
         for (IArmRenderLayer<ArmRenderEngineForge> layer : this.sortedLayers) {

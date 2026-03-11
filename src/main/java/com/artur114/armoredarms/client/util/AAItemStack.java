@@ -1,6 +1,6 @@
 package com.artur114.armoredarms.client.util;
 
-import com.artur114.armoredarms.core.api.armorlayer.IItemStack;
+import com.artur114.armoredarms.core.util.IItemStack;
 import com.artur114.armoredarms.core.util.Immutable;
 import com.artur114.armoredarms.core.util.Int2ObjBoundedCache;
 import com.artur114.armoredarms.core.util.ShapelessLocation;

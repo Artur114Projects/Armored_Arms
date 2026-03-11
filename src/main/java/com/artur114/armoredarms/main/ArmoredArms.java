@@ -19,10 +19,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
 public class ArmoredArms implements IAAModContainer {
     public static final Logger LOGGER = LogManager.getLogger("ARMOREDARMS");
+    protected static final Map<String, Logger> loggers = new HashMap<>();
     protected static IArmRenderPipeline<?> pipeline = null;
     public static final String MODID = "armoredarms";
 
@@ -42,7 +45,7 @@ public class ArmoredArms implements IAAModContainer {
         pipeline = RenderPipelines.pickUpAndRegister(this);
 
         if (isPipelineLoaded()) {
-            LOGGER.debug("Rendering pipeline successfully loaded, pipeline: {}", pipeline.getClass());
+            LOGGER.info("Rendering pipeline successfully loaded, pipeline: {}", pipeline.getClass());
         } else {
             LOGGER.fatal("Rendering pipeline could not be loaded!");
         }
@@ -76,5 +79,10 @@ public class ArmoredArms implements IAAModContainer {
             return event.result();
         }
         return null;
+    }
+
+    @Override
+    public Logger logger(String name) {
+        return loggers.computeIfAbsent(name, LogManager::getLogger);
     }
 }

@@ -6,10 +6,11 @@ import com.artur114.armoredarms.client.util.TextureEnchant;
 import com.artur114.armoredarms.client.util.TextureRL;
 import com.artur114.armoredarms.client.util.TextureRLRGB;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
+import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelManager;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderContainer;
-import com.artur114.armoredarms.core.api.armorlayer.IArmModelRenderer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITexture;
 import com.artur114.armoredarms.core.util.MultiTexture;
@@ -40,7 +41,7 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
     public void render(ArmRenderLayerArmor layer, IArmModelRenderer<ArmModelManagerBiped> renderer, EnumHandSideAA side) {
         this.armorLayer = layer.armorLayer;
         this.stack = layer.chestPlate;
-        this.player = layer.player;
+        this.player = layer.mc.player;
 
         renderer.renderArm(this, side);
 
@@ -50,10 +51,10 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
     }
 
     @Override
-    public IArmModelRenderer<ArmModelManagerBiped> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmModelManagerBiped> container) {
+    public IArmModelRenderer<ArmModelManagerBiped> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerBiped> container) {
         this.armorLayer = layer.armorLayer;
         this.stack = layer.chestPlate;
-        this.player = layer.player;
+        this.player = layer.mc.player;
         this.texture = this.textures(this.player, this.armorLayer, this.stack);
         this.model = this.model(this.player, this.stack);
 
@@ -67,7 +68,6 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
 
         return model;
     }
-
 
     public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, AAItemStack stack) {
         ResourceLocation armor = armorLayer.getArmorResource(player, stack.stack(), EntityEquipmentSlot.CHEST, null);
@@ -114,5 +114,10 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
     @Override
     public Class<ArmModelManagerBiped> clazz() {
         return ArmModelManagerBiped.class;
+    }
+
+    @Override
+    public IPriority priority() {
+        return Priority.NORMAL;
     }
 }
