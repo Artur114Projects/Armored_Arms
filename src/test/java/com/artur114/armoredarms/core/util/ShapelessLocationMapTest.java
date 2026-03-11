@@ -39,6 +39,9 @@ class ShapelessLocationMapTest {
         assertEquals(grass, map.get(ShapelessLocation.location(block, grass)));
         assertEquals(copper, map.get(ShapelessLocation.location(ingot, copper)));
 
+        assertEquals("absolute", map.get(ShapelessLocation.location("onowrge", "remggeo")));
+        assertEquals("absolute", map.get(ShapelessLocation.location("*", "*")));
+
         assertArrayEquals(new String[] {"absolute", iron, copper}, map.getAll(ShapelessLocation.location(ingot, "*")).toArray(new String[0]));
         assertArrayEquals(new String[] {"absolute", grass, stone}, map.getAll(ShapelessLocation.location(block, "*")).toArray(new String[0]));
 

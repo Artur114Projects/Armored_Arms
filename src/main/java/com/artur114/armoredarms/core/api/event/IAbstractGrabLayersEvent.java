@@ -1,12 +1,10 @@
 package com.artur114.armoredarms.core.api.event;
 
-import com.artur114.armoredarms.core.api.IArmRenderLayer;
+import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.IEvent;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public interface IAbstractGrabLayersEvent<E extends IArmRenderEngine<?>> extends IEvent<Map<Class<IArmRenderLayer<E>>, IArmRenderLayer<E>>> {

@@ -1,6 +1,6 @@
 package com.artur114.armoredarms.core.api.engine;
 
-import com.artur114.armoredarms.core.api.IArmRenderLayer;
+import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.CoreUtils;
 import com.artur114.armoredarms.core.util.IAAModContainer;
@@ -24,10 +24,14 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
 
         rawLayers.forEach(((aClass, iArmRenderLayer) -> {
             if (iArmRenderLayer.targetEngine().isAssignableFrom(clazz)) {
-                loggerCore.info("Registered render layer: {} for engine: {}", aClass, clazz);
+                loggerCore.info("Registered render layer");
+                loggerCore.info("   Engine: {}", this);
+                loggerCore.info("   Layer: {}", iArmRenderLayer);
                 this.layerMap.put((Class<? extends IArmRenderLayer<E>>) aClass, (IArmRenderLayer<E>) iArmRenderLayer);
             } else {
-                loggerCore.error("Attempting to initialize an incompatible layer, layer: {} engine: {}", aClass, clazz);
+                loggerCore.error("Attempting to initialize an incompatible layer!");
+                loggerCore.error("   Engine: {}", this);
+                loggerCore.error("   Layer: {}", iArmRenderLayer);
             }
         }));
 

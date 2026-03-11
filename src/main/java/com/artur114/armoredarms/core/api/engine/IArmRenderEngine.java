@@ -1,6 +1,6 @@
 package com.artur114.armoredarms.core.api.engine;
 
-import com.artur114.armoredarms.core.api.IArmRenderLayer;
+import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.IPrioritised;
 import com.artur114.armoredarms.core.api.IArmRenderComponent;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;

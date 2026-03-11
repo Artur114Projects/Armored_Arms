@@ -1,6 +1,4 @@
-package com.artur114.armoredarms.core.api.armorlayer;
-
-import com.artur114.armoredarms.core.util.ShapelessLocation;
+package com.artur114.armoredarms.core.util;
 
 public interface IItemStack {
     boolean isNew(IItemStack stack);
