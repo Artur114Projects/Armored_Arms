@@ -4,6 +4,7 @@ import com.artur114.armoredarms.core.api.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.CoreUtils;
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,20 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
     @Override
     @SuppressWarnings("unchecked")
     public void init(P context, IAAModContainer mod) {
-        this.layerMap = new HashMap<>(this.initLayers());
+        Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> rawLayers = this.initLayers();
+        Logger loggerCore = mod.logger("ARMOREDARMS-CORE");
+        this.layerMap = new HashMap<>();
+        Class<?> clazz = this.getClass();
+
+        rawLayers.forEach(((aClass, iArmRenderLayer) -> {
+            if (iArmRenderLayer.targetEngine().isAssignableFrom(clazz)) {
+                loggerCore.info("Registered render layer: {} for engine: {}", aClass, clazz);
+                this.layerMap.put((Class<? extends IArmRenderLayer<E>>) aClass, (IArmRenderLayer<E>) iArmRenderLayer);
+            } else {
+                loggerCore.error("Attempting to initialize an incompatible layer, layer: {} engine: {}", aClass, clazz);
+            }
+        }));
+
         this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
 
         for (IArmRenderLayer<E> layer : this.sortedLayers) layer.init((E) this, mod);
@@ -31,5 +45,5 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         return null;
     }
 
-    protected abstract Map<Class<? extends IArmRenderLayer<E>>, IArmRenderLayer<E>> initLayers();
+    protected abstract Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers();
 }

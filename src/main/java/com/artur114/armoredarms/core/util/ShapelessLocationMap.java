@@ -74,7 +74,12 @@ public class ShapelessLocationMap<V> implements Map<ShapelessLocation, V> {
 
     public List<V> getAll(ShapelessLocation location) {
         if (!location.isShapeless()) {
-            return Collections.singletonList(this.get(location));
+            V value = this.get(location);
+            if (value != null) {
+                return Collections.singletonList(value);
+            } else {
+                return Collections.emptyList();
+            }
         }
 
         List<V> list = new ArrayList<>();
@@ -91,11 +96,14 @@ public class ShapelessLocationMap<V> implements Map<ShapelessLocation, V> {
     @Override
     public V put(ShapelessLocation location, V value) {
         if (location.isAbsoluteShapeless()) {
-            V pev = this.absoluteValue;
-            this.absoluteValue = value; return pev;
+            this.absoluteValue = value;
         }
 
         V obj = this.map.put(location, value);
+
+        if (location.isAbsoluteShapeless()) {
+            return obj;
+        }
 
         ShapelessLocation.Location path = location.pathLocation();
         ShapelessLocation.Location domain = location.domainLocation();

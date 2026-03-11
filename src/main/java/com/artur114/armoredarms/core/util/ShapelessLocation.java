@@ -8,6 +8,11 @@ public class ShapelessLocation {
     private static final Location SHAPELESS = new Location("*");
     private static final Location EMPTY = new Location("");
 
+    public synchronized static ShapelessLocation location(String location) {
+        String[] strings = location.split(":");
+        return location(strings[0], strings[1]);
+    }
+
     public synchronized static ShapelessLocation location(String domain, String path) {
         ShapelessLocation location = cache.get(31 * domain.hashCode() + path.hashCode());
 
@@ -85,6 +90,11 @@ public class ShapelessLocation {
         return 31 * this.domain.hash + this.path.hash;
     }
 
+    @Override
+    public String toString() {
+        return this.domain + ":" + this.path;
+    }
+
     @Immutable
     public static class Location {
         protected final String location;
@@ -124,6 +134,11 @@ public class ShapelessLocation {
         @Override
         public int hashCode() {
             return this.hash;
+        }
+
+        @Override
+        public String toString() {
+            return this.location;
         }
     }
 }
