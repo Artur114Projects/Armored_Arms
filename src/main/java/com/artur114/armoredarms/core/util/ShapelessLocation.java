@@ -8,8 +8,13 @@ public class ShapelessLocation {
     private static final Location SHAPELESS = new Location("*");
     private static final Location EMPTY = new Location("");
 
+    public static final ShapelessLocation ABSOLUTE = location("*:*");
+
     public synchronized static ShapelessLocation location(String location) {
         String[] strings = location.split(":");
+        if (strings.length < 2) {
+            throw new IllegalArgumentException("Illegal location string: " + location);
+        }
         return location(strings[0], strings[1]);
     }
 
@@ -24,7 +29,7 @@ public class ShapelessLocation {
         return location;
     }
 
-    protected static Location createLocation(String location) {
+    private static Location createLocation(String location) {
         switch (location) {
             case "":
                 return EMPTY;
@@ -40,6 +45,9 @@ public class ShapelessLocation {
 
     public ShapelessLocation(String location) { // TODO: 10.03.2026 Доделать
         String[] strings = location.split(":");
+        if (strings.length < 2) {
+            throw new IllegalArgumentException("Illegal location string: " + location);
+        }
         this.domain = createLocation(strings[0]);
         this.path = createLocation(strings[1]);
     }

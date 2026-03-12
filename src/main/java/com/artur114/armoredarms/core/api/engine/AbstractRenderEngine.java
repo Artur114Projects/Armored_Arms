@@ -25,13 +25,13 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         rawLayers.forEach(((aClass, iArmRenderLayer) -> {
             if (iArmRenderLayer.targetEngine().isAssignableFrom(clazz)) {
                 loggerCore.info("Registered render layer");
-                loggerCore.info("   Engine: {}", this);
                 loggerCore.info("   Layer: {}", iArmRenderLayer);
+                loggerCore.info("   Engine: {}", this);
                 this.layerMap.put((Class<? extends IArmRenderLayer<E>>) aClass, (IArmRenderLayer<E>) iArmRenderLayer);
             } else {
                 loggerCore.error("Attempting to initialize an incompatible layer!");
-                loggerCore.error("   Engine: {}", this);
                 loggerCore.error("   Layer: {}", iArmRenderLayer);
+                loggerCore.error("   Engine: {}", this);
             }
         }));
 

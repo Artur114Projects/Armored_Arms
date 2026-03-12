@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 
 public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLayer<?, ?, ?>, S extends IItemStack, E extends IArmRenderEngine<?>> implements IArmRenderLayer<E> {
-    public ShapelessLocationMap<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> renderContainers;
-    public List<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> dynRenderContainers;
+    public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> renderContainers;
+    public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> dynRenderContainers;
     public ShapelessLocationMap<IArmModelManager<?, I>> modelManagers;
     public List<ShapelessLocation> blackList;
     public Set<IItemStack> killingArmor;
@@ -76,16 +76,16 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
     @SuppressWarnings("unchecked")
     public IArmModelRenderer<IArmModelManager<?, I>> cacheRenderer(IArmModelManager<?, I> modelManager, ShapelessLocation location) {
-        List<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> containers = this.renderContainers.getAll(location);
+        List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> containers = this.renderContainers.getAll(location);
 
-        for (IArmModelRenderContainer<?, ?> container : CoreUtils.sortPrioritisedList(containers)) {
+        for (IArmModelRenderContainer<I, IArmModelManager<?, I>> container : CoreUtils.sortPrioritisedList(containers)) {
             if (container.targetManager().isAssignableFrom(modelManager.clazz())) {
                 return (IArmModelRenderer<IArmModelManager<?, I>>) modelManager.cacheRenderer((I) this, (IArmModelRenderContainer) container);
             }
         }
 
-        for (IArmModelRenderContainer<?, ?> container : this.dynRenderContainers) {
-            if (container.targetManager().isAssignableFrom(modelManager.clazz()) && ((IArmModelRenderContainer) container).needWork(modelManager)) {
+        for (IArmModelRenderContainer<I, IArmModelManager<?, I>> container : this.dynRenderContainers) {
+            if (container.targetManager().isAssignableFrom(modelManager.clazz()) && container.needWork(modelManager)) {
                 return (IArmModelRenderer<IArmModelManager<?, I>>) modelManager.cacheRenderer((I) this, (IArmModelRenderContainer) container);
             }
         }
@@ -101,8 +101,8 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     public abstract ShapelessLocationList<IArmModelRenderContainer<?, ?>> initRenderContainers();
 
     @SuppressWarnings("unchecked")
-    public List<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> castDynamicContainers(ShapelessLocationList<IArmModelRenderContainer<?, ?>> list) {
-        List<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> ret = new ArrayList<>(list.size());
+    public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castDynamicContainers(ShapelessLocationList<IArmModelRenderContainer<?, ?>> list) {
+        List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ArrayList<>(list.size());
 
         Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
@@ -112,7 +112,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
                 continue;
             }
             if (entry.value.targetLayer().isAssignableFrom(clazz)) {
-                ret.add((IArmModelRenderContainer<I,  ? extends IArmModelManager<?, I>>) entry.value);
+                ret.add((IArmModelRenderContainer<I,  IArmModelManager<?, I>>) entry.value);
                 loggerCore.info("Registered dynamic render container");
                 loggerCore.info("   Layer: {}", this);
                 loggerCore.info("   Manager: {}", entry.value);
@@ -129,8 +129,8 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     }
 
     @SuppressWarnings("unchecked")
-    public ShapelessLocationMap<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> castContainers(ShapelessLocationList<IArmModelRenderContainer<?, ?>> list) {
-        ShapelessLocationMap<IArmModelRenderContainer<I, ? extends IArmModelManager<?, I>>> ret = new ShapelessLocationMap<>();
+    public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castContainers(ShapelessLocationList<IArmModelRenderContainer<?, ?>> list) {
+        ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ShapelessLocationMap<>();
         Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
@@ -139,7 +139,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
                 continue;
             }
             if (entry.value.targetLayer().isAssignableFrom(clazz)) {
-                ret.put(entry.location, (IArmModelRenderContainer<I,  ? extends IArmModelManager<?, I>>) entry.value);
+                ret.put(entry.location, (IArmModelRenderContainer<I,  IArmModelManager<?, I>>) entry.value);
                 loggerCore.info("Registered render container");
                 loggerCore.info("   Layer: {}", this);
                 loggerCore.info("   Manager: {}", entry.value);
@@ -202,10 +202,11 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         ShapelessLocationList<IArmModelRenderContainer<?, ?>> containers = this.initRenderContainers();
         this.renderContainers = this.castContainers(containers);
         this.dynRenderContainers = this.castDynamicContainers(containers);
-        this.blackList = new ArrayList<>(this.initBlackList());
+        this.blackList = this.initBlackList();
         this.killingArmor = new HashSet<>();
     }
 
+    @SuppressWarnings("unchecked")
     public void tryTick(E engine) {
         S chestPlate = this.currentChestPlate();
 
@@ -216,6 +217,9 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         }
 
         if (!this.chestPlate.isNew(chestPlate)) {
+            if (this.modelManager != null) {
+                this.modelManager.update((I) this);
+            }
             return;
         }
 
@@ -234,11 +238,15 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         if (this.modelManager == null || this.model == null) {
             Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
             loggerCore.warn("Could not find a suitable render components!");
-            loggerCore.warn("   Engine: {}", engine);
             loggerCore.warn("   Layer: {}", this);
+            loggerCore.warn("   Engine: {}", engine);
             loggerCore.warn("   Chest plate location: {}", chestPlate.location());
             loggerCore.warn("   Model manager: {}", this.modelManager);
             loggerCore.warn("   Model renderer: {}", this.model);
+        }
+
+        if (this.modelManager != null) {
+            this.modelManager.update((I) this);
         }
     }
 

@@ -20,6 +20,16 @@ public class ShapelessLocationList<V> implements Iterable<ShapelessLocationList.
         this.list.add(new Entry<>(location, value));
     }
 
+    public List<V> get(ShapelessLocation location) {
+        List<V> ret = new ArrayList<>();
+        for (Entry<V> entry : this) {
+            if (entry.location.equals(location)) {
+                ret.add(entry.value);
+            }
+        }
+        return ret;
+    }
+
     public V get(int index) {
         return this.list.get(index).value;
     }

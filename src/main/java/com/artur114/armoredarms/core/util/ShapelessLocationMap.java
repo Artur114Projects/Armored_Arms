@@ -73,15 +73,6 @@ public class ShapelessLocationMap<V> implements Map<ShapelessLocation, V> {
     }
 
     public List<V> getAll(ShapelessLocation location) {
-        if (!location.isShapeless()) {
-            V value = this.get(location);
-            if (value != null) {
-                return Collections.singletonList(value);
-            } else {
-                return Collections.emptyList();
-            }
-        }
-
         List<V> list = new ArrayList<>();
 
         this.map.forEach((k, v) -> {
