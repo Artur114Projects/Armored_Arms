@@ -27,8 +27,10 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
     public void init(E engine, IAAModContainer mod) {
         try {
             this.tryInit(engine, mod);
+        } catch (RenderException rm) {
+            throw rm;
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            throw new RenderException(t).setComponent(this);
         }
     }
 
@@ -40,8 +42,10 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
 
         try {
             this.tryTick(engine);
+        } catch (RenderException rm) {
+            throw rm;
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            throw new RenderException(t).setComponent(this);
         }
     }
 
@@ -53,8 +57,10 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
 
         try {
             this.tryRender(engine, handSide);
+        } catch (RenderException rm) {
+            throw rm;
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            throw new RenderException(t).setComponent(this);
         }
     }
 
