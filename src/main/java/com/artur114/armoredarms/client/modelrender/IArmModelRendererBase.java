@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.client.armorlayer;
+package com.artur114.armoredarms.client.modelrender;
 
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;

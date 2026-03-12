@@ -1,8 +1,8 @@
 package com.artur114.armoredarms.client.layers;
 
-import com.artur114.armoredarms.client.armorlayer.ArmModelManagerBiped;
-import com.artur114.armoredarms.client.armorlayer.ArmModelRenderContainerDef;
-import com.artur114.armoredarms.client.armorlayer.ArmModelRendererBiped;
+import com.artur114.armoredarms.client.modelrender.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.ArmModelContainerArmor;
+import com.artur114.armoredarms.client.modelrender.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.util.AAItemStack;
 import com.artur114.armoredarms.client.util.EnumMods;
@@ -14,6 +14,7 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.*;
 //import lain.mods.cos.api.CosArmorAPI;
 //import lain.mods.cos.api.inventory.CAStacksBase;
+import com.artur114.armoredarms.main.AAConfig;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
@@ -26,19 +27,18 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, AAItemStack, AbstractRenderEngineForge<?, ?>> {
     public List<LayerRenderer<AbstractClientPlayer>> layerRenderers = null;
-    public Minecraft mc = Minecraft.getMinecraft();
+    public final Minecraft mc = Minecraft.getMinecraft();
     public LayerBipedArmor armorLayer = null;
     public RenderPlayer renderPlayer = null;
 
 
     @Override
     public AAItemStack currentChestPlate() {
-        return this.itemStackArmor(this.mc.player);
+        return AAItemStack.chestPlate(this.mc.player);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public List<ShapelessLocation> initBlackList() {
-        return new ArrayList<>();
+        return AAConfig.Baked.renderArmorBlackList;
     }
 
     @Override
@@ -63,34 +63,15 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
     @Override
     public ShapelessLocationList<IArmModelManager<?, ?>> initModelManagers() {
         ShapelessLocationList<IArmModelManager<?, ?>> map = new ShapelessLocationList<>();
-        map.add(ShapelessLocation.location("*", "*"), new ArmModelManagerBiped());
+        map.add(ShapelessLocation.location("*", "*"), new ArmModelManagerArmor());
         return map;
     }
 
     @Override
     public ShapelessLocationList<IArmModelRenderContainer<?, ?>> initRenderContainers() {
         ShapelessLocationList<IArmModelRenderContainer<?, ?>> map = new ShapelessLocationList<>();
-        map.add(ShapelessLocation.location("*", "*"), new ArmModelRenderContainerDef(ArmModelRendererBiped.class, Priority.LOWEST));
+        map.add(ShapelessLocation.location("*", "*"), new ArmModelContainerArmor(ArmModelRendererArmor.class, Priority.LOWEST));
         return map;
-    }
-
-    public AAItemStack itemStackArmor(AbstractClientPlayer player) {
-        if (EnumMods.COSMETIC_ARMOR.isLoaded()) {
-            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUniqueID());
-            int chestId = EntityEquipmentSlot.CHEST.getIndex();
-
-            if (stacks.isSkinArmor(chestId)) {
-                return AAItemStack.EMPTY;
-            }
-
-            ItemStack stack = stacks.getStackInSlot(chestId);
-
-            if (!stack.isEmpty()) {
-                return AAItemStack.from(stack);
-            }
-        }
-
-        return AAItemStack.from(player.getItemStackFromSlot(EntityEquipmentSlot.CHEST));
     }
 
     @SuppressWarnings("unchecked")

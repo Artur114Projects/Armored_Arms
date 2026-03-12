@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.client.armorlayer;
+package com.artur114.armoredarms.client.modelrender;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.util.AAItemStack;
@@ -19,16 +19,15 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBiped, ArmRenderLayerArmor> {
+public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArmor, ArmRenderLayerArmor> {
     private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
     private double modelSize = AAConfig.vanillaArmorModelSize;
+    private boolean deactivated = false;
 
 
     public AbstractClientPlayer player = null;
@@ -38,7 +37,13 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
     public ModelBiped model = null;
 
     @Override
-    public void render(ArmRenderLayerArmor layer, IArmModelRenderer<ArmModelManagerBiped> renderer, EnumHandSideAA side) {
+    public void update(ArmRenderLayerArmor layer) {}
+
+    @Override
+    public void render(ArmRenderLayerArmor layer, IArmModelRenderer<ArmModelManagerArmor> renderer, EnumHandSideAA side) {
+        if (this.deactivated) {
+            return;
+        }
         this.armorLayer = layer.armorLayer;
         this.stack = layer.chestPlate;
         this.player = layer.mc.player;
@@ -51,14 +56,17 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
     }
 
     @Override
-    public IArmModelRenderer<ArmModelManagerBiped> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerBiped> container) {
+    public IArmModelRenderer<ArmModelManagerArmor> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> container) {
+        if (this.deactivated) {
+            return null;
+        }
         this.armorLayer = layer.armorLayer;
         this.stack = layer.chestPlate;
         this.player = layer.mc.player;
         this.texture = this.textures(this.player, this.armorLayer, this.stack);
         this.model = this.model(this.player, this.stack);
 
-        IArmModelRenderer<ArmModelManagerBiped> model = container.create(this);
+        IArmModelRenderer<ArmModelManagerArmor> model = container.create(this);
 
         this.armorLayer = null;
         this.texture = null;
@@ -67,6 +75,11 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
         this.model = null;
 
         return model;
+    }
+
+    @Override
+    public void deactivate() {
+        this.deactivated = true;
     }
 
     public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, AAItemStack stack) {
@@ -112,8 +125,8 @@ public class ArmModelManagerBiped implements IArmModelManager<ArmModelManagerBip
     }
 
     @Override
-    public Class<ArmModelManagerBiped> clazz() {
-        return ArmModelManagerBiped.class;
+    public Class<ArmModelManagerArmor> clazz() {
+        return ArmModelManagerArmor.class;
     }
 
     @Override

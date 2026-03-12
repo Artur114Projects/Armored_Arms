@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.client.armorlayer;
+package com.artur114.armoredarms.client.modelrender;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.core.api.IPriority;
@@ -11,18 +11,18 @@ import net.minecraft.client.model.ModelBiped;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerBiped> {
+public class ArmModelContainerArmor implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> {
     private final IConstructor creator;
     private final IPriority priority;
 
-    public ArmModelRenderContainerDef(Class<? extends IArmModelRenderer<ArmModelManagerBiped>> clazz) {
+    public ArmModelContainerArmor(Class<? extends IArmModelRenderer<ArmModelManagerArmor>> clazz) {
         this(clazz, Priority.NORMAL);
     }
 
-    public ArmModelRenderContainerDef(Class<? extends IArmModelRenderer<ArmModelManagerBiped>> clazz, IPriority priority) {
+    public ArmModelContainerArmor(Class<? extends IArmModelRenderer<ArmModelManagerArmor>> clazz, IPriority priority) {
         this.priority = priority;
         try {
-            Constructor<? extends IArmModelRenderer<ArmModelManagerBiped>> constructor = clazz.getDeclaredConstructor(ModelBiped.class, IMultiTexture.class);
+            Constructor<? extends IArmModelRenderer<ArmModelManagerArmor>> constructor = clazz.getDeclaredConstructor(ModelBiped.class, IMultiTexture.class);
             constructor.setAccessible(true);
             creator = (mb, texture) -> {
                 try {
@@ -38,18 +38,18 @@ public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmR
     }
 
     @Override
-    public IArmModelRenderer<ArmModelManagerBiped> create(ArmModelManagerBiped manager) {
+    public IArmModelRenderer<ArmModelManagerArmor> create(ArmModelManagerArmor manager) {
         return this.creator.create(manager.model, manager.texture);
     }
 
     @Override
-    public boolean needWork(ArmModelManagerBiped manager) {
+    public boolean needWork(ArmModelManagerArmor manager) {
         return true;
     }
 
     @Override
-    public Class<ArmModelManagerBiped> targetManager() {
-        return ArmModelManagerBiped.class;
+    public Class<ArmModelManagerArmor> targetManager() {
+        return ArmModelManagerArmor.class;
     }
 
     @Override
@@ -63,6 +63,6 @@ public class ArmModelRenderContainerDef implements IArmModelRenderContainer<ArmR
     }
 
     private interface IConstructor {
-        IArmModelRenderer<ArmModelManagerBiped> create(ModelBiped mb, IMultiTexture texture);
+        IArmModelRenderer<ArmModelManagerArmor> create(ModelBiped mb, IMultiTexture texture);
     }
 }

@@ -14,6 +14,11 @@ version = modVersion
 group = modGroup
 archivesBaseName = modFileName
 
+if (version.contains("SNAPSHOT")) {
+    archivesBaseName = archivesBaseName + "-SNAPSHOT(" + new Date().format("dd-MM-yyyy'-T-'HH'h'-mm'm'") + ")"
+    version = ""
+}
+
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
@@ -62,7 +67,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
 
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
-    compile fileTree(dir: "libs", includes: ['*.jar'])
+    compileOnly fileTree(dir: "libs", includes: ['*.jar'])
 
     shade 'com.artur114.armoredarms:core:' + coreVersion
 }
@@ -96,11 +101,11 @@ jar {
     manifest {
         attributes([
             "Specification-Title": modId,
-            "Specification-Vendor": modId,
+            "Specification-Vendor": author,
             "Specification-Version": modVersion,
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" : modId,
+            "Implementation-Vendor" : author,
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
             "Core-Version": coreVersion
         ])

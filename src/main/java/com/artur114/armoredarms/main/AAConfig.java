@@ -1,25 +1,28 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.core.util.ShapelessLocation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Config(modid = ArmoredArms.MODID)
 @Mod.EventBusSubscriber(modid = ArmoredArms.MODID)
 public class AAConfig {
+
     @Config.LangKey("armoredarms.cfg.disableArmWear")
     public static boolean disableArmWear = true;
 
     @Config.LangKey("armoredarms.cfg.enableArmWearWithVanillaM")
     public static boolean enableArmWearWithVanillaM = true;
 
-    @Config.RequiresMcRestart
     @Config.LangKey("armoredarms.cfg.renderBlackList")
     public static String[] renderBlackList = new String[0];
 
-    @Config.RequiresMcRestart
     @Config.LangKey("armoredarms.cfg.renderArmWearList")
     public static String[] renderArmWearList = new String[] {"cqrepoured:*"};
 
@@ -35,6 +38,37 @@ public class AAConfig {
     public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equals(ArmoredArms.MODID)) {
             ConfigManager.sync(ArmoredArms.MODID, Config.Type.INSTANCE);
+
+            updateLocationList(Baked.renderWearList, renderArmWearList);
+            updateLocationList(Baked.renderArmorBlackList, renderBlackList);
         }
+    }
+
+    protected static void init() {
+        updateLocationList(Baked.renderWearList, renderArmWearList);
+        updateLocationList(Baked.renderArmorBlackList, renderBlackList);
+    }
+
+    private static void updateLocationList(List<ShapelessLocation> list, String[] locations) {
+        list.clear();
+        for (String loc : locations) {
+            if (loc.isEmpty()) {
+                continue;
+            }
+            try {
+                ShapelessLocation location = ShapelessLocation.location(loc);
+
+                if (location != null && !location.isEmpty()) {
+                    list.add(location);
+                }
+            } catch (Throwable t) {
+                ArmoredArms.LOGGER.warn("Failed to initialize location: [{}], check the syntax!", loc);
+            }
+        }
+    }
+
+    public static class Baked {
+        public static final List<ShapelessLocation> renderArmorBlackList = new ArrayList<>();
+        public static final List<ShapelessLocation> renderWearList = new ArrayList<>();
     }
 }

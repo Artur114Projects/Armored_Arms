@@ -23,7 +23,6 @@ public class AAUtils {
         return EnumHandSideAA.values()[side.ordinal()];
     }
 
-
     public static int handSideDelta(EnumHandSide handSide) {
         switch (handSide) {
             case RIGHT:

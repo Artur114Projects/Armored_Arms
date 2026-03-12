@@ -80,7 +80,7 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
             } catch (RenderException rm) {
                 throw rm;
             } catch (Throwable tr) {
-                tr.printStackTrace(System.err);
+                throw new RenderException(tr).setComponent(layer);
             }
 
             render |= layer.needRender(this, render);
@@ -99,7 +99,7 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
                 } catch (RenderException rm) {
                     throw rm;
                 } catch (Throwable tr) {
-                    tr.printStackTrace(System.err);
+                    throw new RenderException(tr).setComponent(layer);
                 }
             }
         }

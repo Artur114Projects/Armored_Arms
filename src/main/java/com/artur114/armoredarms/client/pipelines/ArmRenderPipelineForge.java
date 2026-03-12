@@ -4,6 +4,7 @@ import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
+import com.artur114.armoredarms.core.util.EnumExceptionType;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.RenderException;
 import net.minecraft.client.Minecraft;
@@ -35,7 +36,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
         } catch (RenderException re) {
             this.mod.processException(re);
         } catch (Throwable exp) {
-            this.mod.processException(new RenderException(exp));
+            this.mod.processException(new RenderException(exp).setComponent(this.engine));
         }
 
         this.renderContext = null;
@@ -51,8 +52,10 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
         if (this.initTick) {
             try {
                 this.init(); this.initTick = false;
+            } catch (RenderException re) {
+                this.mod.processException(re.setType(EnumExceptionType.FATAL));
             } catch (Throwable exp) {
-                this.mod.processException(new RenderException("It was not possible to load RenderPipeline, custom hands will not be rendered!", exp).setFatal());
+                this.mod.processException(new RenderException("It was not possible to load RenderPipeline, custom hands will not be rendered!", exp).setComponent(this).setType(EnumExceptionType.FATAL));
             }
         }
 
@@ -63,7 +66,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
         } catch (RenderException re) {
             this.mod.processException(re);
         } catch (Throwable exp) {
-            this.mod.processException(new RenderException(exp));
+            this.mod.processException(new RenderException(exp).setComponent(this.engine));
         }
 
         this.tickContext = null;
