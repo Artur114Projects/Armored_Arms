@@ -29,8 +29,10 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     public void init(E engine, IAAModContainer mod) {
         try {
             this.tryInit(engine, mod);
+        } catch (RenderException rm) {
+            throw rm;
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            throw new RenderException(t).setComponent(this);
         }
     }
 
@@ -42,8 +44,11 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
         try {
             this.tryTick(engine);
+        } catch (RenderException rm) {
+            throw rm;
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            this.processException(t);
+            throw new RenderException(t).setComponent(this).setMessageForPlayer("armoredarms.error.layer.armor.tryTick").setType(EnumExceptionType.WARN);
         }
     }
 
@@ -55,8 +60,11 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
         try {
             this.tryRender(engine, handSide);
+        } catch (RenderException rm) {
+            throw rm;
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            this.processException(t);
+            throw new RenderException(t).setComponent(this).setMessageForPlayer("armoredarms.error.layer.armor.tryRender").setType(EnumExceptionType.WARN);
         }
     }
 
@@ -68,6 +76,11 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     @Override
     public void deactivate() {
         this.deactivated = true;
+    }
+
+    public void processException(Throwable tr) {
+        this.killingArmor.add(this.chestPlate);
+        this.render = false;
     }
 
     public IArmModelManager<?, I> pickUpModelManager(ShapelessLocation location) {
