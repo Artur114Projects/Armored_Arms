@@ -5,9 +5,10 @@ import java.util.Objects;
 @Immutable
 public class ShapelessLocation {
     private static final Int2ObjBoundedCache<ShapelessLocation> cache = new Int2ObjBoundedCache<>(2048);
-    private static final Location SHAPELESS = new Location("*");
-    private static final Location EMPTY = new Location("");
+    private static final Location SHAPELESS_L = new Location("*");
+    private static final Location EMPTY_L = new Location("");
 
+    public static final ShapelessLocation EMPTY = location("", "");
     public static final ShapelessLocation ABSOLUTE = location("*:*");
 
     public synchronized static ShapelessLocation location(String location) {
@@ -32,9 +33,9 @@ public class ShapelessLocation {
     private static Location createLocation(String location) {
         switch (location) {
             case "":
-                return EMPTY;
+                return EMPTY_L;
             case "*":
-                return SHAPELESS;
+                return SHAPELESS_L;
         }
 
         return new Location(location);
@@ -116,11 +117,11 @@ public class ShapelessLocation {
         }
 
         public boolean isShapeless() {
-            return this == SHAPELESS;
+            return this == SHAPELESS_L;
         }
 
         public boolean isEmpty() {
-            return this == EMPTY;
+            return this == EMPTY_L;
         }
 
         public boolean equals(Location location) {

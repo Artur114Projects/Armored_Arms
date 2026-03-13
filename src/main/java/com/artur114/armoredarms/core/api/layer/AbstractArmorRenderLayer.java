@@ -110,17 +110,17 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     public abstract S emptyStack();
 
     public abstract List<ShapelessLocation> initBlackList();
-    public abstract ShapelessLocationList<IArmModelManager<?, ?>> initModelManagers();
-    public abstract ShapelessLocationList<IArmModelRenderContainer<?, ?>> initRenderContainers();
+    public abstract List<SLContainer<IArmModelManager<?, ?>>> initModelManagers();
+    public abstract List<SLContainer<IArmModelRenderContainer<?, ?>>> initRenderContainers();
 
     @SuppressWarnings("unchecked")
-    public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castDynamicContainers(ShapelessLocationList<IArmModelRenderContainer<?, ?>> list) {
+    public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castDynamicContainers(List<SLContainer<IArmModelRenderContainer<?, ?>>> list) {
         List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ArrayList<>(list.size());
 
         Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
-        for (ShapelessLocationList.Entry<IArmModelRenderContainer<?, ?>> entry : list) {
+        for (SLContainer<IArmModelRenderContainer<?, ?>> entry : list) {
             if (!entry.location.isAbsoluteShapeless()) {
                 continue;
             }
@@ -142,12 +142,12 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     }
 
     @SuppressWarnings("unchecked")
-    public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castContainers(ShapelessLocationList<IArmModelRenderContainer<?, ?>> list) {
+    public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castContainers(List<SLContainer<IArmModelRenderContainer<?, ?>>> list) {
         ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ShapelessLocationMap<>();
         Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
-        for (ShapelessLocationList.Entry<IArmModelRenderContainer<?, ?>> entry : list) {
+        for (SLContainer<IArmModelRenderContainer<?, ?>> entry : list) {
             if (entry.location.isAbsoluteShapeless()) {
                 continue;
             }
@@ -169,14 +169,14 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     }
 
     @SuppressWarnings("unchecked")
-    public ShapelessLocationMap<IArmModelManager<?, I>> castModelManagers(ShapelessLocationList<IArmModelManager<?, ?>> list) {
+    public ShapelessLocationMap<IArmModelManager<?, I>> castModelManagers(List<SLContainer<IArmModelManager<?, ?>>> list) {
         ShapelessLocationMap<IArmModelManager<?, I>> ret = new ShapelessLocationMap<>();
         Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
-        ShapelessLocationList.Entry<IArmModelManager<?, ?>> absoluteEntry = null;
+        SLContainer<IArmModelManager<?, ?>> absoluteEntry = null;
 
-        for (ShapelessLocationList.Entry<IArmModelManager<?, ?>> entry : list) {
+        for (SLContainer<IArmModelManager<?, ?>> entry : list) {
             if (entry.value.targetLayer().isAssignableFrom(clazz)) {
                 if (entry.location.isAbsoluteShapeless()) {
                     if (absoluteEntry == null || absoluteEntry.value.priority().toInt() < entry.value.priority().toInt()) {
@@ -212,7 +212,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         this.engine = engine;
         this.mod = mod;
         this.modelManagers = this.castModelManagers(this.initModelManagers());
-        ShapelessLocationList<IArmModelRenderContainer<?, ?>> containers = this.initRenderContainers();
+        List<SLContainer<IArmModelRenderContainer<?, ?>>> containers = this.initRenderContainers();
         this.renderContainers = this.castContainers(containers);
         this.dynRenderContainers = this.castDynamicContainers(containers);
         this.blackList = this.initBlackList();
