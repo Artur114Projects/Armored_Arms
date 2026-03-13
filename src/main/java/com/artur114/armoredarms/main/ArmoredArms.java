@@ -13,7 +13,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Level;
@@ -123,12 +122,11 @@ public class ArmoredArms implements IAAModContainer {
     }
 
     @Override
-    public <R> R post(IEvent<R> event) {
+    public boolean post(Object event) {
         if (event instanceof Event) {
-            MinecraftForge.EVENT_BUS.post((Event) event);
-            return event.result();
+            return MinecraftForge.EVENT_BUS.post((Event) event);
         }
-        return null;
+        return false;
     }
 
     @Override

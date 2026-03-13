@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.layers;
 
+import com.artur114.armoredarms.api.events.InitModelManagersEvent;
+import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.modelrender.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.ArmModelContainerArmor;
 import com.artur114.armoredarms.client.modelrender.ArmModelRendererArmor;
@@ -27,6 +29,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, AAItemStack, AbstractRenderEngineForge<?, ?>> {
@@ -61,17 +64,19 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
     }
 
     @Override
-    public ShapelessLocationList<IArmModelManager<?, ?>> initModelManagers() {
-        ShapelessLocationList<IArmModelManager<?, ?>> map = new ShapelessLocationList<>();
-        map.add(ShapelessLocation.location("*", "*"), new ArmModelManagerArmor());
-        return map;
+    public List<SLContainer<IArmModelManager<?, ?>>> initModelManagers() {
+        InitModelManagersEvent event = new InitModelManagersEvent(this.getClass(), this.mod, true);
+        event.registerManager(new ArmModelManagerArmor(), ShapelessLocation.location("*", "*"));
+        this.mod.post(event);
+        return event.managersSL();
     }
 
     @Override
-    public ShapelessLocationList<IArmModelRenderContainer<?, ?>> initRenderContainers() {
-        ShapelessLocationList<IArmModelRenderContainer<?, ?>> map = new ShapelessLocationList<>();
-        map.add(ShapelessLocation.location("*", "*"), new ArmModelContainerArmor(ArmModelRendererArmor.class, Priority.LOWEST));
-        return map;
+    public List<SLContainer<IArmModelRenderContainer<?, ?>>> initRenderContainers() {
+        InitRenderContainersEvent event = new InitRenderContainersEvent(this.getClass(), this.mod, true);
+        event.registerContainer(new ArmModelContainerArmor(ArmModelRendererArmor.class, Priority.LOWEST), ShapelessLocation.location("*", "*"));
+        this.mod.post(event);
+        return event.containersSL();
     }
 
     @SuppressWarnings("unchecked")

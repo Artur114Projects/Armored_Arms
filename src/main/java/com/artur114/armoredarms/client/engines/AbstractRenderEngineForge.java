@@ -23,9 +23,13 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngineFo
     public RenderItem renderItem = null;
     public boolean deactivated = false;
     public boolean render = false;
+    public IAAModContainer mod = null;
+    public P pipeline = null;;
 
     @Override
     public void init(P context, IAAModContainer mod) {
+        this.pipeline = context;
+        this.mod = mod;
         this.renderItem = this.mc.getRenderItem();
         this.itemRenderer = this.mc.getItemRenderer();
         super.init(context, mod);

@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.engines;
 
+import com.artur114.armoredarms.api.events.ArmLayerRenderingEvent;
+import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
@@ -40,10 +42,11 @@ import java.util.Map;
 public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEngineForge, ArmRenderPipelineForge> {
     @Override
     protected Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers() {
-        Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> map = new HashMap<>();
-        map.put(ArmRenderLayerArmor.class, new ArmRenderLayerArmor());
-        map.put(ArmRenderLayerHand.class, new ArmRenderLayerHand());
-        return map;
+        InitRenderLayersEvent event = new InitRenderLayersEvent(ArmRenderEngineForge.class, this.mod);
+        event.registerLayer(ArmRenderLayerArmor.class);
+        event.registerLayer(ArmRenderLayerHand.class);
+        this.mod.post(event);
+        return event.result();
     }
 
     @Override
@@ -93,7 +96,7 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
         for (IArmRenderLayer<ArmRenderEngineForge> layer : this.sortedLayers) {
             if (layer.needRender(this, this.render)) {
                 try {
-                    if (this.postLayerRenderEvent(layer)) {
+                    if (!this.mod.post(new ArmLayerRenderingEvent(layer, AAUtils.fromMc(handSide)))) {
                         layer.render(this, AAUtils.fromMc(handSide));
                     }
                 } catch (RenderException rm) {
@@ -103,10 +106,6 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
                 }
             }
         }
-    }
-
-    public boolean postLayerRenderEvent(IArmRenderLayer<ArmRenderEngineForge> layer) {
-        return true;
     }
 
     /*----------------------------------------MINECRAFT_SHIT_CODE_START----------------------------------------*/
