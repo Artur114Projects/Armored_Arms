@@ -15,7 +15,7 @@ group = modGroup
 archivesBaseName = modFileName
 
 if (version.contains("SNAPSHOT")) {
-    archivesBaseName = archivesBaseName + "-SNAPSHOT(" + new Date().format("dd-MM-yyyy'-T-'HH'h'-mm'm'") + ")"
+    archivesBaseName = archivesBaseName + "-SNAPSHOT(" + new Date().format("HH'h-'mm'm-T-'dd-MM-yyyy") + ")"
     version = ""
 }
 
