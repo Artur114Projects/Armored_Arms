@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.core.api.event;
 
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.SLContainer;
@@ -16,7 +17,12 @@ public interface IAbstractGrabRenderContainersEvent {
 
     IAAModContainer mod();
     Class<? extends IArmRenderLayer<?>> layer();
-
+    default boolean registerContainer(IArmModelRenderContainer<?, ?> container) {
+        return this.registerContainer(container, ShapelessLocation.EMPTY);
+    }
+    default boolean registerContainer(String modId, String itemId, IArmModelRenderContainer<?, ?> container) {
+        return this.registerContainer(container, ShapelessLocation.location(modId, itemId));
+    }
     default boolean registerContainer(IArmModelRenderContainer<?, ?> container, ShapelessLocation location) {
         Logger logger = mod().logger("ARMOREDARMS-CORE");
         try {
@@ -42,16 +48,17 @@ public interface IAbstractGrabRenderContainersEvent {
         }
         return false;
     }
+
+    default boolean registerContainerIfModLoaded(IArmModelRenderContainer<?, ?> container, String modId) {
+        return this.registerContainerIfModLoaded(container, ShapelessLocation.EMPTY, modId);
+    }
+    default boolean registerContainerIfModLoaded(String modId, String itemId, IArmModelRenderContainer<?, ?> container) {
+        return this.registerContainerIfModLoaded(container, ShapelessLocation.location(modId, itemId), modId);
+    }
     default boolean registerContainerIfModLoaded(IArmModelRenderContainer<?, ?> container, ShapelessLocation location, String modId) {
         if (this.mod().isModLoaded(modId)) {
             return this.registerContainer(container, location);
         }
         return false;
-    }
-    default boolean registerContainer(IArmModelRenderContainer<?, ?> container) {
-        return this.registerContainer(container, ShapelessLocation.EMPTY);
-    }
-    default boolean registerContainerIfModLoaded(IArmModelRenderContainer<?, ?> container, String modId) {
-        return this.registerContainerIfModLoaded(container, ShapelessLocation.EMPTY, modId);
     }
 }

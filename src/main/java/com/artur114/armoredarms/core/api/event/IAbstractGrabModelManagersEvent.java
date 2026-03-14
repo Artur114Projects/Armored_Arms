@@ -16,6 +16,12 @@ public interface IAbstractGrabModelManagersEvent {
     IAAModContainer mod();
     Class<? extends IArmRenderLayer<?>> layer();
 
+    default boolean registerManager(IArmModelManager<?, ?> manager) {
+        return this.registerManager(manager, ShapelessLocation.EMPTY);
+    }
+    default boolean registerManager(String modId, String itemId, IArmModelManager<?, ?> manager) {
+        return this.registerManager(manager, ShapelessLocation.location(modId, itemId));
+    }
     default boolean registerManager(IArmModelManager<?, ?> manager, ShapelessLocation location) {
         Logger logger = mod().logger("ARMOREDARMS-CORE");
         try {
@@ -41,16 +47,17 @@ public interface IAbstractGrabModelManagersEvent {
         }
         return false;
     }
+
+    default boolean registerManagerIfModLoaded(IArmModelManager<?, ?> manager, String modId) {
+        return this.registerManagerIfModLoaded(manager, ShapelessLocation.EMPTY, modId);
+    }
+    default boolean registerManagerIfModLoaded(String modId, String itemId, IArmModelManager<?, ?> manager) {
+        return this.registerManagerIfModLoaded(manager, ShapelessLocation.location(modId, itemId), modId);
+    }
     default boolean registerManagerIfModLoaded(IArmModelManager<?, ?> manager, ShapelessLocation location, String modId) {
         if (this.mod().isModLoaded(modId)) {
             return this.registerManager(manager, location);
         }
         return false;
-    }
-    default boolean registerManager(IArmModelManager<?, ?> manager) {
-        return this.registerManager(manager, ShapelessLocation.EMPTY);
-    }
-    default boolean registerManagerIfModLoaded(IArmModelManager<?, ?> manager, String modId) {
-        return this.registerManagerIfModLoaded(manager, ShapelessLocation.EMPTY, modId);
     }
 }

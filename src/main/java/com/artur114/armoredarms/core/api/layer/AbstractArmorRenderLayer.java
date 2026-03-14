@@ -147,12 +147,12 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
-        for (SLContainer<IArmModelRenderContainer<?, ?>> entry : list) {
+        for (SLContainer<IArmModelRenderContainer<?, ?>> entry : CoreUtils.sortPrioritisedList(list, (v) -> v.value.priority())) {
             if (entry.location.isAbsoluteShapeless()) {
                 continue;
             }
             if (entry.value.targetLayer().isAssignableFrom(clazz)) {
-                ret.put(entry.location, (IArmModelRenderContainer<I,  IArmModelManager<?, I>>) entry.value);
+                ret.put(entry.location, (IArmModelRenderContainer<I, IArmModelManager<?, I>>) entry.value);
                 loggerCore.info("Registered render container");
                 loggerCore.info("   Layer: {}", this);
                 loggerCore.info("   Manager: {}", entry.value);
@@ -176,7 +176,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
         SLContainer<IArmModelManager<?, ?>> absoluteEntry = null;
 
-        for (SLContainer<IArmModelManager<?, ?>> entry : list) {
+        for (SLContainer<IArmModelManager<?, ?>> entry : CoreUtils.sortPrioritisedList(list, (v) -> v.value.priority())) {
             if (entry.value.targetLayer().isAssignableFrom(clazz)) {
                 if (entry.location.isAbsoluteShapeless()) {
                     if (absoluteEntry == null || absoluteEntry.value.priority().toInt() < entry.value.priority().toInt()) {
