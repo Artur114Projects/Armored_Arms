@@ -128,12 +128,12 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
                 ret.add((IArmModelRenderContainer<I,  IArmModelManager<?, I>>) entry.value);
                 loggerCore.info("Registered dynamic render container");
                 loggerCore.info("   Layer: {}", this);
-                loggerCore.info("   Manager: {}", entry.value);
+                loggerCore.info("   Container: {}", entry.value);
                 loggerCore.info("   Location: {}", entry.location);
             } else {
                 loggerCore.error("Attempting to register an incompatible dynamic container!");
                 loggerCore.error("  Layer: {}", this);
-                loggerCore.error("  Manager: {}", entry.value);
+                loggerCore.error("  Container: {}", entry.value);
                 loggerCore.error("  Location: {}", entry.location);
             }
         }
@@ -155,12 +155,12 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
                 ret.put(entry.location, (IArmModelRenderContainer<I, IArmModelManager<?, I>>) entry.value);
                 loggerCore.info("Registered render container");
                 loggerCore.info("   Layer: {}", this);
-                loggerCore.info("   Manager: {}", entry.value);
+                loggerCore.info("   Container: {}", entry.value);
                 loggerCore.info("   Location: {}", entry.location);
             } else {
                 loggerCore.error("Attempting to register an incompatible container!");
                 loggerCore.error("  Layer: {}", this);
-                loggerCore.error("  Manager: {}", entry.value);
+                loggerCore.error("  Container: {}", entry.value);
                 loggerCore.error("  Location: {}", entry.location);
             }
         }
