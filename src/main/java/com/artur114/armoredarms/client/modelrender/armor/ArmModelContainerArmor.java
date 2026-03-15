@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.client.modelrender;
+package com.artur114.armoredarms.client.modelrender.armor;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.core.api.IPriority;

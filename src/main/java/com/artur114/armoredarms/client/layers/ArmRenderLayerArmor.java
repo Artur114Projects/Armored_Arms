@@ -2,34 +2,26 @@ package com.artur114.armoredarms.client.layers;
 
 import com.artur114.armoredarms.api.events.InitModelManagersEvent;
 import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
-import com.artur114.armoredarms.client.modelrender.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.ArmModelContainerArmor;
-import com.artur114.armoredarms.client.modelrender.ArmModelRendererArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.util.AAItemStack;
-import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.AbstractArmorRenderLayer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.*;
-//import lain.mods.cos.api.CosArmorAPI;
-//import lain.mods.cos.api.inventory.CAStacksBase;
 import com.artur114.armoredarms.main.AAConfig;
-import lain.mods.cos.api.CosArmorAPI;
-import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, AAItemStack, AbstractRenderEngineForge<?, ?>> {

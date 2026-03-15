@@ -1,5 +1,6 @@
-package com.artur114.armoredarms.client.modelrender;
+package com.artur114.armoredarms.client.modelrender.armor;
 
+import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.util.IMultiTexture;

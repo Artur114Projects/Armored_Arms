@@ -1,9 +1,7 @@
-package com.artur114.armoredarms.client.modelrender;
+package com.artur114.armoredarms.client.modelrender.player;
 
-import com.artur114.armoredarms.aalegacy.util.ShapelessRL;
+import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
-import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
-import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
@@ -14,9 +12,6 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ArmModelRendererPlayer implements IArmModelRendererBase<ArmModelManagerPlayer> {
     private final Minecraft mc = Minecraft.getMinecraft();

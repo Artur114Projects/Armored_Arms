@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.client.modelrender;
+package com.artur114.armoredarms.client.modelrender.player;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.util.AAItemStack;

@@ -1,7 +1,7 @@
 package com.artur114.armoredarms.client.integration.hbm.modelrender;
 
-import com.artur114.armoredarms.client.modelrender.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.ArmModelRendererArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import net.minecraft.client.model.ModelBiped;

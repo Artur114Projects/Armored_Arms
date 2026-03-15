@@ -1,12 +1,10 @@
-package com.artur114.armoredarms.client.modelrender;
+package com.artur114.armoredarms.client.modelrender.player;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
-import com.artur114.armoredarms.core.util.IMultiTexture;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 
 import java.lang.reflect.Constructor;

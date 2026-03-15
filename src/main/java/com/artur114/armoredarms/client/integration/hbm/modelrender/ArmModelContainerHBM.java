@@ -1,10 +1,9 @@
 package com.artur114.armoredarms.client.integration.hbm.modelrender;
 
-import com.artur114.armoredarms.aalegacy.integration.Overriders;
 import com.artur114.armoredarms.aalegacy.util.Reflector;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
-import com.artur114.armoredarms.client.modelrender.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.ArmModelRendererArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.util.AAItemStack;
 import com.artur114.armoredarms.client.util.TextureEnchant;
 import com.artur114.armoredarms.client.util.TextureRL;
@@ -49,16 +48,16 @@ public class ArmModelContainerHBM implements IArmModelRenderContainer<ArmRenderL
     @Override
     public IArmModelRenderer<ArmModelManagerArmor> create(ArmModelManagerArmor manager) {
         ModelBiped mb = manager.model;
-        Object r = Reflector.getPrivateField(mb, this.rightArm);
-        Object l = Reflector.getPrivateField(mb, this.leftArm);
+        Object right = Reflector.getPrivateField(mb, this.rightArm);
+        Object left = Reflector.getPrivateField(mb, this.leftArm);
         IMultiTexture texture = this.textures(manager.player, manager.armorLayer, manager.stack);
 
         if (Reflector.isClassExists("com.hbm.render.model.ModelT45Chest") && mb instanceof ModelT45Chest) {
-            return new ArmModelRendererT45(mb, texture, (ModelRenderer) r, (ModelRenderer) l);
-        } else if (r instanceof ModelRenderer) {
-            return new ArmModelRendererArmor(mb, texture, (ModelRenderer) r, (ModelRenderer) l);
-        } else if (r instanceof ModelRendererObj) {
-            return new ArmModelRendererHBM(mb, (ModelRendererObj) r, (ModelRendererObj) l);
+            return new ArmModelRendererT45(mb, texture, (ModelRenderer) right, (ModelRenderer) left);
+        } else if (right instanceof ModelRenderer) {
+            return new ArmModelRendererArmor(mb, texture, (ModelRenderer) right, (ModelRenderer) left);
+        } else if (right instanceof ModelRendererObj) {
+            return new ArmModelRendererHBM(mb, texture, (ModelRendererObj) right, (ModelRendererObj) left);
         }
 
         return null;
