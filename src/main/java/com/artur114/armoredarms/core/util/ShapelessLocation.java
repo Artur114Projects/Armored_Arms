@@ -44,7 +44,7 @@ public class ShapelessLocation {
     private final Location domain;
     private final Location path;
 
-    public ShapelessLocation(String location) { // TODO: 10.03.2026 Доделать
+    public ShapelessLocation(String location) {
         String[] strings = location.split(":");
         if (strings.length < 2) {
             throw new IllegalArgumentException("Illegal location string: " + location);
