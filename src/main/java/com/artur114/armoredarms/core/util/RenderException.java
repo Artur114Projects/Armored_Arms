@@ -2,9 +2,6 @@ package com.artur114.armoredarms.core.util;
 
 import com.artur114.armoredarms.core.api.IArmRenderComponent;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
 
 public class RenderException extends RuntimeException {
     private EnumExceptionType type = EnumExceptionType.ERROR;

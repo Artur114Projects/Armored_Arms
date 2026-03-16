@@ -14,8 +14,8 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> renderContainers;
     public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> dynRenderContainers;
     public ShapelessLocationMap<IArmModelManager<?, I>> modelManagers;
+    public Set<ShapelessLocation> killingArmor;
     public List<ShapelessLocation> blackList;
-    public Set<IItemStack> killingArmor;
     public boolean deactivated = false;
     public boolean render = false;
     public IAAModContainer mod;
@@ -79,7 +79,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     }
 
     public void processException(Throwable tr) {
-        this.killingArmor.add(this.chestPlate);
+        this.killingArmor.add(this.chestPlate.location());
         this.render = false;
     }
 
@@ -223,7 +223,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     public void tryTick(E engine) {
         S chestPlate = this.currentChestPlate();
 
-        if (chestPlate.isEmpty() || this.killingArmor.contains(chestPlate)) {
+        if (chestPlate.isEmpty() || this.killingArmor.contains(chestPlate.location())) {
             this.chestPlate = this.emptyStack();
             this.render = false;
             return;
@@ -248,14 +248,18 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         this.modelManager = this.pickUpModelManager(chestPlate.location());
         this.model = this.cacheRenderer(this.modelManager, chestPlate.location());
 
+        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
         if (this.modelManager == null || this.model == null) {
-            Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
             loggerCore.warn("Could not find a suitable render components!");
             loggerCore.warn("   Layer: {}", this);
             loggerCore.warn("   Engine: {}", engine);
             loggerCore.warn("   Chest plate location: {}", chestPlate.location());
             loggerCore.warn("   Model manager: {}", this.modelManager);
             loggerCore.warn("   Model renderer: {}", this.model);
+        } else {
+            loggerCore.debug("Loaded new armor, location: {}", this.chestPlate.location());
+            loggerCore.debug("   Model manager: {}", this.modelManager);
+            loggerCore.debug("   Model renderer: {}", this.model);
         }
 
         if (this.modelManager != null) {
