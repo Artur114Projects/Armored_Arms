@@ -33,6 +33,16 @@ public class AAUtils {
                 return 0;
         }
     }
+    public static ModelRenderer handFromModelBiped(ModelBiped mb, EnumHandSideAA handSide) {
+        switch (handSide) {
+            case RIGHT:
+                return mb.bipedRightArm;
+            case LEFT:
+                return mb.bipedLeftArm;
+            default:
+                throw new NullPointerException();
+        }
+    }
 
     public static ModelRenderer handFromModelBiped(ModelBiped mb, EnumHandSide handSide) {
         switch (handSide) {
@@ -40,6 +50,17 @@ public class AAUtils {
                 return mb.bipedRightArm;
             case LEFT:
                 return mb.bipedLeftArm;
+            default:
+                throw new NullPointerException();
+        }
+    }
+
+    public static ModelRenderer handFromModelPlayer(ModelPlayer mb, EnumHandSideAA handSide, boolean wear) {
+        switch (handSide) {
+            case RIGHT:
+                return wear ? mb.bipedRightArmwear : mb.bipedRightArm;
+            case LEFT:
+                return wear ? mb.bipedLeftArmwear : mb.bipedLeftArm;
             default:
                 throw new NullPointerException();
         }

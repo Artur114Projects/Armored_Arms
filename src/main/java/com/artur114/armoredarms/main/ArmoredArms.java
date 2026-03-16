@@ -1,6 +1,8 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.client.engines.ArmRenderEngineCleanRoom;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineCleanRoom;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.core.api.IArmRenderComponent;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -19,10 +21,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
 public class ArmoredArms implements IAAModContainer {
@@ -61,12 +60,12 @@ public class ArmoredArms implements IAAModContainer {
 
     @Override
     public Collection<IArmRenderPipeline<?>> defaultPipelines() {
-        return Collections.singletonList(new ArmRenderPipelineForge());
+        return Arrays.asList(new ArmRenderPipelineForge(), new ArmRenderPipelineCleanRoom());
     }
 
     @Override
     public Collection<IArmRenderEngine<?>> defaultEngines() {
-        return Collections.singletonList(new ArmRenderEngineForge());
+        return Arrays.asList(new ArmRenderEngineForge(), new ArmRenderEngineCleanRoom());
     }
 
     @Override

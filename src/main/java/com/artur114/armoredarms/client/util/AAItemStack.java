@@ -4,18 +4,14 @@ import com.artur114.armoredarms.core.util.IItemStack;
 import com.artur114.armoredarms.core.util.Immutable;
 import com.artur114.armoredarms.core.util.Int2ObjBoundedCache;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
-import com.artur114.armoredarms.main.ArmoredArms;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Immutable
 public class AAItemStack implements IItemStack {
@@ -54,16 +50,16 @@ public class AAItemStack implements IItemStack {
     }
 
     private final ItemStack stack;
-    private final boolean isEmpty;
+    private final boolean isArmor;
 
     public AAItemStack(ItemStack stack) {
         this.stack = stack;
 
-        this.isEmpty = stack.isEmpty() || !(stack.getItem() instanceof ItemArmor);
+        this.isArmor = stack.getItem() instanceof ItemArmor;
     }
 
     public ItemArmor item() {
-        if (this.isEmpty) return null;
+        if (!this.isArmor) return null;
         return (ItemArmor) this.stack.getItem();
     }
 
@@ -88,12 +84,12 @@ public class AAItemStack implements IItemStack {
 
     @Override
     public boolean isEmpty() {
-        return this.isEmpty ;
+        return !this.isArmor || this.stack.isEmpty();
     }
 
     @Override
     public int hashCode() {
-        if (this.isEmpty) {
+        if (this.isArmor) {
             return 0;
         }
         return this.stack.getItem().hashCode();

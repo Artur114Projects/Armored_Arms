@@ -22,6 +22,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArmor, ArmRenderLayerArmor> {
@@ -82,23 +83,25 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         this.deactivated = true;
     }
 
+    public List<ITexture> newTextureList() {
+        if (stack.item().hasEffect(stack.stack())) {
+            return new ArrayList<>(Arrays.asList(TextureEnchant.FIRST, TextureEnchant.SECOND));
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, AAItemStack stack) {
         ResourceLocation armor = armorLayer.getArmorResource(player, stack.stack(), EntityEquipmentSlot.CHEST, null);
         ResourceLocation overlay = null;
         if (stack.item().hasOverlay(stack.stack())) overlay = armorLayer.getArmorResource(player, stack.stack(), EntityEquipmentSlot.CHEST, "overlay");
 
-
-        List<ITexture> textures = new ArrayList<>(2);
+        List<ITexture> textures = this.newTextureList();
         if (overlay != null) {
             textures.add(new TextureRL(overlay, Priority.HIGH));
             textures.add(new TextureRLRGB(armor, stack.item().getColor(stack.stack())));
         } else {
             textures.add(new TextureRL(armor));
-        }
-
-        if (stack.item().hasEffect(stack.stack())) {
-            textures.add(TextureEnchant.FIRST);
-            textures.add(TextureEnchant.SECOND);
         }
 
         return new MultiTexture(textures);

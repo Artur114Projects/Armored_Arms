@@ -65,4 +65,9 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngineFo
 
     public abstract void render(P context);
     public abstract void tick(P context);
+
+    @SuppressWarnings("unchecked")
+    public static Class<AbstractRenderEngineForge<?, ?>> clazz() {
+        return (Class<AbstractRenderEngineForge<?, ?>>) (Class<?>) AbstractRenderEngineForge.class;
+    }
 }
