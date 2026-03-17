@@ -42,6 +42,9 @@ public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRende
                 }
             }
         }
+        if (!this.sortedLayers.isEmpty()) {
+            context.renderContext.setCanceled(true);
+        }
     }
 
     @Override

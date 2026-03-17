@@ -25,7 +25,7 @@ public class ArmRenderPipelineCleanRoom extends AbstractRenderPipeline<ArmRender
 
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public void renderHand(RenderArmEvent e) {
+    public void renderArm(RenderArmEvent e) {
         if (this.deactivated) {
             return;
         }

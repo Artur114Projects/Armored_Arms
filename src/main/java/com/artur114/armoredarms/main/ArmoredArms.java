@@ -23,6 +23,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
+// TODO Доделать логирование ошибок
+// TODO Сделать ArmoredArmsApi
 @Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
 public class ArmoredArms implements IAAModContainer {
     public static final Logger LOGGER = LogManager.getLogger("ARMOREDARMS");
