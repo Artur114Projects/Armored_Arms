@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.ResourceLocation;
 
 public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPlayer, ArmRenderLayerHand> {
-    private boolean deactivated = false;
+    protected boolean deactivated = false;
     public final Minecraft mc = Minecraft.getMinecraft();
     public AAItemStack chestPlate =AAItemStack.EMPTY;
     public ResourceLocation playerSkin;

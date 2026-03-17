@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.client.pipelines;
 
+import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -98,6 +99,6 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
     @Override
     public IPriority priority() {
-        return Priority.NORMAL;
+        return EnumMods.CYBERWARE.isLoaded() ? Priority.HIGHEST : Priority.NORMAL;
     }
 }

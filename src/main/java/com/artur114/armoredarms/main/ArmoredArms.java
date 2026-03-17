@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineCleanRoom;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineCleanRoom;
@@ -45,7 +46,9 @@ public class ArmoredArms implements IAAModContainer {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        pipeline = RenderPipelines.pickUpAndRegister(this);
+        if (!this.post(new InitRenderPipelineEvent(this))) {
+            pipeline = RenderPipelines.pickUpAndRegister(this);
+        }
 
         if (isPipelineLoaded()) {
             LOGGER.info("Rendering pipeline successfully loaded");

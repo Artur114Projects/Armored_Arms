@@ -270,7 +270,7 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
         GlStateManager.enableCull();
     }
 
-    private void rotateArroundXAndY(float angle, float angleY)
+    protected void rotateArroundXAndY(float angle, float angleY)
     {
         GlStateManager.pushMatrix();
         GlStateManager.rotate(angle, 1.0F, 0.0F, 0.0F);
@@ -279,7 +279,7 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
         GlStateManager.popMatrix();
     }
 
-    private void setLightmap()
+    protected void setLightmap()
     {
         AbstractClientPlayer abstractclientplayer = this.mc.player;
         int i = this.mc.world.getCombinedLight(new BlockPos(abstractclientplayer.posX, abstractclientplayer.posY + (double)abstractclientplayer.getEyeHeight(), abstractclientplayer.posZ), 0);
@@ -288,7 +288,7 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, f, f1);
     }
 
-    private void rotateArm(float p_187458_1_)
+    protected void rotateArm(float p_187458_1_)
     {
         EntityPlayerSP entityplayersp = this.mc.player;
         float f = entityplayersp.prevRenderArmPitch + (entityplayersp.renderArmPitch - entityplayersp.prevRenderArmPitch) * p_187458_1_;

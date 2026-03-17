@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public enum EnumMods {
-    COSMETIC_ARMOR("cosmeticarmorreworked");
+    COSMETIC_ARMOR("cosmeticarmorreworked"),
+    CYBERWARE("cyberware");
+
 
     private AtomicBoolean loaded = null;
     private final String[] modId;
