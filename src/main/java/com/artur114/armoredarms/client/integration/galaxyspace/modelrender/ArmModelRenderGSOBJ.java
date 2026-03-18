@@ -1,7 +1,7 @@
 package com.artur114.armoredarms.client.integration.galaxyspace.modelrender;
 
-import com.artur114.armoredarms.aalegacy.util.MiscUtils;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumHandSide;
 
 public class ArmModelRenderGSOBJ implements IArmModelRenderer<ArmModelManagerArmor> {
-    public final ModelRenderer[] playerArms = MiscUtils.playerArms();
+    public final ModelRenderer[] playerArms = AAUtils.playerArms();
     public final IMultiTexture texture;
     public final float[] color;
     public final int[] arms;

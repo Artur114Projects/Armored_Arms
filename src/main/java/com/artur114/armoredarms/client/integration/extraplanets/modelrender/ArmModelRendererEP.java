@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.extraplanets.modelrender;
 
-import com.artur114.armoredarms.aalegacy.util.MiscUtils;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.util.AAUtils;
@@ -26,7 +25,7 @@ public class ArmModelRendererEP extends ArmModelRendererArmor {
         arm.rotationPointX = -5.0F * side.delta();
         arm.rotationPointY = 2.0F;
         arm.rotationPointZ = 0.0F;
-        MiscUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
+        AAUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
         arm.rotateAngleX = 0.0F;
         model.isSneak = false;
         model.isChild = false;

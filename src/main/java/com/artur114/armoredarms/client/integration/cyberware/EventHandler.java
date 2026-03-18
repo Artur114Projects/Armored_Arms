@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.client.integration.cyberware;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.events.InitModelManagersEvent;
 import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
@@ -33,6 +34,6 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void initRenderPipelineEvent(InitRenderPipelineEvent e) {
-        RenderEngines.registerEngine(new ArmRenderEngineCyberwareForge());
+        ArmoredArmsApi.registerEngine(new ArmRenderEngineCyberwareForge());
     }
 }

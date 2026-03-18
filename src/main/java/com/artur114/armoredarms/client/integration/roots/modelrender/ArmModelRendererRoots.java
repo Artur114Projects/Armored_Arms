@@ -1,12 +1,12 @@
 package com.artur114.armoredarms.client.integration.roots.modelrender;
 
-import com.artur114.armoredarms.aalegacy.util.MiscUtils;
-import com.artur114.armoredarms.aalegacy.util.Reflector;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITextureIterator;
+import com.artur114.armoredarms.core.util.Reflector;
 import epicsquid.mysticallib.client.model.ModelArmorBase;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelRenderer;
@@ -15,7 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 
 public class ArmModelRendererRoots implements IArmModelRenderer<ArmModelManagerArmor> {
-    private final ModelRenderer[] playerArms = MiscUtils.playerArms();
+    private final ModelRenderer[] playerArms = AAUtils.playerArms();
     private final ModelRenderer[] armsB;
     private final ModelRenderer[] arms;
     private final IMultiTexture texture;
@@ -39,7 +39,7 @@ public class ArmModelRendererRoots implements IArmModelRenderer<ArmModelManagerA
             armB.rotationPointX = -5.0F * side.delta();
             armB.rotationPointY = 2.0F;
             armB.rotationPointZ = 0.0F;
-            MiscUtils.setPlayerArmDataToArm(armB, this.playerArms[side.ordinal()]);
+            AAUtils.setPlayerArmDataToArm(armB, this.playerArms[side.ordinal()]);
             this.mb.setChestRotation(context.player);
             boolean h = arm.isHidden;
             boolean s = arm.showModel;

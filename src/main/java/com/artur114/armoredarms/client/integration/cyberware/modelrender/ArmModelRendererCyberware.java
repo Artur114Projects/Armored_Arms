@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.cyberware.modelrender;
 
-import com.artur114.armoredarms.aalegacy.core.ArmRenderLayerVanilla;
 import com.artur114.armoredarms.client.integration.cyberware.EventHandler;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;

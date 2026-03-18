@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.cyberware.event;
 
-import com.artur114.armoredarms.aalegacy.api.events.AARenderLayerRenderingEvent;
 import com.artur114.armoredarms.api.events.ArmLayerRenderingEvent;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import flaxbeard.cyberware.api.CyberwareAPI;

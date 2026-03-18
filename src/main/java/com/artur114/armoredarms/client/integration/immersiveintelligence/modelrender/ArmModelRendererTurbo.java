@@ -1,14 +1,14 @@
 package com.artur114.armoredarms.client.integration.immersiveintelligence.modelrender;
 
 import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
-import com.artur114.armoredarms.aalegacy.util.MiscUtils;
-import com.artur114.armoredarms.aalegacy.util.Reflector;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
+import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITextureIterator;
+import com.artur114.armoredarms.core.util.Reflector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -21,7 +21,7 @@ import pl.pabilo8.immersiveintelligence.common.IIContent;
 import pl.pabilo8.immersiveintelligence.common.util.IIColor;
 
 public class ArmModelRendererTurbo implements IArmModelRenderer<ArmModelManagerArmor> {
-    public final ModelRenderer[] playerArms = MiscUtils.playerArms();
+    public final ModelRenderer[] playerArms = AAUtils.playerArms();
     private final ModelRendererTurbo[][] plates;
     private final ModelRendererTurbo[][] hand;
     private final ResourceLocation plateTex;
@@ -47,7 +47,7 @@ public class ArmModelRendererTurbo implements IArmModelRenderer<ArmModelManagerA
             biped.rotationPointX = -5.0F * side.delta();
             biped.rotationPointY = 2.0F;
             biped.rotationPointZ = 0.0F;
-            MiscUtils.setPlayerArmDataToArm(biped, this.playerArms[side.ordinal()]);
+            AAUtils.setPlayerArmDataToArm(biped, this.playerArms[side.ordinal()]);
 
             GlStateManager.pushMatrix();
             GlStateManager.translate(biped.rotationPointX * scale, biped.rotationPointY * scale, biped.rotationPointZ * scale);

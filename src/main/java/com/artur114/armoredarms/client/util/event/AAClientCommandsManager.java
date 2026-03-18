@@ -1,10 +1,7 @@
-package com.artur114.armoredarms.aalegacy.core;
+package com.artur114.armoredarms.client.util.event;
 
-import com.artur114.armoredarms.aalegacy.util.MappingsProcessor;
-import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -21,7 +18,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AAClientCommandsManager {
     private final Set<IAACommand> commands = new HashSet<>();
@@ -223,54 +219,54 @@ public class AAClientCommandsManager {
 //            }
         }
 
-        private void loadFields(Object mb, Class<?> mbc, StringBuilder res, Set<String> fields, Set<String> loaded, boolean deep, boolean mr) {
-            res.append("#-------------------[Class - ").append(mbc.getName()).append("]-------------------#").append('\n');
-            Field[] fields1 = mbc.getFields();
-            for (Field field : fields1) {
-                if (!loaded.contains(field.getName()) && (fields.isEmpty() ||  fields.contains(MappingsProcessor.getDeObfuscatedFieldName(field.getName())))) {
-                    try {
-                        boolean isAcc = field.isAccessible();
-                        field.setAccessible(true);
-                        Object obj = field.get(mb);
-                        field.setAccessible(isAcc);
-
-                        String fieldName = MappingsProcessor.getDeObfuscatedFieldName(field.getName());
-
-                        if (obj instanceof ModelRenderer && mr) {
-                            res.append(fieldName).append(" - ").append("rotateAngleX:").append(((ModelRenderer) obj).rotateAngleX).append("\n");
-                            res.append(fieldName).append(" - ").append("rotateAngleY:").append(((ModelRenderer) obj).rotateAngleY).append("\n");
-                            res.append(fieldName).append(" - ").append("rotateAngleZ:").append(((ModelRenderer) obj).rotateAngleZ).append("\n");
-
-                            res.append(fieldName).append(" - ").append("rotationPointX:").append(((ModelRenderer) obj).rotationPointX).append("\n");
-                            res.append(fieldName).append(" - ").append("rotationPointY:").append(((ModelRenderer) obj).rotationPointY).append("\n");
-                            res.append(fieldName).append(" - ").append("rotationPointZ:").append(((ModelRenderer) obj).rotationPointZ).append("\n");
-
-                            res.append(fieldName).append(" - ").append("offsetX:").append(((ModelRenderer) obj).offsetX).append("\n");
-                            res.append(fieldName).append(" - ").append("offsetY:").append(((ModelRenderer) obj).offsetY).append("\n");
-                            res.append(fieldName).append(" - ").append("offsetZ:").append(((ModelRenderer) obj).offsetZ).append("\n");
-
-                            res.append(fieldName).append(" - ").append("children:").append(((ModelRenderer) obj).childModels != null ? ((ModelRenderer) obj).childModels.size() : 0).append(", cubes:").append(((ModelRenderer) obj).cubeList != null ? ((ModelRenderer) obj).cubeList.size() : 0).append("\n");
-                            res.append(fieldName).append(" - ").append("showModel:").append(((ModelRenderer) obj).showModel).append("\n");
-                            res.append(fieldName).append(" - ").append("isHidden:").append(((ModelRenderer) obj).isHidden).append("\n");
-                            res.append(fieldName).append(" - ").append("mirror:").append(((ModelRenderer) obj).mirror).append("\n");
-                        } else {
-                            res.append(fieldName).append(" - [").append(obj.getClass()).append(", obj:").append(obj).append(']').append("\n");
-                        }
-
-                        loaded.add(field.getName());
-                    } catch (IllegalAccessException ignored) {}
-                }
-            }
-
-            if (!deep) {
-                return;
-            }
-
-            Class<?> superC = mbc.getSuperclass();
-            if (superC != Object.class && superC != null) {
-                this.loadFields(mb, superC, res, fields, loaded, true, mr);
-            }
-        }
+//        private void loadFields(Object mb, Class<?> mbc, StringBuilder res, Set<String> fields, Set<String> loaded, boolean deep, boolean mr) {
+//            res.append("#-------------------[Class - ").append(mbc.getName()).append("]-------------------#").append('\n');
+//            Field[] fields1 = mbc.getFields();
+//            for (Field field : fields1) {
+//                if (!loaded.contains(field.getName()) && (fields.isEmpty() ||  fields.contains(MappingsProcessor.getDeObfuscatedFieldName(field.getName())))) {
+//                    try {
+//                        boolean isAcc = field.isAccessible();
+//                        field.setAccessible(true);
+//                        Object obj = field.get(mb);
+//                        field.setAccessible(isAcc);
+//
+//                        String fieldName = MappingsProcessor.getDeObfuscatedFieldName(field.getName());
+//
+//                        if (obj instanceof ModelRenderer && mr) {
+//                            res.append(fieldName).append(" - ").append("rotateAngleX:").append(((ModelRenderer) obj).rotateAngleX).append("\n");
+//                            res.append(fieldName).append(" - ").append("rotateAngleY:").append(((ModelRenderer) obj).rotateAngleY).append("\n");
+//                            res.append(fieldName).append(" - ").append("rotateAngleZ:").append(((ModelRenderer) obj).rotateAngleZ).append("\n");
+//
+//                            res.append(fieldName).append(" - ").append("rotationPointX:").append(((ModelRenderer) obj).rotationPointX).append("\n");
+//                            res.append(fieldName).append(" - ").append("rotationPointY:").append(((ModelRenderer) obj).rotationPointY).append("\n");
+//                            res.append(fieldName).append(" - ").append("rotationPointZ:").append(((ModelRenderer) obj).rotationPointZ).append("\n");
+//
+//                            res.append(fieldName).append(" - ").append("offsetX:").append(((ModelRenderer) obj).offsetX).append("\n");
+//                            res.append(fieldName).append(" - ").append("offsetY:").append(((ModelRenderer) obj).offsetY).append("\n");
+//                            res.append(fieldName).append(" - ").append("offsetZ:").append(((ModelRenderer) obj).offsetZ).append("\n");
+//
+//                            res.append(fieldName).append(" - ").append("children:").append(((ModelRenderer) obj).childModels != null ? ((ModelRenderer) obj).childModels.size() : 0).append(", cubes:").append(((ModelRenderer) obj).cubeList != null ? ((ModelRenderer) obj).cubeList.size() : 0).append("\n");
+//                            res.append(fieldName).append(" - ").append("showModel:").append(((ModelRenderer) obj).showModel).append("\n");
+//                            res.append(fieldName).append(" - ").append("isHidden:").append(((ModelRenderer) obj).isHidden).append("\n");
+//                            res.append(fieldName).append(" - ").append("mirror:").append(((ModelRenderer) obj).mirror).append("\n");
+//                        } else {
+//                            res.append(fieldName).append(" - [").append(obj.getClass()).append(", obj:").append(obj).append(']').append("\n");
+//                        }
+//
+//                        loaded.add(field.getName());
+//                    } catch (IllegalAccessException ignored) {}
+//                }
+//            }
+//
+//            if (!deep) {
+//                return;
+//            }
+//
+//            Class<?> superC = mbc.getSuperclass();
+//            if (superC != Object.class && superC != null) {
+//                this.loadFields(mb, superC, res, fields, loaded, true, mr);
+//            }
+//        }
 
         private void copyToClipboard(String text) {
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
