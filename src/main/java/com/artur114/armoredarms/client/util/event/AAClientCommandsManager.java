@@ -1,7 +1,14 @@
 package com.artur114.armoredarms.client.util.event;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
+import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -10,16 +17,19 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Mod.EventBusSubscriber
 public class AAClientCommandsManager {
+    public static final AAClientCommandsManager INSTANCE = new AAClientCommandsManager();
     private final Set<IAACommand> commands = new HashSet<>();
     private final Minecraft mc = Minecraft.getMinecraft();
     private String[] lastCommandArgs = null;
@@ -28,6 +38,11 @@ public class AAClientCommandsManager {
     public AAClientCommandsManager() {
         this.addCommand(new CommandPrintModelBipedState());
         this.addCommand(new CommandCopyItemName());
+    }
+
+    @SubscribeEvent
+    public static void chatEvent(ClientChatEvent e) {
+        INSTANCE.clientChatEvent(e);
     }
 
     public void clientChatEvent(ClientChatEvent e) {
@@ -160,113 +175,116 @@ public class AAClientCommandsManager {
 
         @Override
         public void execute(EntityPlayerSP player, String[] arg) {
-//            ArmRenderLayerVanilla layerVanilla = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class);
-//            ArmRenderLayerArmor layerArmor = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerArmor.class);
-//            ModelBiped mb = null;
-//
-//            if (arg.length == 0) {
-//                throw new RuntimeException("Illegal args");
-//            }
-//
-//            if (arg[0].equals("player")) {
-//                mb = layerVanilla.renderPlayer.getMainModel();
-//            } else if (arg[0].equals("armor")) {
-//                mb = layerArmor.currentArmorModel.original();
-//            }
-//
-//            if (mb == null) {
-//                throw new RuntimeException("Illegal arg 0");
-//            }
-//
-//            if (arg.length < 2) {
-//                throw new RuntimeException("Illegal args");
-//            }
-//
-//            Set<String> args = new HashSet<>(Arrays.asList(Arrays.copyOfRange(arg, 1, arg.length)));
-//
-//            Set<String> fields = null;
-//
-//            if (args.contains("-bipall")) {
-//                fields = new HashSet<>(Arrays.asList("bipedHead", "bipedHeadwear", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftArmwear", "bipedRightArmwear", "bipedLeftLegwear", "bipedRightLegwear", "bipedBodyWear", "bipedLeftLeg"));
-//            }
-//            if (args.stream().anyMatch(s -> s.startsWith("-fields#"))) {
-//                if (fields == null) fields = new HashSet<>();
-//                fields.addAll(Arrays.asList(args.stream().filter(s -> s.startsWith("-fields#")).collect(Collectors.joining()).replaceAll("-fields#", "!").split("!")));
-//            }
-//            if (args.contains("-refall")) {
-//                if (fields != null) throw new RuntimeException("Illegal search mode");
-//                fields = new HashSet<>();
-//            }
-//
-//            if (fields == null) {
-//                throw new RuntimeException("Illegal args non method(bipall|refall|-fields#field!field!...)");
-//            }
-//
-//            StringBuilder res = new StringBuilder();
-//            this.loadFields(mb, mb.getClass(), res, fields, new HashSet<>(), args.contains("-deep"), args.contains("-mr"));
-//
-//            if (args.contains("-copy")) {
-//                this.copyToClipboard(res.toString());
-//                player.sendMessage(new TextComponentString("Data is successfully copped to clipboard").setStyle(new Style().setColor(TextFormatting.GREEN)));
-//            }
-//            if (args.contains("-chat")) {
-//                player.sendMessage(new TextComponentString(res.toString()));
-//            }
-//            if (args.contains("-console")) {
-//                for (String string : res.toString().split("\n")) {
-//                    System.out.println(string);
-//                }
-//            }
+            ArmRenderLayerHand layerVanilla = ArmoredArmsApi.currentPipeline().engine().layer(ArmRenderLayerHand.class);
+            ArmRenderLayerArmor layerArmor = ArmoredArmsApi.currentPipeline().engine().layer(ArmRenderLayerArmor.class);
+            ModelBiped mb = null;
+
+            if (arg.length == 0) {
+                throw new RuntimeException("Illegal args");
+            }
+
+            if (arg[0].equals("player")) {
+                mb = layerVanilla.renderPlayer.getMainModel();
+            } else if (arg[0].equals("armor")) {
+                IArmModelRenderer<?> model = layerArmor.model;
+                if (model instanceof ArmModelRendererArmor) {
+                    mb = ((ArmModelRendererArmor) model).mb;
+                }
+            }
+
+            if (mb == null) {
+                throw new RuntimeException("Illegal arg 0");
+            }
+
+            if (arg.length < 2) {
+                throw new RuntimeException("Illegal args");
+            }
+
+            Set<String> args = new HashSet<>(Arrays.asList(Arrays.copyOfRange(arg, 1, arg.length)));
+
+            Set<String> fields = null;
+
+            if (args.contains("-bipall")) {
+                fields = new HashSet<>(Arrays.asList("bipedHead", "bipedHeadwear", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftArmwear", "bipedRightArmwear", "bipedLeftLegwear", "bipedRightLegwear", "bipedBodyWear", "bipedLeftLeg"));
+            }
+            if (args.stream().anyMatch(s -> s.startsWith("-fields#"))) {
+                if (fields == null) fields = new HashSet<>();
+                fields.addAll(Arrays.asList(args.stream().filter(s -> s.startsWith("-fields#")).collect(Collectors.joining()).replaceAll("-fields#", "!").split("!")));
+            }
+            if (args.contains("-refall")) {
+                if (fields != null) throw new RuntimeException("Illegal search mode");
+                fields = new HashSet<>();
+            }
+
+            if (fields == null) {
+                throw new RuntimeException("Illegal args non method(bipall|refall|-fields#field!field!...)");
+            }
+
+            StringBuilder res = new StringBuilder();
+            this.loadFields(mb, mb.getClass(), res, fields, new HashSet<>(), args.contains("-deep"), args.contains("-mr"));
+
+            if (args.contains("-copy")) {
+                this.copyToClipboard(res.toString());
+                player.sendMessage(new TextComponentString("Data is successfully copped to clipboard").setStyle(new Style().setColor(TextFormatting.GREEN)));
+            }
+            if (args.contains("-chat")) {
+                player.sendMessage(new TextComponentString(res.toString()));
+            }
+            if (args.contains("-console")) {
+                for (String string : res.toString().split("\n")) {
+                    System.out.println(string);
+                }
+            }
         }
 
-//        private void loadFields(Object mb, Class<?> mbc, StringBuilder res, Set<String> fields, Set<String> loaded, boolean deep, boolean mr) {
-//            res.append("#-------------------[Class - ").append(mbc.getName()).append("]-------------------#").append('\n');
-//            Field[] fields1 = mbc.getFields();
-//            for (Field field : fields1) {
-//                if (!loaded.contains(field.getName()) && (fields.isEmpty() ||  fields.contains(MappingsProcessor.getDeObfuscatedFieldName(field.getName())))) {
-//                    try {
-//                        boolean isAcc = field.isAccessible();
-//                        field.setAccessible(true);
-//                        Object obj = field.get(mb);
-//                        field.setAccessible(isAcc);
-//
-//                        String fieldName = MappingsProcessor.getDeObfuscatedFieldName(field.getName());
-//
-//                        if (obj instanceof ModelRenderer && mr) {
-//                            res.append(fieldName).append(" - ").append("rotateAngleX:").append(((ModelRenderer) obj).rotateAngleX).append("\n");
-//                            res.append(fieldName).append(" - ").append("rotateAngleY:").append(((ModelRenderer) obj).rotateAngleY).append("\n");
-//                            res.append(fieldName).append(" - ").append("rotateAngleZ:").append(((ModelRenderer) obj).rotateAngleZ).append("\n");
-//
-//                            res.append(fieldName).append(" - ").append("rotationPointX:").append(((ModelRenderer) obj).rotationPointX).append("\n");
-//                            res.append(fieldName).append(" - ").append("rotationPointY:").append(((ModelRenderer) obj).rotationPointY).append("\n");
-//                            res.append(fieldName).append(" - ").append("rotationPointZ:").append(((ModelRenderer) obj).rotationPointZ).append("\n");
-//
-//                            res.append(fieldName).append(" - ").append("offsetX:").append(((ModelRenderer) obj).offsetX).append("\n");
-//                            res.append(fieldName).append(" - ").append("offsetY:").append(((ModelRenderer) obj).offsetY).append("\n");
-//                            res.append(fieldName).append(" - ").append("offsetZ:").append(((ModelRenderer) obj).offsetZ).append("\n");
-//
-//                            res.append(fieldName).append(" - ").append("children:").append(((ModelRenderer) obj).childModels != null ? ((ModelRenderer) obj).childModels.size() : 0).append(", cubes:").append(((ModelRenderer) obj).cubeList != null ? ((ModelRenderer) obj).cubeList.size() : 0).append("\n");
-//                            res.append(fieldName).append(" - ").append("showModel:").append(((ModelRenderer) obj).showModel).append("\n");
-//                            res.append(fieldName).append(" - ").append("isHidden:").append(((ModelRenderer) obj).isHidden).append("\n");
-//                            res.append(fieldName).append(" - ").append("mirror:").append(((ModelRenderer) obj).mirror).append("\n");
-//                        } else {
-//                            res.append(fieldName).append(" - [").append(obj.getClass()).append(", obj:").append(obj).append(']').append("\n");
-//                        }
-//
-//                        loaded.add(field.getName());
-//                    } catch (IllegalAccessException ignored) {}
-//                }
-//            }
-//
-//            if (!deep) {
-//                return;
-//            }
-//
-//            Class<?> superC = mbc.getSuperclass();
-//            if (superC != Object.class && superC != null) {
-//                this.loadFields(mb, superC, res, fields, loaded, true, mr);
-//            }
-//        }
+        private void loadFields(Object mb, Class<?> mbc, StringBuilder res, Set<String> fields, Set<String> loaded, boolean deep, boolean mr) {
+            res.append("#-------------------[Class - ").append(mbc.getName()).append("]-------------------#").append('\n');
+            Field[] fields1 = mbc.getFields();
+            for (Field field : fields1) {
+                if (!loaded.contains(field.getName()) && (fields.isEmpty() ||  fields.contains(Mappings.getDeObfuscatedFieldName(field.getName())))) {
+                    try {
+                        boolean isAcc = field.isAccessible();
+                        field.setAccessible(true);
+                        Object obj = field.get(mb);
+                        field.setAccessible(isAcc);
+
+                        String fieldName = Mappings.getDeObfuscatedFieldName(field.getName());
+
+                        if (obj instanceof ModelRenderer && mr) {
+                            res.append(fieldName).append(" - ").append("rotateAngleX:").append(((ModelRenderer) obj).rotateAngleX).append("\n");
+                            res.append(fieldName).append(" - ").append("rotateAngleY:").append(((ModelRenderer) obj).rotateAngleY).append("\n");
+                            res.append(fieldName).append(" - ").append("rotateAngleZ:").append(((ModelRenderer) obj).rotateAngleZ).append("\n");
+
+                            res.append(fieldName).append(" - ").append("rotationPointX:").append(((ModelRenderer) obj).rotationPointX).append("\n");
+                            res.append(fieldName).append(" - ").append("rotationPointY:").append(((ModelRenderer) obj).rotationPointY).append("\n");
+                            res.append(fieldName).append(" - ").append("rotationPointZ:").append(((ModelRenderer) obj).rotationPointZ).append("\n");
+
+                            res.append(fieldName).append(" - ").append("offsetX:").append(((ModelRenderer) obj).offsetX).append("\n");
+                            res.append(fieldName).append(" - ").append("offsetY:").append(((ModelRenderer) obj).offsetY).append("\n");
+                            res.append(fieldName).append(" - ").append("offsetZ:").append(((ModelRenderer) obj).offsetZ).append("\n");
+
+                            res.append(fieldName).append(" - ").append("children:").append(((ModelRenderer) obj).childModels != null ? ((ModelRenderer) obj).childModels.size() : 0).append(", cubes:").append(((ModelRenderer) obj).cubeList != null ? ((ModelRenderer) obj).cubeList.size() : 0).append("\n");
+                            res.append(fieldName).append(" - ").append("showModel:").append(((ModelRenderer) obj).showModel).append("\n");
+                            res.append(fieldName).append(" - ").append("isHidden:").append(((ModelRenderer) obj).isHidden).append("\n");
+                            res.append(fieldName).append(" - ").append("mirror:").append(((ModelRenderer) obj).mirror).append("\n");
+                        } else {
+                            res.append(fieldName).append(" - [").append(obj.getClass()).append(", obj:").append(obj).append(']').append("\n");
+                        }
+
+                        loaded.add(field.getName());
+                    } catch (IllegalAccessException ignored) {}
+                }
+            }
+
+            if (!deep) {
+                return;
+            }
+
+            Class<?> superC = mbc.getSuperclass();
+            if (superC != Object.class && superC != null) {
+                this.loadFields(mb, superC, res, fields, loaded, true, mr);
+            }
+        }
 
         private void copyToClipboard(String text) {
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -274,10 +292,53 @@ public class AAClientCommandsManager {
             cb.setContents(data, null);
         }
     }
+
+    private static class Mappings {
+        private static final String[] mappings = new String[] {
+                "field_78089_u,textureHeight",
+                "field_78090_t,textureWidth",
+                "field_78116_c,bipedHead",
+                "field_178720_f,bipedHeadwear",
+                "field_78115_e,bipedBody",
+                "field_178723_h,bipedRightArm",
+                "field_178724_i,bipedLeftArm",
+                "field_178721_j,bipedRightLeg",
+                "field_178722_k,bipedLeftLeg",
+                "field_187075_l,leftArmPose",
+                "field_187076_m,rightArmPose",
+                "field_78117_n,isSneak",
+                "field_78095_p,swingProgress",
+                "field_78093_q,isRiding",
+                "field_78091_s,isChild",
+                "field_78092_r,boxList",
+                "field_78801_a,textureWidth",
+                "field_78799_b,textureHeight",
+                "field_178734_a,bipedLeftArmwear",
+                "field_178732_b,bipedRightArmwear",
+                "field_178733_c,bipedLeftLegwear",
+                "field_178731_d,bipedRightLegwear",
+                "field_178730_v,bipedBodyWear"
+        };
+        private static final Map<String, String> map;
+
+        public static String getDeObfuscatedFieldName(String obf) {
+            String ret = map.get(obf);
+
+            if (ret == null) {
+                ret = obf;
+            }
+
+            return ret;
+        }
+
+        static {
+            map = new HashMap<>();
+
+            for (String s : mappings) {
+                String[] sa = s.split(",");
+
+                map.put(sa[0], sa[1]);
+            }
+        }
+    }
 }
-
-/*
-
-
-
- */
