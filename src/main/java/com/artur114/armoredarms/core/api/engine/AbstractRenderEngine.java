@@ -49,5 +49,11 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         return null;
     }
 
+    public void cleanUpLayers() {
+        if (CoreUtils.removeDeactivated(this.layerMap.values())) {
+            this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
+        }
+    }
+
     protected abstract Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers();
 }

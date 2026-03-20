@@ -1,7 +1,11 @@
 package com.artur114.armoredarms.core.api;
 
-// TODO : Сделать is deactivate и чтоб деактивированные компоненты обрабатывались
+import com.artur114.armoredarms.core.util.EnumExceptionType;
+
+
 public interface IArmRenderComponent {
+    default boolean needDeactivateThenError(EnumExceptionType type) {return true;}
+    boolean isDeactivated();
     void deactivate();
     String type();
 }

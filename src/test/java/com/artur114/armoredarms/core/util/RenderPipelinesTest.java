@@ -56,6 +56,11 @@ class RenderPipelinesTest {
         }
 
         @Override
+        public boolean isDeactivated() {
+            return false;
+        }
+
+        @Override
         public void deactivate() {
 
         }
@@ -95,6 +100,11 @@ class RenderPipelinesTest {
         }
 
         @Override
+        public boolean isDeactivated() {
+            return false;
+        }
+
+        @Override
         public void deactivate() {
 
         }
@@ -127,6 +137,11 @@ class RenderPipelinesTest {
         }
 
         @Override
+        public boolean isDeactivated() {
+            return false;
+        }
+
+        @Override
         public void deactivate() {
 
         }
@@ -156,6 +171,11 @@ class RenderPipelinesTest {
         @Override
         public Class<TestPipeline1> clazz() {
             return TestPipeline1.class;
+        }
+
+        @Override
+        public boolean isDeactivated() {
+            return false;
         }
 
         @Override

@@ -48,7 +48,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
             throw rm;
         } catch (Throwable t) {
             this.processException(t);
-            throw new RenderException(t).setComponent(this).setMessageForPlayer("armoredarms.error.layer.armor.tryTick").setType(EnumExceptionType.WARN);
+            throw new RenderException(t).setComponent(this).setMessageForPlayer(this.messageForPlayer("update")).setType(EnumExceptionType.WARN);
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
             throw rm;
         } catch (Throwable t) {
             this.processException(t);
-            throw new RenderException(t).setComponent(this).setMessageForPlayer("armoredarms.error.layer.armor.tryRender").setType(EnumExceptionType.WARN);
+            throw new RenderException(t).setComponent(this).setMessageForPlayer(this.messageForPlayer("render")).setType(EnumExceptionType.WARN);
         }
     }
 
@@ -78,12 +78,18 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         this.deactivated = true;
     }
 
+    @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
+    }
+
     public void processException(Throwable tr) {
         this.killingArmor.add(this.chestPlate.location());
         this.render = false;
     }
 
     public IArmModelManager<?, I> pickUpModelManager(ShapelessLocation location) {
+        CoreUtils.removeDeactivated(this.modelManagers);
         return this.modelManagers.get(location);
     }
 
@@ -105,9 +111,9 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
         return null;
     }
-
-    public abstract S currentChestPlate();
     public abstract S emptyStack();
+    public abstract S currentChestPlate();
+    public abstract String messageForPlayer(String type);
 
     public abstract List<ShapelessLocation> initBlackList();
     public abstract List<SLContainer<IArmModelManager<?, ?>>> initModelManagers();
@@ -269,8 +275,12 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
     @SuppressWarnings("unchecked")
     public void tryRender(E engine, EnumHandSideAA handSide) {
-        if (this.modelManager != null && this.model != null) {
-            this.modelManager.render((I) this, (IArmModelRenderer) this.model, handSide);
+        try {
+            if (this.modelManager != null && this.model != null) {
+                this.modelManager.render((I) this, (IArmModelRenderer) this.model, handSide);
+            }
+        } catch (Exception e) {
+            throw new RenderException(e).setComponent(this.modelManager);
         }
     }
 }

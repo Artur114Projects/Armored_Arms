@@ -74,6 +74,11 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
         this.deactivated = true;
     }
 
+    @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
+    }
+
     public IArmModelRenderContainer<I, IArmModelManager<?, I>> pickUpContainer(IArmModelManager<?, I> modelManager) {
         for (IArmModelRenderContainer<I, IArmModelManager<?, I>> container : this.renderContainers) {
             if (container.targetManager().isAssignableFrom(modelManager.clazz()) && container.needWork(modelManager)) {

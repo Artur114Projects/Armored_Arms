@@ -130,10 +130,16 @@ public class ShapelessLocationMap<V> implements Map<ShapelessLocation, V> {
         }
 
         if (location.isAbsoluteShapeless()) {
-            absoluteValue = null;
+            this.absoluteValue = null;
         }
 
         return obj;
+    }
+
+    public void removeObject(V obj) {
+        this.map.values().removeIf(v -> v == obj);
+        this.shapelessDomains.values().removeIf(v -> v == obj);
+        this.shapelessPaths.values().removeIf(v -> v == obj);
     }
 
     @Override

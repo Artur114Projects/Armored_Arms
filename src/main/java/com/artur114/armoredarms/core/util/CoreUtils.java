@@ -1,12 +1,10 @@
 package com.artur114.armoredarms.core.util;
 
+import com.artur114.armoredarms.core.api.IArmRenderComponent;
 import com.artur114.armoredarms.core.api.IPrioritised;
 import com.artur114.armoredarms.core.api.IPriority;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,5 +25,77 @@ public class CoreUtils {
             }
         }
         return ret;
+    }
+
+    public static <T extends IArmRenderComponent> boolean removeDeactivated(Iterable<T> list) {
+        Iterator<T> iterator = list.iterator();
+        boolean flag = false;
+
+        while (iterator.hasNext()) {
+            if (iterator.next().isDeactivated()) {
+                iterator.remove(); flag = true;
+            }
+        }
+
+        return flag;
+    }
+    public static <T extends IArmRenderComponent> boolean removeDeactivated(ShapelessLocationMap<T> map) {
+        List<T> list = null;
+
+        for (T obj : map.values()) {
+            if (obj.isDeactivated()) {
+                if (list == null) {
+                    list = new ArrayList<>(map.size());
+                }
+
+                list.add(obj);
+            }
+        }
+
+        if (list != null) {
+            for (T obj : list) {
+                map.removeObject(obj);
+            }
+        }
+
+        return list != null;
+    }
+    public static <T extends IArmRenderComponent> List<T> filterDeactivated(Collection<T> list) {
+        return list.stream().filter((t) -> !t.isDeactivated()).collect(Collectors.toList());
+    }
+
+    public static String compressClassName(Class<?> clazz) {
+        return compressClassName(clazz, 2);
+    }
+
+    public static String compressClassName(Class<?> clazz, int noCutPackagesCount) {
+        String className = clazz.getName();
+        int lastPoint = className.lastIndexOf(".");
+
+        if (noCutPackagesCount <= 0) {
+            return className.substring(lastPoint + 1);
+        }
+
+        int substringPoint = 0;
+        int packagesCount = 0;
+
+        for (int i = 0; i != className.length(); i++) {
+            char c = className.charAt(i);
+
+            if (c == '.') {
+                substringPoint = i;
+                packagesCount++;
+            }
+
+            if (packagesCount >= noCutPackagesCount) {
+                break;
+            }
+        }
+
+        if (substringPoint == lastPoint) {
+            return className;
+        }
+
+        return className.substring(0, substringPoint) + ":" + className.substring(lastPoint + 1);
     }
 }
