@@ -101,6 +101,11 @@ public class ArmRenderLayerTechGuns implements IArmRenderLayer<AbstractRenderEng
     }
 
     @Override
+    public boolean isDeactivated() {
+        return this.deactivate;
+    }
+
+    @Override
     public IPriority priority() {
         return Priority.NORMAL;
     }

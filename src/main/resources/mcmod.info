@@ -9,7 +9,7 @@
   "updateUrl": "",
   "authorList": ["Artur114"],
   "credits": "https://www.curseforge.com/minecraft/mc-mods/armored-arms",
-  "logoFile": "",
+  "logoFile": "icon.png",
   "screenshots": [],
   "dependencies": []
 }

@@ -179,6 +179,11 @@ public class ArmRenderLayerThermalPadding implements IArmRenderLayer<AbstractRen
     }
 
     @Override
+    public boolean isDeactivated() {
+        return this.deactivate;
+    }
+
+    @Override
     public IPriority priority() {
         return Priority.LOW;
     }

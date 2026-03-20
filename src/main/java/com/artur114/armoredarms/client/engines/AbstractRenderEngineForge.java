@@ -63,6 +63,11 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngineFo
         this.deactivated = true;
     }
 
+    @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
+    }
+
     public abstract void render(P context);
     public abstract void tick(P context);
 

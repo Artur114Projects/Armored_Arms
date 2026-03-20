@@ -56,7 +56,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
             } catch (RenderException re) {
                 this.mod.processException(re.setType(EnumExceptionType.FATAL));
             } catch (Throwable exp) {
-                this.mod.processException(new RenderException("It was not possible to load RenderPipeline, custom hands will not be rendered!", exp).setComponent(this).setType(EnumExceptionType.FATAL));
+                this.mod.processException(new RenderException(exp).setComponent(this).setType(EnumExceptionType.FATAL));
             }
         }
 
@@ -95,6 +95,11 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
     @Override
     public void deactivate() {
         this.deactivated = true;
+    }
+
+    @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
     }
 
     @Override

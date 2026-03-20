@@ -148,6 +148,11 @@ public class ArmRenderLayerArtifacts implements IArmRenderLayer<AbstractRenderEn
     }
 
     @Override
+    public boolean isDeactivated() {
+        return this.deactivate;
+    }
+
+    @Override
     public IPriority priority() {
         return Priority.NORMAL;
     }

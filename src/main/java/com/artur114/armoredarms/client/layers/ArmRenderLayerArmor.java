@@ -37,6 +37,11 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
     }
 
     @Override
+    public String messageForPlayer(String type) {
+        return "armoredarms.error.layer.armor." + type;
+    }
+
+    @Override
     public AAItemStack emptyStack() {
         return AAItemStack.EMPTY;
     }

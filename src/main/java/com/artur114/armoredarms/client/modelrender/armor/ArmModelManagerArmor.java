@@ -83,6 +83,11 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         this.deactivated = true;
     }
 
+    @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
+    }
+
     public List<ITexture> newTextureList() {
         if (stack.item().hasEffect(stack.stack())) {
             return new ArrayList<>(Arrays.asList(TextureEnchant.FIRST, TextureEnchant.SECOND));

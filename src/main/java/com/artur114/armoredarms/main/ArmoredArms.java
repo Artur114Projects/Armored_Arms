@@ -28,10 +28,10 @@ import java.util.*;
 // TODO Сделать ArmoredArmsApi
 @Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
 public class ArmoredArms implements IAAModContainer {
-    public static final Logger LOGGER = LogManager.getLogger("ARMOREDARMS");
-    protected static final Map<String, Logger> loggers = new HashMap<>();
-    protected static IArmRenderPipeline<?> pipeline = null;
+    public static final LoggingManager LOGGER = new LoggingManager();
     public static final String MODID = "armoredarms";
+
+    protected static IArmRenderPipeline<?> pipeline = null;
 
     @Mod.Instance
     public static ArmoredArms ARMORED_ARMS;
@@ -51,13 +51,13 @@ public class ArmoredArms implements IAAModContainer {
         }
 
         if (isPipelineLoaded()) {
-            LOGGER.info("Rendering pipeline successfully loaded");
-            LOGGER.info("   Pipeline: {}", pipeline.getClass());
+            LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
+            LOGGER.AA_LOG.info("   Pipeline: {}", pipeline.getClass());
         } else {
             IArmRenderPipeline<?> pipeline = RenderPipelines.pickUp(this);
-            LOGGER.fatal("Rendering pipeline could not be loaded!");
-            LOGGER.fatal("   Try to pick up pipeline: {}", pipeline);
-            LOGGER.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(this, pipeline.clazz()));
+            LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!");
+            LOGGER.AA_LOG.fatal("   Try to pick up pipeline: {}", pipeline);
+            LOGGER.AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(this, pipeline.clazz()));
         }
 
         AAConfig.init();
@@ -75,49 +75,7 @@ public class ArmoredArms implements IAAModContainer {
 
     @Override
     public void processException(RenderException exp) {
-        IArmRenderComponent broken = exp.brokenComponent();
-        Level level = Level.ERROR;
-
-        if (exp.type() == EnumExceptionType.FATAL) {
-            level = Level.FATAL;
-        }
-
-        if (exp.type() == EnumExceptionType.WARN) {
-            level = Level.WARN;
-        }
-
-        if (exp.type() != EnumExceptionType.WARN && broken != null) {
-            broken.deactivate();
-        }
-        if (exp.type() == EnumExceptionType.FATAL) {
-            pipeline.deactivate();
-        }
-
-        String component = "?unknown-component?";
-        String message = "an error occurred in component: ";
-
-        if (broken != null) {
-            component = broken.type();
-        }
-
-        switch (exp.type()) {
-            case WARN:
-                message = "Warn an error occurred in component: ";
-            break;
-            case ERROR:
-                message = "An error occurred in component: ";
-            break;
-            case FATAL:
-                message = "An fatal error occurred in component: ";
-            break;
-        }
-
-        LOGGER.log(level, message + component, exp);
-
-        if (exp.messageForPlayer() != null) {
-            Minecraft.getMinecraft().player.sendMessage(new TextComponentTranslation(TextFormatting.RED + exp.messageForPlayer()));
-            Minecraft.getMinecraft().player.sendMessage(new TextComponentString(TextFormatting.RED + exp.getLocalizedMessage()));
-        }
+        LOGGER.processException(exp);
     }
 
     @Override
@@ -135,6 +93,6 @@ public class ArmoredArms implements IAAModContainer {
 
     @Override
     public Logger logger(String name) {
-        return loggers.computeIfAbsent(name, LogManager::getLogger);
+        return LOGGER.logger(name);
     }
 }

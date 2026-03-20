@@ -62,7 +62,7 @@ public class AAConfig {
                     list.add(location);
                 }
             } catch (Throwable t) {
-                ArmoredArms.LOGGER.warn("Failed to initialize location: [{}], check the syntax!", loc);
+                ArmoredArms.LOGGER.AA_LOG.warn("Failed to initialize location: [{}], check the syntax!", loc);
             }
         }
     }

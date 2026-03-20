@@ -67,6 +67,11 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     }
 
     @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
+    }
+
+    @Override
     public Class<ArmRenderLayerHand> targetLayer() {
         return ArmRenderLayerHand.class;
     }
