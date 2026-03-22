@@ -1,9 +1,11 @@
 package com.artur114.armoredarms.core.api.engine;
 
+import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.CoreUtils;
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.RenderException;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
@@ -13,6 +15,10 @@ import java.util.Map;
 public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>, P extends IArmRenderPipeline<?>> implements IArmRenderEngine<P> {
     protected Map<Class<? extends IArmRenderLayer<E>>, IArmRenderLayer<E>> layerMap;
     protected List<IArmRenderLayer<E>> sortedLayers;
+    public IAAModContainer mod = null;
+    public boolean deactivated = false;
+    public boolean render = false;
+    public P pipeline = null;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -38,6 +44,9 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
 
         for (IArmRenderLayer<E> layer : this.sortedLayers) layer.init((E) this, mod);
+
+        this.pipeline = context;
+        this.mod = mod;
     }
 
     @Override
@@ -49,10 +58,82 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         return null;
     }
 
+    @Override
+    public void tryRender(P context) {
+        if (this.deactivated || !this.render) {
+            return;
+        }
+
+        this.render(context);
+    }
+
+    @Override
+    public void tryTick(P context) {
+        if (this.deactivated) {
+            return;
+        }
+
+        this.tick(context);
+    }
+
+    @Override
+    public boolean isDeactivated() {
+        return this.deactivated;
+    }
+
+    @Override
+    public void deactivate() {
+        this.deactivated = true;
+    }
+
+    public abstract void render(P context);
+    public abstract void tick(P context);
+
+    public boolean onLayerRendering(IArmRenderLayer<E> layer) {
+        return true;
+    }
+
     public void cleanUpLayers() {
         if (CoreUtils.removeDeactivated(this.layerMap.values())) {
             this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void renderAllLayers(EnumHandSideAA side) {
+        for (IArmRenderLayer<E> layer : this.sortedLayers) {
+            if (layer.needRender((E) this, this.render)) {
+                try {
+                    if (this.onLayerRendering(layer)) {
+                        layer.render((E) this, side);
+                    }
+                } catch (RenderException rm) {
+                    throw rm;
+                } catch (Throwable tr) {
+                    throw new RenderException(tr).setComponent(layer);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean updateAllLayers() {
+        boolean render = false;
+
+        for (IArmRenderLayer<E> layer : this.sortedLayers) {
+
+            try {
+                layer.update((E) this);
+            } catch (RenderException rm) {
+                throw rm;
+            } catch (Throwable tr) {
+                throw new RenderException(tr).setComponent(layer);
+            }
+
+            render |= layer.needRender((E) this, render);
+        }
+
+        return render;
     }
 
     protected abstract Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers();
