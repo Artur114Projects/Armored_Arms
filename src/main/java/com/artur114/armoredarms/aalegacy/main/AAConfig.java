@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.main;
+package com.artur114.armoredarms.aalegacy.main;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

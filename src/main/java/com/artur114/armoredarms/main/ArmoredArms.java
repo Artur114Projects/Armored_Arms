@@ -1,46 +1,61 @@
 package com.artur114.armoredarms.main;
 
-import com.artur114.armoredarms.client.core.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.client.event.RenderArmEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
+import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
+import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.RenderException;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Collection;
+import java.util.List;
 
 @Mod.EventBusSubscriber
 @Mod(ArmoredArms.MODID)
-public class ArmoredArms {
-    public static final AAClientCommandsManager AA_CLIENT_COMMANDS_MANAGER = new AAClientCommandsManager();
-    public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
+public class ArmoredArms implements IAAModContainer {
+    public static final LoggingManager LOGGER = new LoggingManager();
     public static final String MODID = "armoredarms";
 
     public ArmoredArms() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, AAConfig.SPEC);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    @OnlyIn(Dist.CLIENT)
-    public static void renderHand(RenderArmEvent e) {
-        RENDER_ARM_MANAGER.renderArmEvent(e);
+
+    @Override
+    public Collection<IArmRenderPipeline<?>> defaultPipelines() {
+        return List.of();
     }
 
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public static void clientTick(TickEvent.ClientTickEvent e) {
-        RENDER_ARM_MANAGER.tickEventClientTickEvent(e);
+    @Override
+    public Collection<IArmRenderEngine<?>> defaultEngines() {
+        return List.of();
     }
 
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public static void clientChat(ClientChatEvent e) {
-        AA_CLIENT_COMMANDS_MANAGER.clientChatEvent(e);
+    @Override
+    public void processException(RenderException exp) {
+
+    }
+
+    @Override
+    public boolean isModLoaded(String modId) {
+        return ModList.get().isLoaded(modId);
+    }
+
+    @Override
+    public boolean post(Object obj) {
+        if (obj instanceof Event event) {
+            return MinecraftForge.EVENT_BUS.post(event);
+        }
+        return false;
+    }
+
+    @Override
+    public Logger logger(String name) {
+        return LOGGER.logger(name);
     }
 }
