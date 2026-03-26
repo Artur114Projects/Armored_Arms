@@ -24,7 +24,7 @@ public class AAConfig {
     public static String[] renderBlackList = new String[0];
 
     @Config.LangKey("armoredarms.cfg.renderArmWearList")
-    public static String[] renderArmWearList = new String[] {"cqrepoured:*"};
+    public static String[] renderArmWearList = new String[] {"cqrepoured:*"}; //TODO: Сделать noRenderArmWearList
 
     @Config.RangeDouble(min = 0.0D, max = 10.0D)
     @Config.LangKey("armoredarms.cfg.vanillaArmorModelSize")
