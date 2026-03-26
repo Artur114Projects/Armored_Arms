@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 
 import java.util.List;
 
+//TODO: Сделать обработку невидимости
 public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, AAItemStack, AbstractRenderEngineForge<?, ?>> {
     public final Minecraft mc = Minecraft.getMinecraft();
     public RenderPlayer renderPlayer = null;
