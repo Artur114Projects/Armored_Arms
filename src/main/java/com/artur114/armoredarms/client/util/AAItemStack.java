@@ -74,7 +74,7 @@ public class AAItemStack implements IItemStack {
 
     @Override
     public boolean isNew(IItemStack stack) {
-        return this.stack != ((AAItemStack) stack).stack;
+        return this.stack != ((AAItemStack) stack).stack; //TODO: Сделать проверку по айтему
     }
 
     @Override
