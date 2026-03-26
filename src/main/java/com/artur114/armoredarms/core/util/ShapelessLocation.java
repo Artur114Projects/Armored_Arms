@@ -1,9 +1,13 @@
 package com.artur114.armoredarms.core.util;
 
-import java.util.Objects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.*;
 
 @Immutable
 public class ShapelessLocation {
+    private static final Logger LOGGER = LogManager.getLogger("ARMOREDARMS-SL");
     private static final Int2ObjBoundedCache<ShapelessLocation> cache = new Int2ObjBoundedCache<>(2048);
     private static final Location SHAPELESS_L = new Location("*");
     private static final Location EMPTY_L = new Location("");
@@ -17,6 +21,29 @@ public class ShapelessLocation {
             throw new IllegalArgumentException("Illegal location string: " + location);
         }
         return location(strings[0], strings[1]);
+    }
+
+    public static List<ShapelessLocation> location(String[] locations) {
+        return location(Arrays.asList(locations));
+    }
+
+    public static List<ShapelessLocation> location(Iterable<String> locations) {
+        List<ShapelessLocation> list = new ArrayList<>();
+        for (String loc : locations) {
+            if (loc == null || loc.isEmpty()) {
+                continue;
+            }
+            try {
+                ShapelessLocation location = ShapelessLocation.location(loc);
+
+                if (!location.isEmpty()) {
+                    list.add(location);
+                }
+            } catch (Throwable t) {
+                LOGGER.warn("Failed to initialize location: [{}], check the syntax!", loc);
+            }
+        }
+        return list;
     }
 
     public synchronized static ShapelessLocation location(String domain, String path) {

@@ -11,6 +11,8 @@ import java.util.function.Function;
 public interface IArmModelManager<I extends IArmModelManager<?, L>, L extends IArmRenderLayer<?>> extends IPrioritised, IArmRenderComponent {
     void update(L layer);
     void render(L layer, IArmModelRenderer<I> renderer, EnumHandSideAA side);
+    void load(L layer);
+    void unload(L layer);
     IArmModelRenderer<I> cacheRenderer(L layer, IArmModelRenderContainer<L, I> container);
     Class<L> targetLayer();
     Class<I> clazz();

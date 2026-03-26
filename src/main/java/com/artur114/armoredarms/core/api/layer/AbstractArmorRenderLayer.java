@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 
 public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLayer<?, ?, ?>, S extends IItemStack, E extends IArmRenderEngine<?>> implements IArmRenderLayer<E> {
-    public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> renderContainers;
+    public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> renderContainers; // TODO: Сделать разделение по таргетным менеджерам
     public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> dynRenderContainers;
     public ShapelessLocationMap<IArmModelManager<?, I>> modelManagers;
     public Set<ShapelessLocation> killingArmor;
@@ -88,9 +88,13 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         this.render = false;
     }
 
+    @SuppressWarnings("unchecked")
     public IArmModelManager<?, I> pickUpModelManager(ShapelessLocation location) {
         CoreUtils.removeDeactivated(this.modelManagers);
-        return this.modelManagers.get(location);
+        IArmModelManager<?, I> newManager = this.modelManagers.get(location);
+        if (this.modelManager != null) this.modelManager.unload((I) this);
+        if (newManager != null) newManager.load((I) this);
+        return newManager;
     }
 
     @SuppressWarnings("unchecked")
@@ -135,12 +139,10 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
                 loggerCore.info("Registered dynamic render container");
                 loggerCore.info("   Layer: {}", this);
                 loggerCore.info("   Container: {}", entry.value);
-                loggerCore.info("   Location: {}", entry.location);
             } else {
                 loggerCore.error("Attempting to register an incompatible dynamic container!");
                 loggerCore.error("  Layer: {}", this);
                 loggerCore.error("  Container: {}", entry.value);
-                loggerCore.error("  Location: {}", entry.location);
             }
         }
 
@@ -158,7 +160,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
                 continue;
             }
             if (entry.value.targetLayer().isAssignableFrom(clazz)) {
-                ret.put(entry.location, (IArmModelRenderContainer<I, IArmModelManager<?, I>>) entry.value);
+                ret.put(entry.location, (IArmModelRenderContainer<I, IArmModelManager<?, I>>) entry.value); //TODO: Сделать чтобы пререзаписывалось по приоритету
                 loggerCore.info("Registered render container");
                 loggerCore.info("   Layer: {}", this);
                 loggerCore.info("   Container: {}", entry.value);
@@ -230,8 +232,11 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         S chestPlate = this.currentChestPlate();
 
         if (chestPlate.isEmpty() || this.killingArmor.contains(chestPlate.location())) {
-            this.chestPlate = this.emptyStack();
             this.render = false;
+            if (this.modelManager != null) this.modelManager.unload((I) this);
+            this.modelManager = null;
+            this.model = null;
+            this.chestPlate = this.emptyStack();
             return;
         }
 

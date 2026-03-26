@@ -96,7 +96,7 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
     public abstract S currentChestPlate();
     public abstract S emptyStack();
 
-    public abstract List<ShapelessLocation> initRenderWearList();
+    public abstract List<ShapelessLocation> initRenderWearList(); // TODO: Сделать noRenderWearList
     public abstract List<IArmModelManager<?, ?>> initModelManager();
     public abstract List<IArmModelRenderContainer<?, ?>> initRenderContainers();
 
@@ -148,6 +148,7 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
         return CoreUtils.sortPrioritisedList(ret);
     }
 
+    @SuppressWarnings("unchecked")
     public void tryInit(E engine, IAAModContainer mod) {
         this.engine = engine;
         this.mod = mod;
@@ -155,6 +156,8 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
         this.renderArmWearList = this.initRenderWearList();
         this.modelManager = this.castModelManagers(this.initModelManager());
         this.renderContainers = this.castRenderContainers(this.initRenderContainers());
+
+        this.modelManager.load((I) this);
     }
 
     @SuppressWarnings("unchecked")
