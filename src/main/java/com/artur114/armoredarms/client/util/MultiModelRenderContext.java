@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.util;
 import com.artur114.armoredarms.core.util.CoreUtils;
 import com.artur114.armoredarms.core.util.ITexture;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,11 +23,16 @@ public class MultiModelRenderContext implements Iterable<IModelRenderContext> {
         this.contextList = CoreUtils.sortPrioritisedList(context);
     }
 
-    public MultiModelRenderContext prepare(MultiBufferSource buffer, PoseStack poseStack, int packedLight) {
+    public void renderPart(ModelPart part) {
+        for (IModelRenderContext context : this.contextList) {
+            context.renderPart(part);
+        }
+    }
+
+    public void prepare(MultiBufferSource buffer, PoseStack poseStack, int packedLight) {
         for (IModelRenderContext context : this.contextList) {
             context.prepare(buffer, poseStack, packedLight);
         }
-        return this;
     }
 
     public IModelRenderContext[] context() {

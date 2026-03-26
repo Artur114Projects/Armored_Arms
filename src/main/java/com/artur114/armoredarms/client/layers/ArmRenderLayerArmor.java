@@ -1,6 +1,9 @@
 package com.artur114.armoredarms.client.layers;
 
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
@@ -11,6 +14,7 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.SLContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 
 
@@ -44,17 +48,17 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public List<ShapelessLocation> initBlackList() {
-        return List.of();
+        return AAConfig.Backed.renderBlackList;
     }
 
     @Override
     public List<SLContainer<IArmModelManager<?, ?>>> initModelManagers() {
-        return List.of();
+        return List.of(new SLContainer<>(ShapelessLocation.ABSOLUTE, new ArmModelManagerArmor()));
     }
 
     @Override
     public List<SLContainer<IArmModelRenderContainer<?, ?>>> initRenderContainers() {
-        return List.of();
+        return List.of((new SLContainer<>(ShapelessLocation.ABSOLUTE, new ArmModelContainerArmor(ArmModelRendererArmor.class))));
     }
 
     @Override

@@ -1,13 +1,17 @@
 package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.aalegacy.main.AAConfig;
+import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.core.util.IItemStack;
 import com.artur114.armoredarms.core.util.Int2ObjBoundedCache;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemStackAA implements IItemStack {
@@ -36,6 +40,13 @@ public class ItemStackAA implements IItemStack {
         this.stack = stack;
 
         this.isArmor = stack.getItem() instanceof ArmorItem;
+    }
+
+    public boolean isHumanoid(AbstractRenderEngineForge<?, ?> engine) {
+        if (this.isEmpty()) {
+            return false;
+        }
+        return ForgeHooksClient.getArmorModel(Minecraft.getInstance().player, this.stack, EquipmentSlot.CHEST, engine.actualHumanoidModel()).getClass() == HumanoidArmorModel.class;
     }
 
     public ArmorItem item() {

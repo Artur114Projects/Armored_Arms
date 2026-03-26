@@ -1,10 +1,13 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.core.util.SLContainer;
+import com.artur114.armoredarms.core.util.ShapelessLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = ArmoredArms.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -64,9 +67,23 @@ public class AAConfig {
         vanillaArmorModelSize = VANILLA_ARMOR_MODEL_SIZE.get();
         useForcedRotations = USE_FORCED_ROTATIONS.get();
         useCheckByItem = USE_CHECK_BY_ITEM.get();
+
+        Backed.reload();
     }
 
     private static boolean validateItemName(final Object obj) {
         return obj instanceof String;
+    }
+
+    public static class Backed {
+        public static List<ShapelessLocation> renderBlackList = new ArrayList<>();
+        public static List<ShapelessLocation> renderArmWearList = new ArrayList<>();
+        public static List<ShapelessLocation> noRenderArmWearList = new ArrayList<>();
+
+        public static void reload() {
+            renderBlackList.clear(); renderBlackList.addAll(ShapelessLocation.location(AAConfig.renderBlackList));
+            renderArmWearList.clear(); renderArmWearList.addAll(ShapelessLocation.location(AAConfig.renderArmWearList));
+            noRenderArmWearList.clear(); noRenderArmWearList.addAll(ShapelessLocation.location(AAConfig.noRenderArmWearList));
+        }
     }
 }

@@ -12,4 +12,17 @@ public class ArmRenderContext {
     public PoseStack poseStack;
     public EnumHandSideAA arm;
     public int packedLight;
+    protected boolean canceled;
+
+    public void cancel() {
+        this.canceled = true;
+    }
+
+    public boolean isCanceled() {
+        return this.canceled;
+    }
+
+    public void reload() {
+        this.canceled = false;
+    }
 }

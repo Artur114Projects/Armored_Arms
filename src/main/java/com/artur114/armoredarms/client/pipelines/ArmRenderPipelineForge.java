@@ -31,6 +31,8 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
         } catch (Throwable exp) {
             this.mod.processException(new RenderException(exp).setComponent(this.engine));
         }
+
+        this.postProcess(e);
     }
 
     @SubscribeEvent
@@ -65,6 +67,13 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
         this.renderContext.packedLight = e.getPackedLight();
         this.renderContext.poseStack = e.getPoseStack();
         this.renderContext.player = e.getPlayer();
+    }
+
+    public void postProcess(RenderArmEvent e) {
+        if (this.renderContext.isCanceled()) {
+            e.setCanceled(true);
+        }
+        this.renderContext.reload();
     }
 
     @Override
