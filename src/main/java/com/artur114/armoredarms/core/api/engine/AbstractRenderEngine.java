@@ -89,7 +89,7 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
     public abstract void render(P context);
     public abstract void tick(P context);
 
-    public boolean onLayerRendering(IArmRenderLayer<E> layer) {
+    public boolean onLayerRendering(IArmRenderLayer<E> layer, EnumHandSideAA side) {
         return true;
     }
 
@@ -104,7 +104,7 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         for (IArmRenderLayer<E> layer : this.sortedLayers) {
             if (layer.needRender((E) this, this.render)) {
                 try {
-                    if (this.onLayerRendering(layer)) {
+                    if (this.onLayerRendering(layer, side)) {
                         layer.render((E) this, side);
                     }
                 } catch (RenderException rm) {
