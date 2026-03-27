@@ -1,7 +1,11 @@
 package com.artur114.armoredarms.client.layers;
 
+import com.artur114.armoredarms.api.events.InitModelManagersEvent;
+import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelContainerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelRendererPlayer;
@@ -50,12 +54,18 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
 
     @Override
     public List<IArmModelManager<?, ?>> initModelManager() {
-        return List.of(new ArmModelManagerPlayer());
+        InitModelManagersEvent event = new InitModelManagersEvent(ArmRenderLayerHand.class, this.mod, false);
+        event.registerManager(new ArmModelManagerPlayer());
+        this.mod.post(event);
+        return event.managers();
     }
 
     @Override
     public List<IArmModelRenderContainer<?, ?>> initRenderContainers() {
-        return List.of(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
+        InitRenderContainersEvent event = new InitRenderContainersEvent(ArmRenderLayerHand.class, this.mod, false);
+        event.registerContainer(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
+        this.mod.post(event);
+        return event.containers();
     }
 
     @Override

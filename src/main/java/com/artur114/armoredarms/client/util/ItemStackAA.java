@@ -1,10 +1,10 @@
 package com.artur114.armoredarms.client.util;
 
-import com.artur114.armoredarms.aalegacy.main.AAConfig;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.core.util.IItemStack;
 import com.artur114.armoredarms.core.util.Int2ObjBoundedCache;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;

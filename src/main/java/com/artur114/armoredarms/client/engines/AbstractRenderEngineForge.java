@@ -1,10 +1,10 @@
 package com.artur114.armoredarms.client.engines;
 
-import com.artur114.armoredarms.aalegacy.main.AAConfig;
 import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
 import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.core.api.engine.AbstractRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;

@@ -1,11 +1,13 @@
 package com.artur114.armoredarms.client.modelrender.player;
 
-import com.artur114.armoredarms.aalegacy.main.AAConfig;
 import com.artur114.armoredarms.client.util.AAUtils;
+import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -40,13 +42,26 @@ public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManager
         model.crouching = false;
         model.swimAmount = 0.0F;
         model.setupAnim(this.mc.player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-        arm.xRot = 0.0F;
-        if (AAConfig.useForcedRotations) AAUtils.setForcedRotations(arm, side);
-        this.context.renderPart(arm);
-        if (context.shouldRenderWear) {
-            armWear.xRot = 0.0F;
-            if (AAConfig.useForcedRotations) AAUtils.setForcedRotations(armWear, side);
-            this.context.renderPart(armWear);
+
+
+        boolean wear = false;
+
+        for (IModelRenderContext part : this.context) {
+            ModelPart modelPart = arm;
+
+            if (wear) {
+                modelPart = armWear; wear = false;
+            } else {
+                wear = true;
+            }
+
+            if (modelPart == armWear && !context.shouldRenderWear) {
+                continue;
+            }
+
+            modelPart.xRot = 0.0F;
+            if (AAConfig.useForcedRotations) AAUtils.setForcedRotations(modelPart, side);
+            part.renderPart(modelPart);
         }
     }
 

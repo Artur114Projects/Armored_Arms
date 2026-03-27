@@ -46,9 +46,9 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
             try {
                 this.engine.init(this, this.mod); this.initTick = false;
             } catch (RenderException re) {
-                this.mod.processException(re.setType(EnumExceptionType.FATAL));
+                this.mod.processException(re); return;
             } catch (Throwable exp) {
-                this.mod.processException(new RenderException(exp).setComponent(this).setType(EnumExceptionType.FATAL));
+                this.mod.processException(new RenderException(exp).setComponent(this).setType(EnumExceptionType.FATAL)); return;
             }
         }
 

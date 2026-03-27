@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.aalegacy.client.util;
+package com.artur114.armoredarms.client.util;
 
 import java.io.IOException;
 import java.util.HashMap;

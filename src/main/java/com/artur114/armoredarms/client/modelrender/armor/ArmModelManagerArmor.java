@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
-import com.artur114.armoredarms.aalegacy.main.AAConfig;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextBase;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextGlint;

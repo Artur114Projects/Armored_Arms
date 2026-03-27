@@ -72,7 +72,18 @@ public class AAConfig {
     }
 
     private static boolean validateItemName(final Object obj) {
-        return obj instanceof String;
+        if (obj instanceof String str && !str.isEmpty()) {
+            try {
+                ShapelessLocation location = ShapelessLocation.location(str);
+                if (location.isEmpty()) {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     public static class Backed {

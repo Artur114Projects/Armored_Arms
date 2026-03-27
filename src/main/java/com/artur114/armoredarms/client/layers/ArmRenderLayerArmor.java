@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.layers;
 
+import com.artur114.armoredarms.api.events.InitModelManagersEvent;
+import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
@@ -43,7 +45,7 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public String messageForPlayer(String type) {
-        return "armoredarms.error." + type;
+        return "armoredarms.error.layer.armor." + type;
     }
 
     @Override
@@ -53,12 +55,18 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public List<SLContainer<IArmModelManager<?, ?>>> initModelManagers() {
-        return List.of(new SLContainer<>(ShapelessLocation.ABSOLUTE, new ArmModelManagerArmor()));
+        InitModelManagersEvent event = new InitModelManagersEvent(ArmRenderLayerArmor.class, this.mod, true);
+        event.registerManager(new ArmModelManagerArmor(), ShapelessLocation.ABSOLUTE);
+        this.mod.post(event);
+        return event.managersSL();
     }
 
     @Override
     public List<SLContainer<IArmModelRenderContainer<?, ?>>> initRenderContainers() {
-        return List.of((new SLContainer<>(ShapelessLocation.ABSOLUTE, new ArmModelContainerArmor(ArmModelRendererArmor.class))));
+        InitRenderContainersEvent event = new InitRenderContainersEvent(ArmRenderLayerArmor.class, this.mod, true);
+        event.registerContainer(new ArmModelContainerArmor(ArmModelRendererArmor.class), ShapelessLocation.ABSOLUTE);
+        this.mod.post(event);
+        return event.containersSL();
     }
 
     @Override

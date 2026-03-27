@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -17,8 +18,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
@@ -27,8 +26,8 @@ import java.util.List;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ArmoredArms.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(ArmoredArms.MODID)
 public class ArmoredArms implements IAAModContainer {
-    private static IArmRenderPipeline<?> pipeline;
-    private static ArmoredArms mod;
+    protected static IArmRenderPipeline<?> pipeline;
+    protected static ArmoredArms mod;
 
     public static final LoggingManager LOGGER = new LoggingManager();
     public static final String MODID = "armoredarms";
@@ -52,7 +51,9 @@ public class ArmoredArms implements IAAModContainer {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent e) {
-        pipeline = RenderPipelines.pickUpAndRegister(mod);
+        if (!mod().post(new InitRenderPipelineEvent(mod()))) {
+            pipeline = RenderPipelines.pickUpAndRegister(mod);
+        }
 
         if (isPipelineLoaded()) {
             LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
@@ -77,7 +78,7 @@ public class ArmoredArms implements IAAModContainer {
 
     @Override
     public void processException(RenderException exp) {
-
+        LOGGER.processException(exp);
     }
 
     @Override

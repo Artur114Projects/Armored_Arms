@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
-import com.artur114.armoredarms.aalegacy.client.util.MiscUtils;
 import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;

@@ -35,6 +35,16 @@ public class MultiModelRenderContext implements Iterable<IModelRenderContext> {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends IModelRenderContext> T get(Class<T> clazz) {
+        for (IModelRenderContext context : this.contextList) {
+            if (context.getClass() == clazz) {
+                return (T) context;
+            }
+        }
+        return null;
+    }
+
     public IModelRenderContext[] context() {
         return this.contextList.toArray(new IModelRenderContext[0]);
     }

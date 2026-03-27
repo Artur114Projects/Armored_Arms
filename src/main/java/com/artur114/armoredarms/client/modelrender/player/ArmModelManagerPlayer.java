@@ -36,6 +36,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     @Override
     public void render(ArmRenderLayerHand layer, IArmModelRenderer<ArmModelManagerPlayer> renderer, EnumHandSideAA side) {
         if (this.mc.player == null) return;
+
         this.renderPlayer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(this.mc.player);
         this.context.prepare(layer.context.multiBufferSource, layer.context.poseStack, layer.context.packedLight);
         this.chestPlate = layer.currentChestPlate;
@@ -50,7 +51,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
 
     @Override
     public void load(ArmRenderLayerHand layer) {
-        this.context = new MultiModelRenderContext(new ModelRenderContextPlayer());
+        this.context = new MultiModelRenderContext(new ModelRenderContextPlayer(false), new ModelRenderContextPlayer(true, Priority.LOW));
     }
 
     @Override
@@ -58,7 +59,19 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
 
     @Override
     public IArmModelRenderer<ArmModelManagerPlayer> cacheRenderer(ArmRenderLayerHand layer, IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> container) {
-        return null;
+        if (this.mc.player == null) return null;
+
+        this.renderPlayer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(this.mc.player);
+        this.chestPlate = layer.currentChestPlate;
+        this.model = this.renderPlayer.getModel();
+
+        IArmModelRenderer<ArmModelManagerPlayer> model = container.create(this);
+
+        this.renderPlayer = null;
+        this.chestPlate = null;
+        this.model = null;
+
+        return model;
     }
 
     @Override
