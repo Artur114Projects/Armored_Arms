@@ -54,7 +54,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
             try {
                 this.init(); this.initTick = false;
             } catch (RenderException re) {
-                this.mod.processException(re.setType(EnumExceptionType.FATAL));
+                this.mod.processException(re.setType(EnumExceptionType.FATAL)); //TODO: Сделать по нормальному
             } catch (Throwable exp) {
                 this.mod.processException(new RenderException(exp).setComponent(this).setType(EnumExceptionType.FATAL));
             }
