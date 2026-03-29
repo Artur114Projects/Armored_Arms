@@ -24,61 +24,29 @@ public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManager
     @Override
     public void renderArm(ArmModelManagerPlayer context, EnumHandSideAA side) {
         if (this.mc.player == null) return;
-        PlayerModel<AbstractClientPlayer> model = context.model;
-        ModelPart armWear;
-        ModelPart arm = switch (side) {
-            case RIGHT -> {
-                armWear = model.rightSleeve;
-                yield model.rightArm;
-            }
-            case LEFT -> {
-                armWear = model.leftSleeve;
-                yield model.leftArm;
-            }
-        };
+        ModelPart armWear = context.armWear(side);
+        ModelPart arm = context.arm(side);
 
-        this.setModelProperties(model, this.mc.player);
-        model.attackTime = 0.0F;
-        model.crouching = false;
-        model.swimAmount = 0.0F;
-        model.setupAnim(this.mc.player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-
-
-        boolean wear = false;
+        int i = 0;
 
         for (IModelRenderContext part : this.context) {
-            ModelPart modelPart = arm;
+            ModelPart modelPart;
 
-            if (wear) {
-                modelPart = armWear; wear = false;
+            if (i % 2 == 0) {
+                modelPart = arm;
             } else {
-                wear = true;
+                modelPart = armWear;
             }
+
+            i++;
 
             if (modelPart == armWear && !context.shouldRenderWear) {
                 continue;
             }
 
             modelPart.xRot = 0.0F;
-            if (AAConfig.useForcedRotations) AAUtils.setForcedRotations(modelPart, side);
+//            if (AAConfig.useForcedRotations) AAUtils.setForcedRotations(modelPart, side);
             part.renderPart(modelPart);
-        }
-    }
-
-    private void setModelProperties(PlayerModel<AbstractClientPlayer> playermodel, AbstractClientPlayer pClientPlayer) {
-        if (pClientPlayer.isSpectator()) {
-            playermodel.setAllVisible(false);
-            playermodel.head.visible = true;
-            playermodel.hat.visible = true;
-        } else {
-            playermodel.setAllVisible(true);
-            playermodel.hat.visible = pClientPlayer.isModelPartShown(PlayerModelPart.HAT);
-            playermodel.jacket.visible = pClientPlayer.isModelPartShown(PlayerModelPart.JACKET);
-            playermodel.leftPants.visible = pClientPlayer.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
-            playermodel.rightPants.visible = pClientPlayer.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
-            playermodel.leftSleeve.visible = pClientPlayer.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
-            playermodel.rightSleeve.visible = pClientPlayer.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
-            playermodel.crouching = pClientPlayer.isCrouching();
         }
     }
 }

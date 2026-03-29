@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.layers;
 import com.artur114.armoredarms.api.events.InitModelManagersEvent;
 import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
+import com.artur114.armoredarms.client.modelrender.INeedRenderProvider;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
@@ -14,6 +15,7 @@ import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
+import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.layer.AbstractHandRenderLayer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
@@ -66,6 +68,17 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
         event.registerContainer(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
         this.mod.post(event);
         return event.containers();
+    }
+
+    @Override
+    public boolean needRender(AbstractRenderEngineForge<?, ?> engine, boolean renderEngineState) {
+        if (this.modelManager instanceof INeedRenderProvider nr) {
+            return nr.needRender(engine, renderEngineState);
+        }
+        if (this.model instanceof INeedRenderProvider nr) {
+            return nr.needRender(engine, renderEngineState);
+        }
+        return super.needRender(engine, renderEngineState);
     }
 
     @Override

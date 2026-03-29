@@ -1,5 +1,10 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
+import com.artur114.armoredarms.client.util.GenericPriority;
+import com.artur114.armoredarms.core.api.IPriority;
+import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.SLContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -8,7 +13,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ArmoredArms.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AAConfig {
@@ -38,23 +45,24 @@ public class AAConfig {
             .comment("Vanilla armor model size")
             .define("vanillaArmorModelSize", 0.4D);
 
-    private static final ForgeConfigSpec.BooleanValue USE_FORCED_ROTATIONS = BUILDER
-            .comment("Eliminates any hand displacements other than those planned; may be incompatible with mods that add hand animations.")
-            .define("useForcedRotations", true);
-
     private static final ForgeConfigSpec.BooleanValue USE_CHECK_BY_ITEM = BUILDER
             .comment("Use check by item")
             .define("useCheckByItem", false);
 
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> RENDER_SOURCES_PRIORITY = BUILDER
+            .comment("Different sources can work differently, choose the one that works better", "The higher the source is on the list, the higher its priority", "Deleting a render source will prevent it from working", "Changes are applied after restarting the game", "[event] - Standard rendering source, сan always work", "[mixin] - Additional rendering source, can work if mixins loader is installed")
+            .defineListAllowEmpty("renderSourcesPriority", List.of("event", "mixin"), AAConfig.Backed::validateSourceName);
+
+
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
-    public static boolean disableArmWear = true;
-    public static boolean enableArmWearWithVanillaM = true;
+    public static boolean disableArmWear = false;
+    public static boolean enableArmWearWithVanillaM = false;
     public static String[] renderBlackList = new String[0];
-    public static String[] renderArmWearList = new String[] {"iceandfire:*", "botania:*", "warborn:*"};
-    public static String[] noRenderArmWearList = new String[] {"create:netherite_backtank"};
+    public static String[] renderArmWearList = new String[0];
+    public static String[] noRenderArmWearList = new String[0];
+    public static String[] renderSourcesPriority = new String[0];
     public static double vanillaArmorModelSize = 0.4D;
-    public static boolean useForcedRotations = true;
     public static boolean useCheckByItem = false;
 
     @SubscribeEvent
@@ -64,8 +72,8 @@ public class AAConfig {
         renderBlackList = RENDER_BLACK_LIST.get().toArray(new String[0]);
         noRenderArmWearList = RENDER_ARM_WEAR_LIST.get().toArray(new String[0]);
         noRenderArmWearList = NO_RENDER_ARM_WEAR_LIST.get().toArray(new String[0]);
+        renderSourcesPriority = RENDER_SOURCES_PRIORITY.get().toArray(new String[0]);
         vanillaArmorModelSize = VANILLA_ARMOR_MODEL_SIZE.get();
-        useForcedRotations = USE_FORCED_ROTATIONS.get();
         useCheckByItem = USE_CHECK_BY_ITEM.get();
 
         Backed.reload();
@@ -90,11 +98,43 @@ public class AAConfig {
         public static List<ShapelessLocation> renderBlackList = new ArrayList<>();
         public static List<ShapelessLocation> renderArmWearList = new ArrayList<>();
         public static List<ShapelessLocation> noRenderArmWearList = new ArrayList<>();
+        public static Map<Class<? extends IArmRenderPipeline<?>>, IPriority> pipelinesPriority = new HashMap<>();
 
         public static void reload() {
             renderBlackList.clear(); renderBlackList.addAll(ShapelessLocation.location(AAConfig.renderBlackList));
             renderArmWearList.clear(); renderArmWearList.addAll(ShapelessLocation.location(AAConfig.renderArmWearList));
             noRenderArmWearList.clear(); noRenderArmWearList.addAll(ShapelessLocation.location(AAConfig.noRenderArmWearList));
+
+            reloadPipelinesPriority();
+        }
+
+        private static void reloadPipelinesPriority() {
+            pipelinesPriority.clear();
+
+            for (int i = 0; i != renderSourcesPriority.length; i++) {
+                Class<? extends IArmRenderPipeline<?>> clazz = classFromId(renderSourcesPriority[i]);
+                if (clazz != null) {
+                    pipelinesPriority.put(clazz, new GenericPriority(-i));
+                }
+            }
+        }
+
+        private static Class<? extends IArmRenderPipeline<?>> classFromId(String id) {
+            return switch (id) {
+                case "event" -> ArmRenderPipelineForge.class;
+                case "mixin" -> ArmRenderPipelineMixin.class;
+                default -> null;
+            };
+        }
+
+        public static boolean validateSourceName(Object id) {
+            if (!(id instanceof String)) {
+                return false;
+            }
+            return switch ((String) id) {
+                case "event", "mixin" -> true;
+                default -> false;
+            };
         }
     }
 }

@@ -3,6 +3,7 @@ package com.artur114.armoredarms.main;
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.IAAModContainer;
@@ -51,24 +52,30 @@ public class ArmoredArms implements IAAModContainer {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent e) {
-        if (!mod().post(new InitRenderPipelineEvent(mod()))) {
-            pipeline = RenderPipelines.pickUpAndRegister(mod);
-        }
+        try {
+            if (!mod().post(new InitRenderPipelineEvent(mod()))) {
+                pipeline = RenderPipelines.pickUpAndRegister(mod);
+            }
 
-        if (isPipelineLoaded()) {
-            LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
-            LOGGER.AA_LOG.info("   Pipeline: {}", pipeline);
-        } else {
-            IArmRenderPipeline<?> pipeline = RenderPipelines.pickUp(mod);
-            LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!");
-            LOGGER.AA_LOG.fatal("   Try to pick up pipeline: {}", pipeline);
-            LOGGER.AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(mod, pipeline.clazz()));
+            if (isPipelineLoaded()) {
+                LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
+                LOGGER.AA_LOG.info("   Pipeline: {}", pipeline);
+            } else {
+                IArmRenderPipeline<?> pipeline = RenderPipelines.pickUp(mod);
+                LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!");
+                LOGGER.AA_LOG.fatal("   Try to pick up pipeline: {}", pipeline);
+                if (pipeline != null) {
+                    LOGGER.AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(mod, pipeline.clazz()));
+                }
+            }
+        } catch (Exception exp) {
+            LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!", exp);
         }
     }
     
     @Override
     public Collection<IArmRenderPipeline<?>> defaultPipelines() {
-        return List.of(new ArmRenderPipelineForge());
+        return List.of(new ArmRenderPipelineForge(), new ArmRenderPipelineMixin());
     }
 
     @Override

@@ -19,6 +19,8 @@ public interface IModelRenderContext extends IPrioritised {
     float red();
 
     default void renderPart(ModelPart part) {
-        part.render(this.poseStack(), this.vertexConsumer(), this.packedLight(), this.packedOverlay(), this.red(), this.green(), this.blue(), this.alpha());
+        if (this.poseStack() != null && this.vertexConsumer() != null) {
+            part.render(this.poseStack(), this.vertexConsumer(), this.packedLight(), this.packedOverlay(), this.red(), this.green(), this.blue(), this.alpha());
+        }
     }
 }

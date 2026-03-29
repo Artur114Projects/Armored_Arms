@@ -1,10 +1,13 @@
 package com.artur114.armoredarms.client.pipelines;
 
+import com.artur114.armoredarms.client.mixin.RenderArmMixinEvent;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
-import com.artur114.armoredarms.core.util.*;
+import com.artur114.armoredarms.core.util.EnumExceptionType;
+import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.Reflector;
 import com.artur114.armoredarms.core.util.RenderException;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
@@ -16,12 +19,12 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRenderPipelineForge> {
+public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRenderPipelineMixin> {
     public int noRenderingTicks = 0;
 
+    @SubscribeEvent()
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void renderHand(RenderArmEvent e) {
+    public void renderHand(RenderArmMixinEvent e) {
         this.noRenderingTicks = 0;
 
         if (this.deactivated) {
@@ -73,15 +76,15 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
         this.noRenderingTicks++;
     }
 
-    public void populateContext(RenderArmEvent e) {
+    public void populateContext(RenderArmMixinEvent e) {
         this.renderContext.multiBufferSource = e.getMultiBufferSource();
-        this.renderContext.arm = AAUtils.fromMc(e.getArm());
         this.renderContext.packedLight = e.getPackedLight();
         this.renderContext.poseStack = e.getPoseStack();
         this.renderContext.player = e.getPlayer();
+        this.renderContext.arm = e.getArm();
     }
 
-    public void postProcess(RenderArmEvent e) {
+    public void postProcess(RenderArmMixinEvent e) {
         if (this.renderContext.isCanceled()) {
             e.setCanceled(true);
         }
@@ -89,22 +92,22 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
     }
 
     @Override
-    protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineForge> engine) {
+    protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineMixin> engine) {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public boolean canWork(IAAModContainer mod) {
-        return AAConfig.Backed.pipelinesPriority.containsKey(ArmRenderPipelineForge.class);
+        return Reflector.isClassExists("org.spongepowered.asm.mixin.Mixin") && AAConfig.Backed.pipelinesPriority.containsKey(ArmRenderPipelineMixin.class);
     }
 
     @Override
-    public Class<ArmRenderPipelineForge> clazz() {
-        return ArmRenderPipelineForge.class;
+    public Class<ArmRenderPipelineMixin> clazz() {
+        return ArmRenderPipelineMixin.class;
     }
 
     @Override
     public IPriority priority() {
-        return AAConfig.Backed.pipelinesPriority.get(ArmRenderPipelineForge.class);
+        return AAConfig.Backed.pipelinesPriority.get(ArmRenderPipelineMixin.class);
     }
 }

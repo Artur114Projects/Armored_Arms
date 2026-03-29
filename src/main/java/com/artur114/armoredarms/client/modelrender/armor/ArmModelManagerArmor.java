@@ -52,10 +52,12 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
 
         this.context.prepare(layer.context.multiBufferSource, layer.context.poseStack, layer.context.packedLight);
         this.chestPlate = layer.chestPlate;
+        this.rawContext = layer.context;
 
         renderer.renderArm(this, side);
 
         this.chestPlate = null;
+        this.rawContext = null;
     }
 
     @Override
@@ -87,17 +89,17 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     public MultiModelRenderContext compileContext(ArmRenderLayerArmor layer) {
         ArrayList<IModelRenderContext> context = new ArrayList<>();
 
-        if (layer.chestPlate.stack().hasFoil()) {
-            context.add(new ModelRenderContextGlint());
-        }
+        context.add(new ModelRenderContextBase(this.fmlGetArmorResource(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, null), layer.chestPlate, Priority.HIGH));
+
         if (layer.chestPlate.item() instanceof DyeableLeatherItem) {
             context.add(new ModelRenderContextOverlay(this.fmlGetArmorResource(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, "overlay")));
         }
         if (layer.mc.player != null && ArmorTrim.getTrim(layer.mc.player.level().registryAccess(), layer.chestPlate.stack()).isPresent()) {
-            context.add(new ModelRenderContextTrim(layer.chestPlate));
+            context.add(new ModelRenderContextTrim(layer.chestPlate, Priority.LOW));
         }
-
-        context.add(new ModelRenderContextBase(this.fmlGetArmorResource(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, null), layer.chestPlate));
+        if (layer.chestPlate.stack().hasFoil()) {
+            context.add(new ModelRenderContextGlint(Priority.LOWEST));
+        }
 
         return new MultiModelRenderContext(context);
     }

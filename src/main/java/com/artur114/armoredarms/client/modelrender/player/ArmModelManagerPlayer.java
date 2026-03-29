@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.modelrender.player;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextPlayer;
+import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
@@ -15,8 +16,10 @@ import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPlayer, ArmRenderLayerHand> {
     protected boolean deactivated = false;
@@ -24,6 +27,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     public ItemStackAA chestPlate = ItemStackAA.EMPTY;
     public PlayerModel<AbstractClientPlayer> model;
     public MultiModelRenderContext context;
+    public ArmRenderContext rawContext;
     public PlayerRenderer renderPlayer;
     public boolean shouldRenderWear;
 
@@ -41,10 +45,13 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
         this.context.prepare(layer.context.multiBufferSource, layer.context.poseStack, layer.context.packedLight);
         this.chestPlate = layer.currentChestPlate;
         this.model = this.renderPlayer.getModel();
+        this.rawContext = layer.context;
+        this.prepareModel(this.model);
 
         renderer.renderArm(this, side);
 
         this.renderPlayer = null;
+        this.rawContext = null;
         this.chestPlate = null;
         this.model = null;
     }
@@ -72,6 +79,42 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
         this.model = null;
 
         return model;
+    }
+
+    public ModelPart arm(EnumHandSideAA side) {
+        return switch (side) {
+            case RIGHT -> this.model.rightArm;
+            case LEFT -> this.model.leftArm;
+        };
+    }
+
+    public ModelPart armWear(EnumHandSideAA side) {
+        return switch (side) {
+            case RIGHT -> this.model.rightSleeve;
+            case LEFT -> this.model.leftSleeve;
+        };
+    }
+
+    public void prepareModel(PlayerModel<AbstractClientPlayer> model) {
+        if (this.mc.player == null) return;
+        if (this.mc.player.isSpectator()) {
+            model.setAllVisible(false);
+            model.head.visible = true;
+            model.hat.visible = true;
+        } else {
+            model.setAllVisible(true);
+            model.hat.visible = this.mc.player.isModelPartShown(PlayerModelPart.HAT);
+            model.jacket.visible = this.mc.player.isModelPartShown(PlayerModelPart.JACKET);
+            model.leftPants.visible = this.mc.player.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
+            model.rightPants.visible = this.mc.player.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
+            model.leftSleeve.visible = this.mc.player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
+            model.rightSleeve.visible = this.mc.player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
+            model.crouching = this.mc.player.isCrouching();
+        }
+        model.attackTime = 0.0F;
+        model.crouching = false;
+        model.swimAmount = 0.0F;
+        model.setupAnim(this.mc.player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
     }
 
     @Override
