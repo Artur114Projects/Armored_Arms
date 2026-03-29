@@ -23,6 +23,9 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
     @Override
     @SuppressWarnings("unchecked")
     public void init(P context, IAAModContainer mod) {
+        this.pipeline = context;
+        this.mod = mod;
+
         Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> rawLayers = this.initLayers();
         Logger loggerCore = mod.logger("ARMOREDARMS-CORE");
         this.layerMap = new HashMap<>();
@@ -43,10 +46,15 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
 
         this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
 
-        for (IArmRenderLayer<E> layer : this.sortedLayers) layer.init((E) this, mod);
-
-        this.pipeline = context;
-        this.mod = mod;
+        for (IArmRenderLayer<E> layer : this.sortedLayers) {
+            try {
+                layer.init((E) this, mod);
+            } catch (RenderException rm) {
+                throw rm;
+            } catch (Throwable t) {
+                throw new RenderException(t).setComponent(layer);
+            }
+        }
     }
 
     @Override

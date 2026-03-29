@@ -157,7 +157,11 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
         this.modelManager = this.castModelManagers(this.initModelManager());
         this.renderContainers = this.castRenderContainers(this.initRenderContainers());
 
-        this.modelManager.load((I) this);
+        if (this.modelManager != null) {
+            this.modelManager.load((I) this);
+        } else {
+            throw new IllegalStateException("Can't find ModelManager layer cannot be load!");
+        }
     }
 
     @SuppressWarnings("unchecked")
