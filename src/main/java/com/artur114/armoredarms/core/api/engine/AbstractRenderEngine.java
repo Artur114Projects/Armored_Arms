@@ -32,10 +32,11 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         Class<?> clazz = this.getClass();
 
         rawLayers.forEach(((aClass, iArmRenderLayer) -> {
-            if (iArmRenderLayer.targetEngine().isAssignableFrom(clazz)) {
+            if (iArmRenderLayer != null && iArmRenderLayer.targetEngine().isAssignableFrom(clazz)) {
                 loggerCore.info("Registered render layer");
                 loggerCore.info("   Layer: {}", iArmRenderLayer);
                 loggerCore.info("   Engine: {}", this);
+                loggerCore.info("   Priority: {}", iArmRenderLayer.priority());
                 this.layerMap.put((Class<? extends IArmRenderLayer<E>>) aClass, (IArmRenderLayer<E>) iArmRenderLayer);
             } else {
                 loggerCore.error("Attempting to initialize an incompatible layer!");
@@ -45,6 +46,13 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         }));
 
         this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
+
+        loggerCore.info("Render queue");
+        loggerCore.info("   -start:");
+        for (IArmRenderLayer<E> layer : this.sortedLayers) {
+            loggerCore.info("       -> {}", layer);
+        }
+        loggerCore.info("   -end|");
 
         for (IArmRenderLayer<E> layer : this.sortedLayers) {
             try {
