@@ -50,7 +50,7 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public List<ShapelessLocation> initBlackList() {
-        return AAConfig.Backed.renderBlackList;
+        return AAConfig.Baked.renderBlackList;
     }
 
     @Override

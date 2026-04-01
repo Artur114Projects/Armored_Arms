@@ -5,7 +5,6 @@ import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.client.util.GenericPriority;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
-import com.artur114.armoredarms.core.util.SLContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -51,7 +50,7 @@ public class AAConfig {
 
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> RENDER_SOURCES_PRIORITY = BUILDER
             .comment("Different sources can work differently, choose the one that works better", "The higher the source is on the list, the higher its priority", "Deleting a render source will prevent it from working", "Changes are applied after restarting the game", "[event] - Standard rendering source, сan always work", "[mixin] - Additional rendering source, can work if mixins loader is installed")
-            .defineListAllowEmpty("renderSourcesPriority", List.of("event", "mixin"), AAConfig.Backed::validateSourceName);
+            .defineListAllowEmpty("renderSourcesPriority", List.of("event", "mixin"), Baked::validateSourceName);
 
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
@@ -76,7 +75,7 @@ public class AAConfig {
         vanillaArmorModelSize = VANILLA_ARMOR_MODEL_SIZE.get();
         useCheckByItem = USE_CHECK_BY_ITEM.get();
 
-        Backed.reload();
+        Baked.reload();
     }
 
     private static boolean validateItemName(final Object obj) {
@@ -94,7 +93,7 @@ public class AAConfig {
         return false;
     }
 
-    public static class Backed {
+    public static class Baked {
         public static List<ShapelessLocation> renderBlackList = new ArrayList<>();
         public static List<ShapelessLocation> renderArmWearList = new ArrayList<>();
         public static List<ShapelessLocation> noRenderArmWearList = new ArrayList<>();

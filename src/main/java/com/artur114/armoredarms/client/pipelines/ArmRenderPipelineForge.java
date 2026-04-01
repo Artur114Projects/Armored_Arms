@@ -2,7 +2,6 @@ package com.artur114.armoredarms.client.pipelines;
 
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.IPriority;
-import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.util.*;
 import com.artur114.armoredarms.core.util.RenderException;
@@ -19,8 +18,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRenderPipelineForge> {
     public int noRenderingTicks = 0;
 
+    @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void renderHand(RenderArmEvent e) {
         this.noRenderingTicks = 0;
 
@@ -95,7 +94,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
 
     @Override
     public boolean canWork(IAAModContainer mod) {
-        return AAConfig.Backed.pipelinesPriority.containsKey(ArmRenderPipelineForge.class);
+        return AAConfig.Baked.pipelinesPriority.containsKey(ArmRenderPipelineForge.class);
     }
 
     @Override
@@ -105,6 +104,6 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
 
     @Override
     public IPriority priority() {
-        return AAConfig.Backed.pipelinesPriority.get(ArmRenderPipelineForge.class);
+        return AAConfig.Baked.pipelinesPriority.get(ArmRenderPipelineForge.class);
     }
 }

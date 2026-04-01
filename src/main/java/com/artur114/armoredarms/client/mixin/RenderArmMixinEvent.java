@@ -13,8 +13,8 @@ public class RenderArmMixinEvent extends Event {
     private final MultiBufferSource multiBufferSource;
     private final AbstractClientPlayer player;
     private final PoseStack poseStack;
-    private final int packedLight;
     private final EnumHandSideAA arm;
+    private final int packedLight;
 
     public RenderArmMixinEvent(PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, AbstractClientPlayer player, EnumHandSideAA arm) {
         this.multiBufferSource = multiBufferSource;

@@ -5,6 +5,8 @@ import com.artur114.armoredarms.core.util.IItemStack;
 import com.artur114.armoredarms.core.util.Int2ObjBoundedCache;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
 import com.artur114.armoredarms.main.AAConfig;
+import lain.mods.cos.api.CosArmorAPI;
+import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -30,6 +32,21 @@ public class ItemStackAA implements IItemStack {
     }
 
     public static ItemStackAA chestPlate(AbstractClientPlayer player) {
+        if (EnumMods.COSMETIC_ARMOR.isLoaded()) {
+            CAStacksBase stacks = CosArmorAPI.getCAStacksClient(player.getUUID());
+            int chestId = EquipmentSlot.CHEST.getIndex();
+
+            if (stacks.isSkinArmor(chestId)) {
+                return EMPTY;
+            }
+
+            ItemStack stack = stacks.getStackInSlot(chestId);
+
+            if (!stack.isEmpty()) {
+                return from(stack);
+            }
+        }
+
         return from(player.getItemBySlot(EquipmentSlot.CHEST));
     }
 
@@ -50,7 +67,7 @@ public class ItemStackAA implements IItemStack {
     }
 
     public ArmorItem item() {
-        if (!this.isArmor) return null;
+        if (!this.isArmor || this.isEmpty()) return null;
         return (ArmorItem) this.stack.getItem();
     }
 

@@ -3,12 +3,15 @@ package com.artur114.armoredarms.client.integration.mca.modelrender;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.INeedRenderProvider;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
+import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.Reflector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
+import dev.kosmx.playerAnim.impl.IPlayerModel;
 import forge.net.mca.MCAClient;
 import forge.net.mca.client.model.CommonVillagerModel;
 import forge.net.mca.client.model.PlayerEntityExtendedModel;
@@ -41,11 +44,16 @@ public class ArmModelRendererMCA implements IArmModelRenderer<ArmModelManagerPla
             return;
         }
 
-        this.mca$renderCustomArm(context, context.rawContext.poseStack, context.rawContext.multiBufferSource, context.rawContext.packedLight, context.mc.player, this.mca$skinLayer.model.rightArm, this.mca$skinLayer.model.rightSleeve, this.mca$skinLayer);
-        this.mca$renderCustomArm(context, context.rawContext.poseStack, context.rawContext.multiBufferSource, context.rawContext.packedLight, context.mc.player, this.mca$clothingLayer.model.rightArm, this.mca$clothingLayer.model.rightSleeve, this.mca$clothingLayer);
+        if (side == EnumHandSideAA.RIGHT) {
+            this.mca$renderCustomArm(context, side, context.rawContext.poseStack, context.rawContext.multiBufferSource, context.rawContext.packedLight, context.mc.player, this.mca$skinLayer.model.rightArm, this.mca$skinLayer.model.rightSleeve, this.mca$skinLayer);
+            this.mca$renderCustomArm(context, side, context.rawContext.poseStack, context.rawContext.multiBufferSource, context.rawContext.packedLight, context.mc.player, this.mca$clothingLayer.model.rightArm, this.mca$clothingLayer.model.rightSleeve, this.mca$clothingLayer);
+        } else {
+            this.mca$renderCustomArm(context, side, context.rawContext.poseStack, context.rawContext.multiBufferSource, context.rawContext.packedLight, context.mc.player, this.mca$skinLayer.model.leftArm, this.mca$skinLayer.model.leftSleeve, this.mca$skinLayer);
+            this.mca$renderCustomArm(context, side, context.rawContext.poseStack, context.rawContext.multiBufferSource, context.rawContext.packedLight, context.mc.player, this.mca$clothingLayer.model.leftArm, this.mca$clothingLayer.model.leftSleeve, this.mca$clothingLayer);
+        }
     }
 
-    private void mca$renderCustomArm(ArmModelManagerPlayer context, PoseStack matrices, MultiBufferSource vertexConsumers, int light, AbstractClientPlayer player, ModelPart arm, ModelPart sleeve, VillagerLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> layer) {
+    private void mca$renderCustomArm(ArmModelManagerPlayer context, EnumHandSideAA side, PoseStack matrices, MultiBufferSource vertexConsumers, int light, AbstractClientPlayer player, ModelPart arm, ModelPart sleeve, VillagerLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> layer) {
         PlayerEntityExtendedModel<AbstractClientPlayer> model = (PlayerEntityExtendedModel<AbstractClientPlayer>) layer.model;
         context.prepareModel(model);
         model.applyVillagerDimensions(CommonVillagerModel.getVillager(player), player.isCrouching());
@@ -55,8 +63,14 @@ public class ArmModelRendererMCA implements IArmModelRenderer<ArmModelManagerPla
             float[] color = layer.getColor(player, 0.0F);
             arm.xRot = 0.0F;
             arm.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
-            sleeve.xRot = 0.0F; //TODO: Сделать обработку одежды
-            sleeve.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
+            if (context.shouldRenderWear) {
+                sleeve.xRot = 0.0F;
+                sleeve.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
+
+                context.armWear(side).copyFrom(sleeve);
+            }
+
+            context.arm(side).copyFrom(arm);
         }
     }
 
@@ -64,7 +78,7 @@ public class ArmModelRendererMCA implements IArmModelRenderer<ArmModelManagerPla
     public boolean needRender(IArmRenderEngine<?> engine, boolean renderEngineState) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
-            return MCAClient.renderArms(mc.player.getUUID(), "left_arm") || MCAClient.renderArms(mc.player.getUUID(), "right_arm");
+            return EnumMods.PLAYER_ANIMATOR.isLoaded();
         }
         return false;
     }

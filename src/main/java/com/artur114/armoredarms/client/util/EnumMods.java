@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public enum EnumMods {
-    // noop...
-    ;
+    PLAYER_ANIMATOR("playeranimator"),
+    COSMETIC_ARMOR("cosmeticarmorreworked");
 
 
     private AtomicBoolean loaded = null;

@@ -37,6 +37,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
     public MultiModelRenderContext context = null;
     public ArmRenderContext rawContext = null;
+    public ArmRenderLayerArmor layer = null;
     public ItemStackAA chestPlate = null;
     public Model model = null;
     public boolean deactivated = false;
@@ -64,6 +65,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     public void load(ArmRenderLayerArmor layer) {
         this.context = this.compileContext(layer);
         this.model = this.initModel(layer);
+        this.layer = layer;
     }
 
     @Override

@@ -4,9 +4,6 @@ import com.artur114.armoredarms.api.events.InitModelManagersEvent;
 import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.INeedRenderProvider;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelContainerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelRendererPlayer;
@@ -15,17 +12,22 @@ import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.layer.AbstractHandRenderLayer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
+import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 
 import java.util.List;
 
 public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, ItemStackAA, AbstractRenderEngineForge<?, ?>> {
+    private final ModelPart[] actualPlayerHands = new ModelPart[2];
     public List<ShapelessLocation> noRenderArmWearList;
     public final Minecraft mc = Minecraft.getInstance();
     public ArmRenderContext context = null;
@@ -34,6 +36,7 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
     public void tryRender(AbstractRenderEngineForge<?, ?> engine, EnumHandSideAA handSide) {
         if (this.mc.player != null && this.mc.player.isInvisible()) return;
         this.context = engine.renderContext;
+        this.updatePlayerHands();
         super.tryRender(engine, handSide);
     }
 
@@ -50,8 +53,8 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
 
     @Override
     public List<ShapelessLocation> initRenderWearList() {
-        this.noRenderArmWearList = AAConfig.Backed.noRenderArmWearList;
-        return AAConfig.Backed.renderArmWearList;
+        this.noRenderArmWearList = AAConfig.Baked.noRenderArmWearList;
+        return AAConfig.Baked.renderArmWearList;
     }
 
     @Override
@@ -79,6 +82,18 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
             return nr.needRender(engine, renderEngineState);
         }
         return super.needRender(engine, renderEngineState);
+    }
+
+    public ModelPart[] actualPlayerHands() {
+        this.updatePlayerHands();
+        return this.actualPlayerHands;
+    }
+
+    private void updatePlayerHands() {
+        if (this.mc.player == null) return;
+        PlayerModel<?> player = ((PlayerRenderer) this.mc.getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(this.mc.player)).getModel();
+        this.actualPlayerHands[0] = player.leftArm;
+        this.actualPlayerHands[1] = player.rightArm;
     }
 
     @Override

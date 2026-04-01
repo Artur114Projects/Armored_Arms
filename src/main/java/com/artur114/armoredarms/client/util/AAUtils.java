@@ -1,7 +1,10 @@
 package com.artur114.armoredarms.client.util;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -34,13 +37,6 @@ public class AAUtils {
         part.z = 0.0F;
     }
 
-    public static int handSideDelta(HumanoidArm handSide) {
-        return switch (handSide) {
-            case RIGHT -> 1;
-            case LEFT -> -1;
-        };
-    }
-
     public static ModelPart handFromHumanoidModel(HumanoidModel<?> mb, EnumHandSideAA handSide) {
         return switch (handSide) {
             case RIGHT -> mb.rightArm;
@@ -56,16 +52,21 @@ public class AAUtils {
     }
 
     public static ModelPart[] playerArms() {
-        PlayerModel<?> player = ((PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(Minecraft.getInstance().player)).getModel();
-        return new ModelPart[] {player.leftArm, player.rightArm};
-    }
+        if (Minecraft.getInstance().player == null) {
+            throw new IllegalStateException("Unable to get playerArms before the player loads!");
+        }
+        ArmRenderLayerHand layer = null;
 
-    public static void setPlayerArmDataToArm(ModelPart arm, ModelPart playerArm) {
-        arm.xRot = playerArm.xRot;
-        arm.yRot = playerArm.yRot;
-        arm.zRot = playerArm.zRot;
-        arm.x = playerArm.x;
-        arm.y = playerArm.y;
-        arm.z = playerArm.z;
+        try {
+            layer = ArmoredArmsApi.currentPipeline().engine().layer(ArmRenderLayerHand.class);
+        } catch (Exception ignored) {}
+
+        if (layer != null) {
+            return layer.actualPlayerHands();
+        } else {
+            ArmoredArms.LOGGER.AA_LOG.warn("ArmRenderLayerHand is null! Can't get safe playerArms!");
+            PlayerModel<?> player = ((PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(Minecraft.getInstance().player)).getModel();
+            return new ModelPart[] {player.leftArm, player.rightArm};
+        }
     }
 }

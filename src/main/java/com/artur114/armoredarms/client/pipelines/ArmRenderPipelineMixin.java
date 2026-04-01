@@ -1,9 +1,7 @@
 package com.artur114.armoredarms.client.pipelines;
 
 import com.artur114.armoredarms.client.mixin.RenderArmMixinEvent;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.IPriority;
-import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.util.EnumExceptionType;
 import com.artur114.armoredarms.core.util.IAAModContainer;
@@ -13,10 +11,8 @@ import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRenderPipelineMixin> {
@@ -98,7 +94,7 @@ public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRende
 
     @Override
     public boolean canWork(IAAModContainer mod) {
-        return Reflector.isClassExists("org.spongepowered.asm.mixin.Mixin") && AAConfig.Backed.pipelinesPriority.containsKey(ArmRenderPipelineMixin.class);
+        return Reflector.isClassExists("org.spongepowered.asm.mixin.Mixin") && AAConfig.Baked.pipelinesPriority.containsKey(ArmRenderPipelineMixin.class);
     }
 
     @Override
@@ -108,6 +104,6 @@ public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRende
 
     @Override
     public IPriority priority() {
-        return AAConfig.Backed.pipelinesPriority.get(ArmRenderPipelineMixin.class);
+        return AAConfig.Baked.pipelinesPriority.get(ArmRenderPipelineMixin.class);
     }
 }

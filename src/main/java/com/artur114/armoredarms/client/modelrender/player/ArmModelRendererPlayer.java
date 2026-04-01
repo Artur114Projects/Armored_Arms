@@ -1,17 +1,11 @@
 package com.artur114.armoredarms.client.modelrender.player;
 
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
-import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManagerPlayer> {
     protected final Minecraft mc = Minecraft.getInstance();
@@ -45,7 +39,6 @@ public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManager
             }
 
             modelPart.xRot = 0.0F;
-//            if (AAConfig.useForcedRotations) AAUtils.setForcedRotations(modelPart, side);
             part.renderPart(modelPart);
         }
     }

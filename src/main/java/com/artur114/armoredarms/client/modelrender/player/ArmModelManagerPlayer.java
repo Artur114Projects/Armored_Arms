@@ -34,7 +34,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     @Override
     public void update(ArmRenderLayerHand layer) {
         ItemStackAA stack = layer.currentChestPlate;
-        this.shouldRenderWear = !layer.noRenderArmWearList.contains(stack.location()) && (!AAConfig.disableArmWear || layer.renderArmWearList.contains(stack.location()) || (AAConfig.enableArmWearWithVanillaM && stack.isHumanoid(layer.engine)));
+        this.shouldRenderWear = !layer.noRenderArmWearList.contains(stack.location()) && (stack.isEmpty() || !AAConfig.disableArmWear || layer.renderArmWearList.contains(stack.location()) || (AAConfig.enableArmWearWithVanillaM && stack.isHumanoid(layer.engine)));
     }
 
     @Override

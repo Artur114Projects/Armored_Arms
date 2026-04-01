@@ -43,6 +43,7 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
 
     @SuppressWarnings("unchecked")
     public <T extends Item & GeoItem> void render(PoseStack pPoseStack, MultiBufferSource multiBuffer, ItemStackAA stack, EnumHandSideAA side, int pPackedLight, int pPackedOverlay) {
+        if (stack.isEmpty()) return;
         T t = (T) stack.item();
         GeoArmorRenderer<T> model = (GeoArmorRenderer<T>) this.mg;
         BakedGeoModel baked = model.getGeoModel().getBakedModel(model.getGeoModel().getModelResource(t, model));
