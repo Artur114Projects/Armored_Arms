@@ -6,7 +6,8 @@ import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelContainerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelRendererPlayer;
-import com.artur114.armoredarms.client.util.AAItemStack;
+import com.artur114.armoredarms.client.util.ItemStackAA;
+import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.AbstractHandRenderLayer;
@@ -17,34 +18,49 @@ import com.artur114.armoredarms.core.util.ShapelessLocation;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.model.ModelPlayer;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 
+import java.util.Collections;
 import java.util.List;
 
-//TODO: Сделать обработку невидимости
-public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, AAItemStack, AbstractRenderEngineForge<?, ?>> {
+public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, ItemStackAA, AbstractRenderEngineForge<?, ?>> {
+    private final ModelRenderer[] actualPlayerHands = new ModelRenderer[2];
     public final Minecraft mc = Minecraft.getMinecraft();
     public RenderPlayer renderPlayer = null;
 
     @Override
     public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
         super.init(engine, mod);
-        this.renderPlayer = (RenderPlayer) engine.mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(engine.mc.player);
+        this.updatePlayerRenderData();
     }
 
     @Override
-    public AAItemStack currentChestPlate() {
-        return AAItemStack.chestPlate(this.mc.player);
+    public void tryRender(AbstractRenderEngineForge<?, ?> engine, EnumHandSideAA handSide) {
+        if (this.mc.player != null && this.mc.player.isInvisible()) return;
+        this.updatePlayerRenderData();
+        super.tryRender(engine, handSide);
     }
 
     @Override
-    public AAItemStack emptyStack() {
-        return AAItemStack.EMPTY;
+    public ItemStackAA currentChestPlate() {
+        return ItemStackAA.chestPlate(this.mc.player);
+    }
+
+    @Override
+    public ItemStackAA emptyStack() {
+        return ItemStackAA.EMPTY;
     }
 
     @Override
     public List<ShapelessLocation> initRenderWearList() {
         return AAConfig.Baked.renderWearList;
+    }
+
+    @Override
+    public List<ShapelessLocation> initNoRenderWearList() {
+        return AAConfig.Baked.noRenderWearList;
     }
 
     @Override
@@ -61,6 +77,19 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
         event.registerContainer(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
         this.mod.post(event);
         return event.containers();
+    }
+
+    public ModelRenderer[] actualPlayerHands() {
+        return this.actualPlayerHands;
+    }
+
+    private void updatePlayerRenderData() {
+        RenderPlayer renderPlayer = ((RenderPlayer) this.mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(this.mc.player));
+        if (renderPlayer == null) return;
+        ModelPlayer player = renderPlayer.getMainModel();
+        this.actualPlayerHands[0] = player.bipedLeftArm;
+        this.actualPlayerHands[1] = player.bipedRightArm;
+        this.renderPlayer = renderPlayer;
     }
 
     @Override

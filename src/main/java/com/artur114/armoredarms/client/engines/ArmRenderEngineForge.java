@@ -61,7 +61,22 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
 
     @Override
     public void render(ArmRenderPipelineForge context) {
-        RenderHandEvent e = context.renderContext;
+        this.renderHand(context.renderContext);
+    }
+
+    @Override
+    public void tick(ArmRenderPipelineForge context) {
+        this.render = this.updateAllLayers();
+    }
+
+    public void renderArm(EnumHandSide handSide) {
+        this.renderAllLayers(AAUtils.fromMc(handSide));
+    }
+
+    /*----------------------------------------------GOD_ENDS_HERE----------------------------------------------*/
+    /*----------------------------------------MINECRAFT_SHIT_CODE_START----------------------------------------*/
+
+    private void renderHand(RenderHandEvent e) {
         boolean flag = this.mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)this.mc.getRenderViewEntity()).isPlayerSleeping();
         boolean flag1 = this.itemRenderer.itemStackMainHand.isEmpty() || this.itemRenderer.itemStackMainHand.getItem() instanceof ItemMap || this.itemRenderer.itemStackOffHand.getItem() instanceof ItemMap;
         if (flag1 && this.mc.gameSettings.thirdPersonView == 0 && !flag && !this.mc.gameSettings.hideGUI && !this.mc.playerController.isSpectator()) {
@@ -71,44 +86,6 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
             e.setCanceled(true);
         }
     }
-
-    @Override
-    public void tick(ArmRenderPipelineForge context) {
-        boolean render = false;
-
-        for (IArmRenderLayer<ArmRenderEngineForge> layer : this.sortedLayers) {
-
-            try {
-                layer.update(this);
-            } catch (RenderException rm) {
-                throw rm;
-            } catch (Throwable tr) {
-                throw new RenderException(tr).setComponent(layer);
-            }
-
-            render |= layer.needRender(this, render);
-        }
-
-        this.render = render;
-    }
-
-    public void renderArm(EnumHandSide handSide) {
-        for (IArmRenderLayer<ArmRenderEngineForge> layer : this.sortedLayers) {
-            if (layer.needRender(this, this.render)) {
-                try {
-                    if (!this.mod.post(new ArmLayerRenderingEvent(layer, AAUtils.fromMc(handSide)))) {
-                        layer.render(this, AAUtils.fromMc(handSide));
-                    }
-                } catch (RenderException rm) {
-                    throw rm;
-                } catch (Throwable tr) {
-                    throw new RenderException(tr).setComponent(layer);
-                }
-            }
-        }
-    }
-
-    /*----------------------------------------MINECRAFT_SHIT_CODE_START----------------------------------------*/
 
     private void transformSideFirstPerson(EnumHandSide hand, float p_187459_2_)
     {

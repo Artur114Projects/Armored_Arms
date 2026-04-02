@@ -1,7 +1,7 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
-import com.artur114.armoredarms.client.util.AAItemStack;
+import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.TextureEnchant;
 import com.artur114.armoredarms.client.util.TextureRL;
 import com.artur114.armoredarms.client.util.TextureRLRGB;
@@ -34,7 +34,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     public AbstractClientPlayer player = null;
     public LayerBipedArmor armorLayer = null;
     public IMultiTexture texture = null;
-    public AAItemStack stack = null;
+    public ItemStackAA stack = null;
     public ModelBiped model = null;
 
     @Override
@@ -55,6 +55,12 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         this.player = null;
         this.stack = null;
     }
+
+    @Override
+    public void load(ArmRenderLayerArmor layer) {}
+
+    @Override
+    public void unload(ArmRenderLayerArmor layer) {}
 
     @Override
     public IArmModelRenderer<ArmModelManagerArmor> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> container) {
@@ -96,7 +102,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         }
     }
 
-    public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, AAItemStack stack) {
+    public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, ItemStackAA stack) {
         ResourceLocation armor = armorLayer.getArmorResource(player, stack.stack(), EntityEquipmentSlot.CHEST, null);
         ResourceLocation overlay = null;
         if (stack.item().hasOverlay(stack.stack())) overlay = armorLayer.getArmorResource(player, stack.stack(), EntityEquipmentSlot.CHEST, "overlay");
@@ -112,7 +118,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         return new MultiTexture(textures);
     }
 
-    public ModelBiped model(AbstractClientPlayer player, AAItemStack stack) {
+    public ModelBiped model(AbstractClientPlayer player, ItemStackAA stack) {
         if (this.modelSize != AAConfig.vanillaArmorModelSize) {
             this.defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
             this.modelSize = AAConfig.vanillaArmorModelSize;

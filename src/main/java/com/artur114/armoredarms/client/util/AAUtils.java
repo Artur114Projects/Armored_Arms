@@ -1,7 +1,10 @@
 package com.artur114.armoredarms.client.util;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
@@ -78,8 +81,22 @@ public class AAUtils {
     }
 
     public static ModelRenderer[] playerArms() {
-        ModelPlayer player = ((RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(Minecraft.getMinecraft().player)).getMainModel();
-        return new ModelRenderer[] {player.bipedLeftArm, player.bipedRightArm};
+        if (Minecraft.getMinecraft().player == null) {
+            throw new IllegalStateException("Unable to get playerArms before the player loads!");
+        }
+        ArmRenderLayerHand layer = null;
+
+        try {
+            layer = ArmoredArmsApi.currentPipeline().engine().layer(ArmRenderLayerHand.class);
+        } catch (Exception ignored) {}
+
+        if (layer != null) {
+            return layer.actualPlayerHands();
+        } else {
+            ArmoredArms.LOGGER.AA_LOG.warn("ArmRenderLayerHand is null! Can't get safe playerArms!");
+            ModelPlayer player = ((RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(Minecraft.getMinecraft().player)).getMainModel();
+            return new ModelRenderer[] {player.bipedLeftArm, player.bipedRightArm};
+        }
     }
 
     public static void setPlayerArmDataToArm(ModelRenderer arm, ModelRenderer playerArm) {

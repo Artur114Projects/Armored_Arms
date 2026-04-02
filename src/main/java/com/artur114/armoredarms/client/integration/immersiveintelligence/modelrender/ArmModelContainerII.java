@@ -3,7 +3,7 @@ package com.artur114.armoredarms.client.integration.immersiveintelligence.modelr
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
-import com.artur114.armoredarms.client.util.AAItemStack;
+import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.TextureRL;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
@@ -30,7 +30,7 @@ public class ArmModelContainerII implements IArmModelRenderContainer<ArmRenderLa
         return new ArmModelRendererArmor(manager.model, manager.texture);
     }
 
-    public IMultiTexture textures(ArmModelManagerArmor manager, AAItemStack stack) {
+    public IMultiTexture textures(ArmModelManagerArmor manager, ItemStackAA stack) {
         String s = IISkinHandler.getCurrentSkin(stack.stack());
         List<ITexture> textures = manager.newTextureList();
         boolean flag = false;

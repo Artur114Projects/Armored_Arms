@@ -19,7 +19,7 @@ import java.util.Map;
 public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRenderEngineCleanRoom, ArmRenderPipelineCleanRoom>{
     @Override
     protected Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers() {
-        InitRenderLayersEvent event = new InitRenderLayersEvent(ArmRenderEngineForge.class, this.mod);
+        InitRenderLayersEvent event = new InitRenderLayersEvent(ArmRenderEngineCleanRoom.class, this.mod);
         event.registerLayer(ArmRenderLayerArmor.class);
         event.registerLayer(ArmRenderLayerHand.class);
         this.mod.post(event);
@@ -28,20 +28,8 @@ public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRende
 
     @Override
     public void render(ArmRenderPipelineCleanRoom context) {
-        EnumHandSideAA handSide = AAUtils.fromMc(context.renderContext.getArm());
-        for (IArmRenderLayer<ArmRenderEngineCleanRoom> layer : this.sortedLayers) {
-            if (layer.needRender(this, this.render)) {
-                try {
-                    if (!this.mod.post(new ArmLayerRenderingEvent(layer, handSide))) {
-                        layer.render(this, handSide);
-                    }
-                } catch (RenderException rm) {
-                    throw rm;
-                } catch (Throwable tr) {
-                    throw new RenderException(tr).setComponent(layer);
-                }
-            }
-        }
+        this.renderAllLayers(AAUtils.fromMc(context.renderContext.getArm()));
+
         if (!this.sortedLayers.isEmpty()) {
             context.renderContext.setCanceled(true);
         }
@@ -49,22 +37,7 @@ public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRende
 
     @Override
     public void tick(ArmRenderPipelineCleanRoom context) {
-        boolean render = false;
-
-        for (IArmRenderLayer<ArmRenderEngineCleanRoom> layer : this.sortedLayers) {
-
-            try {
-                layer.update(this);
-            } catch (RenderException rm) {
-                throw rm;
-            } catch (Throwable tr) {
-                throw new RenderException(tr).setComponent(layer);
-            }
-
-            render |= layer.needRender(this, render);
-        }
-
-        this.render = render;
+        this.render = this.updateAllLayers();
     }
 
     @Override
@@ -74,6 +47,6 @@ public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRende
 
     @Override
     public IPriority priority() {
-        return Priority.HIGH;
+        return Priority.NORMAL;
     }
 }

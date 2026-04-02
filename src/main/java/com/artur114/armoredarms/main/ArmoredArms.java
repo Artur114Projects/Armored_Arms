@@ -24,8 +24,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-// TODO Доделать логирование ошибок
-// TODO Сделать ArmoredArmsApi
 @Mod(modid = ArmoredArms.MODID, useMetadata = true, clientSideOnly = true)
 public class ArmoredArms implements IAAModContainer {
     public static final LoggingManager LOGGER = new LoggingManager();
@@ -46,21 +44,27 @@ public class ArmoredArms implements IAAModContainer {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        if (!this.post(new InitRenderPipelineEvent(this))) {
-            pipeline = RenderPipelines.pickUpAndRegister(this);
-        }
+        try {
+            AAConfig.init();
 
-        if (isPipelineLoaded()) {
-            LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
-            LOGGER.AA_LOG.info("   Pipeline: {}", pipeline.getClass());
-        } else {
-            IArmRenderPipeline<?> pipeline = RenderPipelines.pickUp(this);
-            LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!");
-            LOGGER.AA_LOG.fatal("   Try to pick up pipeline: {}", pipeline);
-            LOGGER.AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(this, pipeline.clazz()));
-        }
+            if (!this.post(new InitRenderPipelineEvent(this))) {
+                pipeline = RenderPipelines.pickUpAndRegister(this);
+            }
 
-        AAConfig.init();
+            if (isPipelineLoaded()) {
+                LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
+                LOGGER.AA_LOG.info("   Pipeline: {}", pipeline.getClass());
+            } else {
+                IArmRenderPipeline<?> pipeline = RenderPipelines.pickUp(this);
+                LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!");
+                LOGGER.AA_LOG.fatal("   Try to pick up pipeline: {}", pipeline);
+                if (pipeline != null) {
+                    LOGGER.AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(this, pipeline.clazz()));
+                }
+            }
+        } catch (Exception ex) {
+            LogManager.getLogger("ARMOREDARMS").fatal("An error occurred during initialization", ex);
+        }
     }
 
     @Override
@@ -84,15 +88,15 @@ public class ArmoredArms implements IAAModContainer {
     }
 
     @Override
+    public AbstractLoggingManager logger() {
+        return LOGGER;
+    }
+
+    @Override
     public boolean post(Object event) {
         if (event instanceof Event) {
             return MinecraftForge.EVENT_BUS.post((Event) event);
         }
         return false;
-    }
-
-    @Override
-    public Logger logger(String name) {
-        return LOGGER.logger(name);
     }
 }

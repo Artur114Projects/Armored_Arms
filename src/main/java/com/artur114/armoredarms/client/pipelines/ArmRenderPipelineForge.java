@@ -8,6 +8,7 @@ import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
 import com.artur114.armoredarms.core.util.EnumExceptionType;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.RenderException;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -52,11 +53,11 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
         if (this.initTick) {
             try {
-                this.init(); this.initTick = false;
+                this.init();
             } catch (RenderException re) {
-                this.mod.processException(re.setType(EnumExceptionType.FATAL)); //TODO: Сделать по нормальному
+                this.mod.processException(re); return;
             } catch (Throwable exp) {
-                this.mod.processException(new RenderException(exp).setComponent(this).setType(EnumExceptionType.FATAL));
+                this.mod.processException(new RenderException(exp).setComponent(this).setType(EnumExceptionType.FATAL)); return;
             }
         }
 
@@ -74,6 +75,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
     }
 
     public void init() {
+        this.initTick = false;
         this.engine.init(this, mod);
     }
 
@@ -84,7 +86,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
     @Override
     public boolean canWork(IAAModContainer mod) {
-        return true;
+        return AAConfig.Baked.pipelinesPriority.containsKey(this.clazz());
     }
 
     @Override
@@ -104,6 +106,6 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
     @Override
     public IPriority priority() {
-        return EnumMods.CYBERWARE.isLoaded() ? Priority.HIGHEST : Priority.NORMAL;
+        return AAConfig.Baked.pipelinesPriority.get(this.clazz());
     }
 }

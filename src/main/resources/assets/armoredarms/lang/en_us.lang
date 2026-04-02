@@ -1,13 +1,15 @@
 armoredarms.cfg.disableArmWear=Disable rendering of arm wear with armor equipped
 armoredarms.cfg.renderBlackList=Blacklist of armor for rendering
 armoredarms.cfg.renderArmWearList=List of armors that require arm wear render
+armoredarms.cfg.noRenderArmWearList=List of armors that require disable arm wear render
+armoredarms.cfg.renderSourcesPriority=Render sources priority
 armoredarms.cfg.vanillaArmorModelSize=Vanilla armor model size
 armoredarms.cfg.useCheckByItem=Use check by item
 armoredarms.cfg.enableArmWearWithVanillaM=Enable rendering arm wear for vanilla armor model
 ##
-armoredarms.error=An error occurred while the rendering component: %1$s was running!//////The component will be disabled. Details: /exp/
-armoredarms.error.warn=An exception occurred while the rendering component: %1$s was running.//////Details: /exp/
-armoredarms.error.fatal=A fatal error occurred while the rendering component: %1$s was running!//////The mod will be disabled. Details: /exp/
+armoredarms.error=An error occurred while the rendering component: //////%1$s was running!//////The component will be disabled. Details: /exp/
+armoredarms.error.warn=An exception occurred while the rendering component: //////%1$s was running.//////Details: /exp/
+armoredarms.error.fatal=A fatal error occurred while the rendering component: //////%1$s was running!//////The mod will be disabled. Details: /exp/
 
 armoredarms.layer=Render layer: %1$s
 armoredarms.engine=Rendering Engine: %1$s
@@ -15,17 +17,6 @@ armoredarms.pipeline=Render Pipeline: %1$s
 armoredarms.model-manager=Model Manager: %1$s
 armoredarms.unknown-component=Component:%2$s Class:%1$s
 armoredarms.null-component=Component is missing...
-
-armoredarms.model-manager.def=Default Model Manager
-
-armoredarms.engine.forge=Rendering engine for forge
-armoredarms.engine.cleanroom=Rendering engine for cleanroom
-
-armoredarms.pipeline.forge=Rendering pipeline for forge
-armoredarms.pipeline.cleanroom=Render pipeline for cleanroom
-
-armoredarms.layer.hand=Hand render layer
-armoredarms.layer.armor=Armor render layer
 
 armoredarms.error.layer.armor.render=An error occurred while trying to render! The armor is blacklisted and will not be rendered! Details:
 armoredarms.error.layer.armor.update=An error occurred while trying to update! The armor is blacklisted and will not be rendered! Details:

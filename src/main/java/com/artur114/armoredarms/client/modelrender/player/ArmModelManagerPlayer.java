@@ -1,7 +1,7 @@
 package com.artur114.armoredarms.client.modelrender.player;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
-import com.artur114.armoredarms.client.util.AAItemStack;
+import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
@@ -16,7 +16,7 @@ import net.minecraft.util.ResourceLocation;
 public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPlayer, ArmRenderLayerHand> {
     protected boolean deactivated = false;
     public final Minecraft mc = Minecraft.getMinecraft();
-    public AAItemStack chestPlate =AAItemStack.EMPTY;
+    public ItemStackAA chestPlate = ItemStackAA.EMPTY;
     public ResourceLocation playerSkin;
     public RenderPlayer renderPlayer;
     public boolean shouldRenderWear;
@@ -43,6 +43,12 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
         this.renderPlayer = null;
         this.chestPlate = null;
     }
+
+    @Override
+    public void load(ArmRenderLayerHand layer) {}
+
+    @Override
+    public void unload(ArmRenderLayerHand layer) {}
 
     @Override
     public IArmModelRenderer<ArmModelManagerPlayer> cacheRenderer(ArmRenderLayerHand layer, IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> container) {

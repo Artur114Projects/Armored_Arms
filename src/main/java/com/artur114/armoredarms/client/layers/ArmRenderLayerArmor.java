@@ -6,7 +6,7 @@ import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
-import com.artur114.armoredarms.client.util.AAItemStack;
+import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.AbstractArmorRenderLayer;
@@ -24,7 +24,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, AAItemStack, AbstractRenderEngineForge<?, ?>> {
+public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayerArmor, ItemStackAA, AbstractRenderEngineForge<?, ?>> {
     public List<LayerRenderer<AbstractClientPlayer>> layerRenderers = null;
     public final Minecraft mc = Minecraft.getMinecraft();
     public LayerBipedArmor armorLayer = null;
@@ -32,8 +32,8 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
 
     @Override
-    public AAItemStack currentChestPlate() {
-        return AAItemStack.chestPlate(this.mc.player);
+    public ItemStackAA currentChestPlate() {
+        return ItemStackAA.chestPlate(this.mc.player);
     }
 
     @Override
@@ -42,8 +42,8 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
     }
 
     @Override
-    public AAItemStack emptyStack() {
-        return AAItemStack.EMPTY;
+    public ItemStackAA emptyStack() {
+        return ItemStackAA.EMPTY;
     }
 
     @Override

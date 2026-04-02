@@ -3,7 +3,7 @@ package com.artur114.armoredarms.client.integration.hbm.modelrender;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
-import com.artur114.armoredarms.client.util.AAItemStack;
+import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.TextureEnchant;
 import com.artur114.armoredarms.client.util.TextureRL;
 import com.artur114.armoredarms.client.util.TextureRLRGB;
@@ -63,7 +63,7 @@ public class ArmModelContainerHBM implements IArmModelRenderContainer<ArmRenderL
         return null;
     }
 
-    public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, AAItemStack stack) {
+    public IMultiTexture textures(AbstractClientPlayer player, LayerBipedArmor armorLayer, ItemStackAA stack) {
         ResourceLocation overlay = null;
         ResourceLocation armor;
         if (this.texture.equals("item")) {
