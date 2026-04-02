@@ -24,7 +24,7 @@ public interface IAbstractGrabLayersEvent<E extends IArmRenderEngine<?>> {
     }
     @SuppressWarnings("unchecked")
     default boolean registerLayer(Class<? extends IArmRenderLayer<?>> clazz) {
-        Logger logger = mod().logger("ARMOREDARMS-CORE");
+        Logger logger = mod().logger().namedLogger("ARMOREDARMS-CORE");
         try {
             IArmRenderLayer<?> layer = clazz.newInstance();
             if (layer.targetEngine().isAssignableFrom(this.engine())) {

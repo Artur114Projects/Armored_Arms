@@ -56,7 +56,7 @@ public class RenderException extends RuntimeException {
         this.messageForPlayer = messageForPlayer; return this;
     }
 
-    private void processCause(Throwable cause) {
+    protected void processCause(Throwable cause) {
         if (cause instanceof RenderException) {
             this.type = this.nonNull(((RenderException) cause).type, this.type);
             this.messageForPlayer = this.nonNull(((RenderException) cause).messageForPlayer, this.messageForPlayer);
@@ -64,7 +64,7 @@ public class RenderException extends RuntimeException {
         }
     }
 
-    private <T> T nonNull(T t1, T t2) {
+    protected <T> T nonNull(T t1, T t2) {
         if (t1 == null) {
             return t2;
         }

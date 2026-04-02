@@ -14,6 +14,6 @@ public interface IAAModContainer {
     Collection<IArmRenderEngine<?>> defaultEngines();
     void processException(RenderException exp);
     boolean isModLoaded(String modId);
+    AbstractLoggingManager logger();
     boolean post(Object event);
-    Logger logger(String name);
 }

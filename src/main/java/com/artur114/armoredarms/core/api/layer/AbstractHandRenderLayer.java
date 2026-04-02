@@ -16,6 +16,7 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
     public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> renderContainers;
     public IArmModelRenderContainer<I, IArmModelManager<?, I>> lastContainer;
     public IArmModelRenderer<IArmModelManager<?, I>> model;
+    public List<ShapelessLocation> noRenderArmWearList;
     public List<ShapelessLocation> renderArmWearList;
     public S currentChestPlate = this.emptyStack();
     public IArmModelManager<?, I> modelManager;
@@ -96,13 +97,14 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
     public abstract S currentChestPlate();
     public abstract S emptyStack();
 
-    public abstract List<ShapelessLocation> initRenderWearList(); // TODO: Сделать noRenderWearList
+    public abstract List<ShapelessLocation> initRenderWearList();
+    public abstract List<ShapelessLocation> initNoRenderWearList();
     public abstract List<IArmModelManager<?, ?>> initModelManager();
     public abstract List<IArmModelRenderContainer<?, ?>> initRenderContainers();
 
     @SuppressWarnings("unchecked")
     public IArmModelManager<?, I> castModelManagers(List<IArmModelManager<?, ?>> list) {
-        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
         for (IArmModelManager<?, ?> manager : CoreUtils.sortPrioritisedList(list)) {
@@ -129,7 +131,7 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
     public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castRenderContainers(List<IArmModelRenderContainer<?, ?>> list) {
         List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ArrayList<>(list.size());
 
-        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
         for (IArmModelRenderContainer<?, ?> container : list) {
@@ -154,6 +156,7 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
         this.mod = mod;
 
         this.renderArmWearList = this.initRenderWearList();
+        this.noRenderArmWearList = this.initNoRenderWearList();
         this.modelManager = this.castModelManagers(this.initModelManager());
         this.renderContainers = this.castRenderContainers(this.initRenderContainers());
 
@@ -177,7 +180,7 @@ public abstract class AbstractHandRenderLayer<I extends AbstractHandRenderLayer<
         }
 
         if (this.model == null && this.lastContainer != container) {
-            Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+            Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
             loggerCore.warn("Could not find a suitable render container!");
             loggerCore.warn("   Layer: {}", this);
             loggerCore.warn("   Engine: {}", engine);

@@ -44,8 +44,6 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
         try {
             this.tryTick(engine);
-        } catch (RenderException rm) {
-            throw rm;
         } catch (Throwable t) {
             this.processException(t);
             throw new RenderException(t).setComponent(this).setMessageForPlayer(this.messageForPlayer("update")).setType(EnumExceptionType.WARN);
@@ -60,8 +58,6 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
 
         try {
             this.tryRender(engine, handSide);
-        } catch (RenderException rm) {
-            throw rm;
         } catch (Throwable t) {
             this.processException(t);
             throw new RenderException(t).setComponent(this).setMessageForPlayer(this.messageForPlayer("render")).setType(EnumExceptionType.WARN);
@@ -127,7 +123,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     public List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castDynamicContainers(List<SLContainer<IArmModelRenderContainer<?, ?>>> list) {
         List<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ArrayList<>(list.size());
 
-        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
         for (SLContainer<IArmModelRenderContainer<?, ?>> entry : list) {
@@ -152,7 +148,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     @SuppressWarnings("unchecked")
     public ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> castContainers(List<SLContainer<IArmModelRenderContainer<?, ?>>> list) {
         ShapelessLocationMap<IArmModelRenderContainer<I, IArmModelManager<?, I>>> ret = new ShapelessLocationMap<>();
-        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
         for (SLContainer<IArmModelRenderContainer<?, ?>> entry : CoreUtils.sortPrioritisedList(list, (v) -> v.value.priority())) {
@@ -179,7 +175,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     @SuppressWarnings("unchecked")
     public ShapelessLocationMap<IArmModelManager<?, I>> castModelManagers(List<SLContainer<IArmModelManager<?, ?>>> list) {
         ShapelessLocationMap<IArmModelManager<?, I>> ret = new ShapelessLocationMap<>();
-        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
         Class<?> clazz = this.getClass();
 
         SLContainer<IArmModelManager<?, ?>> absoluteEntry = null;
@@ -259,7 +255,7 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
         this.modelManager = this.pickUpModelManager(chestPlate.location());
         this.model = this.cacheRenderer(this.modelManager, chestPlate.location());
 
-        Logger loggerCore = this.mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
         if (this.modelManager == null || this.model == null) {
             loggerCore.warn("Could not find a suitable render components!");
             loggerCore.warn("   Layer: {}", this);

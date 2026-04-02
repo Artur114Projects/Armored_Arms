@@ -23,7 +23,7 @@ public interface IAbstractGrabModelManagersEvent {
         return this.registerManager(manager, ShapelessLocation.location(modId, itemId));
     }
     default boolean registerManager(IArmModelManager<?, ?> manager, ShapelessLocation location) {
-        Logger logger = mod().logger("ARMOREDARMS-CORE");
+        Logger logger = mod().logger().namedLogger("ARMOREDARMS-CORE");
         try {
             if (manager.targetLayer().isAssignableFrom(this.layer())) {
                 if (this.managersSL() != null && !location.isEmpty()) {

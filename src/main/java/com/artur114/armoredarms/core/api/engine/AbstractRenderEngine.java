@@ -3,11 +3,10 @@ package com.artur114.armoredarms.core.api.engine;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
-import com.artur114.armoredarms.core.util.CoreUtils;
-import com.artur114.armoredarms.core.util.IAAModContainer;
-import com.artur114.armoredarms.core.util.RenderException;
+import com.artur114.armoredarms.core.util.*;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         this.mod = mod;
 
         Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> rawLayers = this.initLayers();
-        Logger loggerCore = mod.logger("ARMOREDARMS-CORE");
+        Logger loggerCore = mod.logger().namedLogger("ARMOREDARMS-CORE");
         this.layerMap = new HashMap<>();
         Class<?> clazz = this.getClass();
 
@@ -54,14 +53,20 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         }
         loggerCore.info("   -end|");
 
+        List<RenderException> died = new ArrayList<>();
+
         for (IArmRenderLayer<E> layer : this.sortedLayers) {
             try {
                 layer.init((E) this, mod);
             } catch (RenderException rm) {
-                throw rm;
+                died.add(rm);
             } catch (Throwable t) {
-                throw new RenderException(t).setComponent(layer);
+                died.add(new RenderException(t).setComponent(layer));
             }
+        }
+
+        if (!died.isEmpty()) {
+            throw new RenderExceptionMulti(died);
         }
     }
 

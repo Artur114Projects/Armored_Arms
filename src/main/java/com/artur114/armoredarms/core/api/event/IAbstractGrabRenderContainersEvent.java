@@ -24,7 +24,7 @@ public interface IAbstractGrabRenderContainersEvent {
         return this.registerContainer(container, ShapelessLocation.location(modId, itemId));
     }
     default boolean registerContainer(IArmModelRenderContainer<?, ?> container, ShapelessLocation location) {
-        Logger logger = mod().logger("ARMOREDARMS-CORE");
+        Logger logger = mod().logger().namedLogger("ARMOREDARMS-CORE");
         try {
             if (container.targetLayer().isAssignableFrom(this.layer())) {
                 if (this.containersSL() != null && !location.isEmpty()) {
