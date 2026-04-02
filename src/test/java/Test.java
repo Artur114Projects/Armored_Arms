@@ -1,12 +1,7 @@
-import com.artur114.armoredarms.client.util.ShapelessRL;
 //import com.hbm.render.model.ModelArmorAJR;
 //import com.hbm.render.model.ModelB92;
 //import net.machinemuse.powersuits.client.model.item.armor.HighPolyArmor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class Test {
     public static void main(String[] args) {
