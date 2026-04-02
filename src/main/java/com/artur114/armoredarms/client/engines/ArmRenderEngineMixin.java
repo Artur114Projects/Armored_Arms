@@ -5,22 +5,20 @@ import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineCleanRoom;
-import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
-import com.artur114.armoredarms.core.util.RenderException;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.util.Collections;
 import java.util.Map;
 
-public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRenderEngineCleanRoom, ArmRenderPipelineCleanRoom>{
+public class ArmRenderEngineMixin extends AbstractRenderEngineForge<ArmRenderEngineMixin, ArmRenderPipelineMixin>{
     @Override
     protected Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers() {
-        InitRenderLayersEvent event = new InitRenderLayersEvent(ArmRenderEngineCleanRoom.class, this.mod);
+        InitRenderLayersEvent event = new InitRenderLayersEvent(ArmRenderEngineMixin.class, this.mod);
         event.registerLayer(ArmRenderLayerArmor.class);
         event.registerLayer(ArmRenderLayerHand.class);
         this.mod.post(event);
@@ -28,13 +26,13 @@ public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRende
     }
 
     @Override
-    public boolean onLayerRendering(IArmRenderLayer<ArmRenderEngineCleanRoom> layer, EnumHandSideAA side) {
+    public boolean onLayerRendering(IArmRenderLayer<ArmRenderEngineMixin> layer, EnumHandSideAA side) {
         return !MinecraftForge.EVENT_BUS.post(new ArmLayerRenderingEvent(layer, side));
     }
 
     @Override
-    public void render(ArmRenderPipelineCleanRoom context) {
-        this.renderAllLayers(AAUtils.fromMc(context.renderContext.getArm()));
+    public void render(ArmRenderPipelineMixin context) {
+        this.renderAllLayers(context.renderContext.armSide());
 
         if (!this.sortedLayers.isEmpty()) {
             context.renderContext.setCanceled(true);
@@ -42,13 +40,13 @@ public class ArmRenderEngineCleanRoom extends AbstractRenderEngineForge<ArmRende
     }
 
     @Override
-    public void tick(ArmRenderPipelineCleanRoom context) {
+    public void tick(ArmRenderPipelineMixin context) {
         this.render = this.updateAllLayers();
     }
 
     @Override
-    public Class<ArmRenderPipelineCleanRoom> targetPipeline() {
-        return ArmRenderPipelineCleanRoom.class;
+    public Class<ArmRenderPipelineMixin> targetPipeline() {
+        return ArmRenderPipelineMixin.class;
     }
 
     @Override

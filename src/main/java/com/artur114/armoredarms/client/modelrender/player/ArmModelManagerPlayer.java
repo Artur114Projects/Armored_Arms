@@ -27,7 +27,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
             return;
         }
         this.playerSkin = layer.mc.player.getLocationSkin();
-        this.shouldRenderWear = !AAConfig.disableArmWear || layer.renderArmWearList.contains(layer.currentChestPlate.location()) || (AAConfig.enableArmWearWithVanillaM && layer.currentChestPlate.isBiped());
+        this.shouldRenderWear = !layer.noRenderArmWearList.contains(layer.currentChestPlate.location()) && (!AAConfig.disableArmWear || layer.renderArmWearList.contains(layer.currentChestPlate.location()) || (AAConfig.enableArmWearWithVanillaM && layer.currentChestPlate.isBiped()));
     }
 
     @Override

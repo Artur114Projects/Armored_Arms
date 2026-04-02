@@ -33,6 +33,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.HashMap;
@@ -50,13 +51,8 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
     }
 
     @Override
-    public Class<ArmRenderPipelineForge> targetPipeline() {
-        return ArmRenderPipelineForge.class;
-    }
-
-    @Override
-    public IPriority priority() {
-        return Priority.NORMAL;
+    public boolean onLayerRendering(IArmRenderLayer<ArmRenderEngineForge> layer, EnumHandSideAA side) {
+        return !MinecraftForge.EVENT_BUS.post(new ArmLayerRenderingEvent(layer, side));
     }
 
     @Override
@@ -71,6 +67,16 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
 
     public void renderArm(EnumHandSide handSide) {
         this.renderAllLayers(AAUtils.fromMc(handSide));
+    }
+
+    @Override
+    public Class<ArmRenderPipelineForge> targetPipeline() {
+        return ArmRenderPipelineForge.class;
+    }
+
+    @Override
+    public IPriority priority() {
+        return Priority.NORMAL;
     }
 
     /*----------------------------------------------GOD_ENDS_HERE----------------------------------------------*/

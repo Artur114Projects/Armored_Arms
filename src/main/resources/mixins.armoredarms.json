@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.7.11",
+  "compatibilityLevel": "JAVA_8",
+  "package": "com.artur114.armoredarms.client.mixin.impl",
+  "refmap": "mixins.armoredarms.refmap.json",
+  "mixins": [],
+  "client": ["RenderPlayerMixin"],
+  "server": []
+}

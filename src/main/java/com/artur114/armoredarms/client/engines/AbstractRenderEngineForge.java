@@ -21,10 +21,6 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngineFo
     public final Minecraft mc = Minecraft.getMinecraft();
     public ItemRenderer itemRenderer = null;
     public RenderItem renderItem = null;
-    public boolean deactivated = false;
-    public boolean render = false;
-    public IAAModContainer mod = null;
-    public P pipeline = null;;
 
     @Override
     public void init(P context, IAAModContainer mod) {
@@ -36,40 +32,9 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngineFo
     }
 
     @Override
-    public void tryRender(P context) {
-        if (this.deactivated || !this.render) {
-            return;
-        }
-
-        this.render(context);
-    }
-
-    @Override
-    public void tryTick(P context) {
-        if (this.deactivated) {
-            return;
-        }
-
-        this.tick(context);
-    }
-
-    @Override
     public boolean canWork(IAAModContainer mod) {
         return true;
     }
-
-    @Override
-    public void deactivate() {
-        this.deactivated = true;
-    }
-
-    @Override
-    public boolean isDeactivated() {
-        return this.deactivated;
-    }
-
-    public abstract void render(P context);
-    public abstract void tick(P context);
 
     @SuppressWarnings("unchecked")
     public static Class<AbstractRenderEngineForge<?, ?>> clazz() {

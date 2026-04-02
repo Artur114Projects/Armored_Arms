@@ -2,6 +2,7 @@ package com.artur114.armoredarms.main;
 
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineCleanRoom;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.client.util.GenericPriority;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
@@ -37,9 +38,9 @@ public class AAConfig {
     public static String[] noRenderArmWearList = new String[0];
 
     @Config.RequiresMcRestart
-    @Config.Comment(value = {"Different sources can work differently, choose the one that works better", "The higher the source is on the list, the higher its priority", "Deleting a render source will prevent it from working", "Changes are applied after restarting the game", "[event] - Standard rendering source, сan always work", "[clean_room] - Additional rendering source, can work if the mod is running on the cleanroom loader"})
+    @Config.Comment(value = {"Different sources can work differently, choose the one that works better", "The higher the source is on the list, the higher its priority", "Deleting a render source will prevent it from working", "Changes are applied after restarting the game", "[event] - Standard rendering source, сan always work", "[clean_room] - Additional rendering source, can work if the mod is running on the cleanroom mod loader", "[mixin] - Additional rendering source, can work if mixins loader is installed"})
     @Config.LangKey("armoredarms.cfg.renderSourcesPriority")
-    public static String[] renderSourcesPriority = new String[] {"clean_room", "event"};
+    public static String[] renderSourcesPriority = new String[] {"clean_room", "mixin", "event"};
 
     @Config.RangeDouble(min = 0.0D, max = 10.0D)
     @Config.LangKey("armoredarms.cfg.vanillaArmorModelSize")
@@ -90,6 +91,7 @@ public class AAConfig {
         private static Class<? extends IArmRenderPipeline<?>> classFromId(String id) {
             switch (id) {
                 case "event": return ArmRenderPipelineForge.class;
+                case "mixin": return ArmRenderPipelineMixin.class;
                 case "clean_room": return ArmRenderPipelineCleanRoom.class;
                 default: return null;
             }

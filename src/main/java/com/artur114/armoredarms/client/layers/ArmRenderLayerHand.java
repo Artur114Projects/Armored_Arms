@@ -32,13 +32,13 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
 
     @Override
     public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
-        super.init(engine, mod);
         this.updatePlayerRenderData();
+        super.init(engine, mod);
     }
 
     @Override
     public void tryRender(AbstractRenderEngineForge<?, ?> engine, EnumHandSideAA handSide) {
-        if (this.mc.player != null && this.mc.player.isInvisible()) return;
+        if (this.mc.player.isInvisible()) return;
         this.updatePlayerRenderData();
         super.tryRender(engine, handSide);
     }

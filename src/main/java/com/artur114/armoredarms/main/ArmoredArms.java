@@ -3,8 +3,10 @@ package com.artur114.armoredarms.main;
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineCleanRoom;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.engines.ArmRenderEngineMixin;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineCleanRoom;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.core.api.IArmRenderComponent;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
@@ -69,12 +71,12 @@ public class ArmoredArms implements IAAModContainer {
 
     @Override
     public Collection<IArmRenderPipeline<?>> defaultPipelines() {
-        return Arrays.asList(new ArmRenderPipelineForge(), new ArmRenderPipelineCleanRoom());
+        return Arrays.asList(new ArmRenderPipelineForge(), new ArmRenderPipelineCleanRoom(), new ArmRenderPipelineMixin());
     }
 
     @Override
     public Collection<IArmRenderEngine<?>> defaultEngines() {
-        return Arrays.asList(new ArmRenderEngineForge(), new ArmRenderEngineCleanRoom());
+        return Arrays.asList(new ArmRenderEngineForge(), new ArmRenderEngineCleanRoom(), new ArmRenderEngineMixin());
     }
 
     @Override
