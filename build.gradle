@@ -1,32 +1,20 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = "https://repo.spongepowered.org/maven" }
         mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-        classpath "org.spongepowered:mixingradle:0.7.+"
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: "org.spongepowered.mixin"
 
 version = modVersion
 group = modGroup
 archivesBaseName = modFileName
 
-if (version.contains("SNAPSHOT")) {
-    archivesBaseName = archivesBaseName + "-SNAPSHOT(" + new Date().format("HH'h-'mm'm-T-'dd-MM-yyyy") + ")"
-    version = ""
-}
-
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-mixin {
-    add sourceSets.main, "mixins.armoredarms.refmap.json"
-}
 
 minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
@@ -86,9 +74,6 @@ dependencies {
     compileOnly fileTree(dir: "libs", includes: ['*.jar'])
     compileOnly sourceSets.api.output
 
-    implementation "org.spongepowered:mixin:0.8.3"
-    annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
-
     shade 'com.artur114.armoredarms:core:' + coreVersion
 }
 
@@ -127,9 +112,6 @@ jar {
             "Implementation-Version": "${version}",
             "Implementation-Vendor" : author,
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs": "mixins.armoredarms.json",
-            "FMLCorePluginContainsFMLMod": "true",
-            "ForceLoadAsMod": "true",
             "Core-Version": coreVersion
         ])
         if (coreModClass != "null") {
