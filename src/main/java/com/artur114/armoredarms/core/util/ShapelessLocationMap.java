@@ -1,8 +1,5 @@
 package com.artur114.armoredarms.core.util;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-
 import java.util.*;
 
 public class ShapelessLocationMap<V> implements Map<ShapelessLocation, V> {

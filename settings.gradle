@@ -1,2 +1,3 @@
 rootProject.name = 'armored-arms-core'
 
+include 'modules:build-plugin'
