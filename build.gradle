@@ -6,25 +6,23 @@ buildscript {
             url = "https://maven.minecraftforge.net/"
         }
         maven {
-            url = "https://repo.spongepowered.org/repository/forge-proxy"
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Artur114Projects/Armored_Arms")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
         }
     }
     dependencies {
-        classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.+') {
-            changing = true
-        }
+        classpath ('com.artur114.armoredarms.gradle:core-build:1.0.2')
+        classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.+')
     }
 }
 
-plugins {
-    id 'java-library'
-}
-
 apply plugin: 'forge'
-String v = "v1.2.1-1.7.10-release"
-version = v
-group = "com.artur114.armoredarms"
-archivesBaseName = "ArmoredArms"
+apply plugin: 'core-build'
+
 compileJava.options.encoding = 'UTF-8'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -35,23 +33,10 @@ minecraft {
     runDir = "run"
 }
 
-repositories {}
+coreBuildConf {
+    atFile = "aa_at.cfg"
+}
 
 dependencies {
     compile fileTree(dir: "libs", includes: ['*.jar'])
-}
-
-jar {
-    manifest {
-        attributes([
-            "Specification-Title": "Armored Arms",
-            "Specification-Vendor": "armoredarms",
-            "Specification-Version": v,
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"armoredarms",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "FMLAT": "aa_at.cfg"
-        ])
-    }
 }
