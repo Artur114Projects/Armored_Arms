@@ -53,6 +53,14 @@ jar {
     }
 }
 
+task testAny {
+    FileTree tree = project.fileTree(dir: 'build').include('**/*-deobf.jar') as FileTree
+
+    tree.each { File file ->
+        println file.name
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

@@ -1,93 +1,81 @@
 package com.artur114.armoredarms.gradle
 
+import com.artur114.armoredarms.gradle.projectbuild.BuildModuleDependencies
+import com.artur114.armoredarms.gradle.projectbuild.BuildModuleJar
+import com.artur114.armoredarms.gradle.projectbuild.BuildModuleProject
+import com.artur114.armoredarms.gradle.projectbuild.BuildModuleResources
+import com.artur114.armoredarms.gradle.conf.MainConfigureExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import org.gradle.api.file.CopySpec
 import org.gradle.api.java.archives.Manifest
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.language.jvm.tasks.ProcessResources
 
 class CoreBuildPlugin implements Plugin<Project> {
+    private Map<Class<? extends IProjectBuildModule>, IProjectBuildModule> modulesMap
+    private List<IProjectBuildModule> modules
+
+    public MainConfigureExtension pluginConfig
+    public SourceSet mainSourceSet
+
+    CoreBuildPlugin() {
+        this.constructModules(BuildModuleProject, BuildModuleResources, BuildModuleDependencies, BuildModuleJar)
+    }
+
     @Override
     void apply(Project target) {
-        if (!target.plugins.hasPlugin('java')) {
-            target.apply plugin: 'java'
-        }
+        if (target.plugins.hasPlugin('core-build')) return
 
-        SourceSetContainer sourceSets = target.sourceSets
-        SourceSet mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        this.prepare(target)
 
-        Object modVersionProperty = findPropertyAndValidate(target, "modVersion")
-        Object coreVersionProperty = findPropertyAndValidate(target, "coreVersion")
+        this.configureModules(target)
+    }
 
-        def shade = target.configurations.create("shade")
-        target.configurations.getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME).extendsFrom(shade)
+    def <T extends IProjectBuildModule> T module(Class<T> clazz) {
+        return this.modulesMap.get(clazz) as T
+    }
 
-        BuildConfigureExtension config = target.extensions.create("coreBuildConf", BuildConfigureExtension)
-
-        target.repositories.maven { MavenArtifactRepository repository ->
-            repository.name = "GitHubPackages"
-            repository.url = target.uri(config.repositoryUrl)
-            repository.credentials {
-                it.username = target.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR')
-                it.password = target.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
+    private void constructModules(Class<? extends IProjectBuildModule>... classes) {
+        this.modulesMap = new HashMap<>()
+        for (Class<? extends IProjectBuildModule> clazz : classes) {
+            try {
+                IProjectBuildModule module = clazz.newInstance()
+                this.modulesMap.put(clazz, module)
+            } catch (Exception e) {
+                println("Module could not be construct: " + clazz)
+                println(e)
             }
         }
 
-        target.tasks.withType(ProcessResources).configureEach { ProcessResources task ->
-            task.inputs.property("version", modVersionProperty)
-            task.inputs.property("description", coreVersionProperty)
+        this.modules = CorePluginUtils.sortPrioritisedList(this.modulesMap.values())
+    }
 
-            task.from(mainSourceSet.resources.srcDirs) { CopySpec cp ->
-                cp.include('mcmod.info')
-
-                cp.filesMatching("mcmod.info") {
-                    it.expand(version: modVersionProperty, description: coreVersionProperty)
-                }
-            }
-
-            task.from(mainSourceSet.resources.srcDirs) { CopySpec cp ->
-                cp.exclude('mcmod.info')
-            }
+    private void prepare(Project project) {
+        if (!project.plugins.hasPlugin('java')) {
+            project.apply plugin: 'java'
         }
 
-        target.tasks.withType(Jar).configureEach { Jar task ->
-            task.manifest { Manifest manifest ->
-                manifest.attributes "Implementation-Timestamp" : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-                manifest.attributes "Implementation-Vendor"    : "${findPropertyAndValidate(target, "author")}"
-                manifest.attributes "Implementation-Version"   : "${target.version}"
-                manifest.attributes "Core-Version"             : "${coreVersionProperty}"
+        this.pluginConfig = project.extensions.create("coreBuildConf", MainConfigureExtension)
+        this.mainSourceSet = project.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+
+        for (IProjectBuildModule module : this.modules) {
+            if (module instanceof IConfiguredBuildModule) {
+                module.applyConfig(this.pluginConfig.findConfig(module.configClass()))
             }
-
-            if (config.atFile != null) {
-                task.manifest {Manifest manifest -> manifest.attributes "FMLAT": "${config.atFile}"}
-            }
-
-            task.from {
-                shade.collect {it.isDirectory() ? it : target.zipTree(it)}
-            }
-        }
-
-        target.dependencies.add('shade', "com.artur114.armoredarms:core:${coreVersionProperty}")
-
-        if (config.doSetProjectData) {
-            target.group = findPropertyAndValidate(target, "modGroup")
-            target.version = findPropertyAndValidate(target, "modVersion")
-            target.archivesBaseName = findPropertyAndValidate(target, "modFileName")
         }
     }
 
-    static Object findPropertyAndValidate(Project target, String name) {
-        Object property = target.findProperty(name)
-
-        if (property == null) {
-            throw new IllegalAccessException("Can't find a required property: " + name + ", please add this property!")
+    private void configureModules(Project project) {
+        for (IProjectBuildModule module : this.modules) {
+            try {
+                module.configure(this, project)
+            } catch (Exception e) {
+                println("Module could not be configure: " + module)
+                println(e)
+            }
         }
-
-        return property
     }
 }
