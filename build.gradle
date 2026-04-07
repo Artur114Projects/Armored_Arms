@@ -4,6 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'org.spongepowered.mixin' version '0.7.+'
+    id 'core-build' version '1.2.1'
 }
 
 base {
@@ -14,20 +15,18 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
     copyIdeResources = true
     runs {
         configureEach {
-            workingDirectory project.file('run')
+            workingDirectory this.project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
             mods {
                 "${mod_id}" {
-                    source sourceSets.main
+                    source this.sourceSets.main
                 }
             }
         }
@@ -46,7 +45,7 @@ minecraft {
         }
 
         data {
-            workingDirectory project.file('run-data')
+            workingDirectory this.project.file('run-data')
 
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
@@ -55,81 +54,60 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-configurations {
-    shade; implementation.extendsFrom shade;
-}
+coreBuildConf {
+    doLoadProjectData = false
 
-repositories {
-    maven {
-        url "https://cursemaven.com"
-    }
-    mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/Artur114Projects/Armored_Arms")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+    dependenciesConf {
+        afterDependence fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:7707268")
+        afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
+
+        coreConf {
+            version = "@core_version@"
+            return
+        }
+
+        ghPackages {
+            credentials {
+                // Replace this with your build data, or add the value data to global gradle.properties
+                it.password = "@gpr.key@"
+                it.username = "@gpr.user@"
+            }
         }
     }
-    mavenLocal()
-    flatDir {
-        dirs "libs"
+
+    resourcesConf {
+        replaceProperties([
+                minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+                forge_version: forge_version, forge_version_range: forge_version_range,
+                loader_version_range: loader_version_range,
+                mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+                mod_authors: mod_authors, mod_description: mod_description,
+        ])
+
+        includeFiles 'META-INF/mods.toml', 'pack.mcmeta'
+    }
+
+    jarConf {
+        coreVersion = "@core_version@"
+        author = "@mod_authors@"
+        return
     }
 }
 
 dependencies {
-    shade "com.artur114.armoredarms:core:${core_version}"
-
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    compileOnly fg.deobf("blank:geckolib-forge-1.20.1:4.8.2")
-    compileOnly fg.deobf("blank:azurelib-neo-1.20.1:3.1.3")
-    compileOnly fg.deobf("blank:player-animation-lib-forge-1.0.2-rc1+1.20:1.0.2")
+    core.massDependencies {
+        source "libs"
 
-    compileOnly fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:7707268")
-    compileOnly fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
+        deObfHook {fg.deobf(it)}
+    }
 }
 
 mixin {
     add sourceSets.main, 'mixins.armoredarms.refmap.json'
     config 'mixins.armoredarms.json'
-}
-
-processResources {
-    var replaceProperties = [
-            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-            forge_version: forge_version, forge_version_range: forge_version_range,
-            loader_version_range: loader_version_range,
-            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
-    ]
-    inputs.properties replaceProperties
-
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
-    }
-}
-
-jar {
-    from {
-        configurations.shade.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    manifest {
-        attributes([
-                'Specification-Title'     : mod_id,
-                'Specification-Vendor'    : mod_authors,
-                'Specification-Version'   : mod_version,
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'MixinConfigs': "mixins.armoredarms.json"
-        ])
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {
