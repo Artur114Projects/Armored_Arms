@@ -1,18 +1,24 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
+        maven {
+            url = uri("https://maven.pkg.github.com/Artur114Projects/Armored_Arms")
+            credentials {
+                // Replace this with your build data, or add the value data to global gradle.properties
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
         mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'com.artur114.armoredarms.gradle:core-build:1.2.1'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-
-version = modVersion
-group = modGroup
-archivesBaseName = modFileName
+apply plugin: 'core-build'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
@@ -23,27 +29,43 @@ minecraft {
     }
     runs {
         client {
-            workingDirectory project.file('run')
+            workingDirectory this.project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            if (properties.get("coreModClass") != "null") {
-                jvmArg '-Dfml.coreMods.load=' + properties.get("coreModClass")
+            if (this.project.findProperty("coreModClass") != "null") {
+                jvmArg '-Dfml.coreMods.load=' + this.project.findProperty("coreModClass")
             }
         }
 
         server {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            if (properties.get("coreModClass") != "null") {
-                jvmArg '-Dfml.coreMods.load=' + properties.get("coreModClass")
+            if (this.project.findProperty("coreModClass") != "null") {
+                jvmArg '-Dfml.coreMods.load=' + this.project.findProperty("coreModClass")
             }
         }
     }
 }
 
+coreBuildConf {
+    dependenciesConf {
+        ghPackages {
+            credentials {
+                // Replace this with your build data, or add the value data to global gradle.properties
+                it.password = "@gpr.key@"
+                it.username = "@gpr.user@"
+            }
+        }
+    }
+
+    jarConf {
+        atFile = "aa_at.cfg"
+        return
+    }
+}
+
 configurations {
-    apiCompile.extendsFrom compile;
-    shade; compile.extendsFrom shade;
+    apiCompile.extendsFrom compile
 }
 
 sourceSets {
@@ -51,19 +73,7 @@ sourceSets {
         java {
             srcDirs = ['src/api/java']
         }
-        compileClasspath += configurations.apiCompile
-    }
-}
-
-repositories {
-    mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/Artur114Projects/Armored_Arms")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-        }
+        compileClasspath += this.project.configurations.getByName("apiCompile")
     }
 }
 
@@ -71,56 +81,12 @@ dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
 
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
-    compileOnly fileTree(dir: "libs", includes: ['*.jar'])
     compileOnly sourceSets.api.output
 
-    shade 'com.artur114.armoredarms:core:' + coreVersion
-}
+    core.massDependencies {
+        source "libs"
 
-processResources {
-    inputs.property "version", modVersion
-    inputs.property "description", coreVersion
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        filesMatching('mcmod.info') {
-            expand([
-                    version: modVersion,
-                    description: coreVersion
-            ])
-        }
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
-jar {
-    from {
-        configurations.shade.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    manifest {
-        attributes([
-            "Specification-Title": modId,
-            "Specification-Vendor": author,
-            "Specification-Version": modVersion,
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" : author,
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "Core-Version": coreVersion
-        ])
-        if (coreModClass != "null") {
-            attributes "FMLCorePlugin": coreModClass
-            attributes "FMLCorePluginContainsFMLMod": "true"
-        }
-        if (atfile != "null") {
-            attributes "FMLAT": atfile
-        }
+        deObfHook {fg.deobf(it)}
     }
 }
 
