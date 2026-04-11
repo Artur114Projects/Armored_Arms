@@ -20,12 +20,12 @@ class CorePluginUtils {
     }
 
     static Object parseValue(Project project, String value) {
-        value = value.replaceAll(" ", "")
-        if (value.length() <= 2) {
-            throw new GradleException("Invalid parsing string: " + value)
-        }
-        if (value.startsWith("@") && value.endsWith("@")) {
-            return findPropertyAndValidate(project, value.substring(1, value.length() - 1))
+        String parsed = value.replaceAll(" ", "")
+        if (parsed.startsWith("@") && parsed.endsWith("@")) {
+            if (parsed.length() <= 2) {
+                throw new GradleException("Invalid parsing string: " + value)
+            }
+            return findPropertyAndValidate(project, parsed.substring(1, parsed.length() - 1))
         } else {
             return value
         }

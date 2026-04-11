@@ -10,7 +10,10 @@ import org.gradle.api.Project
 
 class BuildModuleProject implements IProjectBuildModule {
     @Override
-    void configure(CoreBuildPlugin plugin, Project project) {
+    void configure(CoreBuildPlugin plugin, Project project) {}
+
+    @Override
+    void configureAfter(CoreBuildPlugin plugin, Project project) {
         if (plugin.pluginConfig.doLoadProjectData) {
             project.group = CorePluginUtils.findPropertyAndValidate(project, "modGroup")
             project.version = CorePluginUtils.findPropertyAndValidate(project, "modVersion")

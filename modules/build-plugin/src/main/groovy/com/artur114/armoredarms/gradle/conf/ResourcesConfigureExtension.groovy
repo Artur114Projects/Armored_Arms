@@ -21,7 +21,7 @@ class ResourcesConfigureExtension extends AbstractConfig {
     }
 
     Map<String, Object> getReplaceProperties(Project project) {
-        Map<String, Object> ret = new HashMap<>();
+        Map<String, Object> ret = new HashMap<>()
 
         this.replaceProperties.forEach {String key, String value ->
             ret.put(key, CorePluginUtils.parseValue(project, value))

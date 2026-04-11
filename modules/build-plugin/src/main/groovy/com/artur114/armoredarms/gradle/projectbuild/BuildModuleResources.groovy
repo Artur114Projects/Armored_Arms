@@ -14,20 +14,18 @@ class BuildModuleResources implements IProjectBuildModule, IConfiguredBuildModul
     private ResourcesConfigureExtension config
 
     @Override
-    void configure(CoreBuildPlugin plugin, Project project) {
+    void configure(CoreBuildPlugin plugin, Project project) {}
+
+    @Override
+    void configureAfter(CoreBuildPlugin plugin, Project project) {
         project.tasks.withType(ProcessResources).configureEach {ProcessResources task ->
             def replaceProperties = this.config.getReplaceProperties(project)
+            def includeFiles = this.config.includeFiles
 
             task.inputs.properties replaceProperties
 
-            task.from(plugin.mainSourceSet.resources.srcDirs) {CopySpec cp ->
-                def includeFiles = this.config.includeFiles
-
-                cp.include(includeFiles)
-
-                cp.filesMatching(includeFiles) {
-                    it.expand(replaceProperties)
-                }
+            task.filesMatching(includeFiles) {
+                it.expand(replaceProperties)
             }
         }
     }

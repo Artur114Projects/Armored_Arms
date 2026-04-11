@@ -5,6 +5,7 @@ import com.artur114.armoredarms.gradle.CorePluginUtils
 import com.artur114.armoredarms.gradle.IConfiguredBuildModule
 import com.artur114.armoredarms.gradle.IProjectBuildModule
 import com.artur114.armoredarms.gradle.conf.DependenciesConfigureExtension
+import com.artur114.armoredarms.gradle.ext.MassDependenceConf
 import com.artur114.armoredarms.gradle.util.IPriority
 import com.artur114.armoredarms.gradle.util.Priority
 import org.gradle.api.Project
@@ -25,64 +26,100 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
         this.include = project.configurations.create("include")
         project.configurations.getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME).extendsFrom(this.include)
 
+        plugin.coreMethods.registerListener(MassDependenceConf) {
+            this.manageMassDependencies(it, project)
+        }
+
+        this.manageCurseMaven(project)
+    }
+
+    @Override
+    void configureAfter(CoreBuildPlugin plugin, Project project) {
         this.manageGHRepositories(project)
         this.loadCoreDependence(project)
-        this.manageCurseMaven(project)
-        this.manageMassDependencies(project)
+
+        this.manageDependencies(project)
     }
 
     private void manageGHRepositories(Project project) {
         project.repositories { RepositoryHandler rep ->
-            List<String> repositories = this.config.getGHPackagesConf().getRepositories()
-            PasswordCredentials credentials = this.config.getGHPackagesConf().getCredentials(project)
+            List<String> repositories = this.config.ghPackagesConf.getRepositories()
+            PasswordCredentials credentials = this.config.ghPackagesConf.getCredentials(project)
+            println "GitHub credentials: [${credentials}]"
 
             for (String repo : repositories) {
                 rep.maven { MavenArtifactRepository repository ->
                     repository.name = "GHP: " + repo
                     repository.url = project.uri(repo)
-                    repository.credentials {credentials}
+                    println "Added GitHub repo: [${repository.url}]"
+                    repository.credentials {
+                        it.username = credentials.username
+                        it.password = credentials.password
+                    }
                 }
             }
         }
     }
 
     private void loadCoreDependence(Project project) {
-        project.dependencies.add('include', this.config.coreDependenceConf.build(project))
+        String dep = this.config.coreDependenceConf.build(project)
+        project.dependencies.add('include', dep)
+
+        println("Loaded core dependency: [${dep}]")
     }
 
     private void manageCurseMaven(Project project) {
-        if (this.config.doLoadCurseMaven) {
-            project.repositories { RepositoryHandler rep ->
-                rep.maven { MavenArtifactRepository repository ->
-                    repository.url = project.uri("https://cursemaven.com")
-                }
+        project.repositories { RepositoryHandler rep ->
+            rep.maven { MavenArtifactRepository repository ->
+                repository.url = project.uri("https://cursemaven.com")
             }
         }
     }
 
-    private void manageMassDependencies(Project project) {
-        switch (this.config.massDependenceConf.dependenceLoadType) {
-            case DependenciesConfigureExtension.MassDependenceConf.EnumDependenceLoadType.SEPARATED:
-                this.manageMassDependenciesSeparated(project)
+    private void manageDependencies(Project project) {
+        for (Object dep : this.config.dependencies) {
+            project.dependencies.add("implementation", dep)
+
+            println("Loaded late dependency: [${dep}]")
+        }
+    }
+
+    private void manageMassDependencies(MassDependenceConf config, Project project) {
+        if (config == null) {
+            return
+        }
+        if (config.sources.isEmpty()) {
+            return
+        }
+
+        switch (config.dependenceLoadType) {
+            case "SEPARATED":
+                this.manageMassDependenciesSeparated(config, project)
             break
-            case DependenciesConfigureExtension.MassDependenceConf.EnumDependenceLoadType.ALL_FLAT_DIR:
-                this.manageMassDependenciesAllFlatDir(project)
+            case "ALL_FLAT_DIR":
+                this.manageMassDependenciesAllFlatDir(config, project)
             break
-            case DependenciesConfigureExtension.MassDependenceConf.EnumDependenceLoadType.ALL_FILE_TREE:
-                this.manageMassDependenciesAllFileTree(project)
+            case "ALL_FILE_TREE":
+                this.manageMassDependenciesAllFileTree(config, project)
             break
         }
     }
 
-    private void manageMassDependenciesSeparated(Project project) {
-        for (String source : this.config.massDependenceConf.sources) {
-            project.dependencies.add("compileOnly", project.fileTree(dir: source, includes: ["*-deobf.jar"]))
+    private void manageMassDependenciesSeparated(MassDependenceConf config, Project project) {
+        for (String source : config.sources) {
+            FileTree tree = project.fileTree(dir: source, includes: ["*-deobf.jar"])
+
+            project.dependencies.add("implementation", tree)
+
+            tree.each {
+                println("Loaded file dependency: [${it}]")
+            }
         }
 
-        List<String> nonEmptySources = new ArrayList<>(this.config.massDependenceConf.sources.size())
-        List<FileTree> nonEmptyThrees = new ArrayList<>(this.config.massDependenceConf.sources.size())
+        List<String> nonEmptySources = new ArrayList<>(config.sources.size())
+        List<FileTree> nonEmptyThrees = new ArrayList<>(config.sources.size())
 
-        for (String source : this.config.massDependenceConf.sources) {
+        for (String source : config.sources) {
             FileTree tree = project.fileTree(dir: source, includes: ["*.jar"], excludes: ["*-deobf.jar"])
 
             if (!tree.isEmpty()) {
@@ -100,39 +137,48 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
 
             for (FileTree tree : nonEmptyThrees) {
                 tree.each {
-                    String lib = ":" + it.name.replaceAll(".jar", "") + ":0"
+                    String lib = "blank:" + it.name.replaceAll(".jar", "") + ":0"
 
-                    project.dependencies.add("compileOnly", this.config.massDependenceConf.deObfHook(lib))
+                    project.dependencies.add("implementation", config.deObfHook(lib))
+                    println("Loaded flat dir dependency: [${lib}]")
                 }
             }
         }
     }
 
-    private void manageMassDependenciesAllFlatDir(Project project) {
+    private void manageMassDependenciesAllFlatDir(MassDependenceConf config, Project project) {
         project.repositories { RepositoryHandler rep ->
             rep.flatDir { FlatDirectoryArtifactRepository flat ->
-                flat.dirs this.config.massDependenceConf.sources
+                flat.dirs config.sources
             }
         }
 
-        for (String source : this.config.massDependenceConf.sources) {
+        for (String source : config.sources) {
             FileTree tree = project.fileTree(dir: source, includes: ["*.jar"])
 
             tree.each {
-                String lib = ":" + it.name.replaceAll(".jar", "") + ":0"
+                String lib = "blank:" + it.name.replaceAll(".jar", "") + ":0"
 
                 if (!lib.contains("-deobf")) {
-                    project.dependencies.add("compileOnly", this.config.massDependenceConf.deObfHook(lib))
+                    project.dependencies.add("implementation", config.deObfHook(lib))
+                    println("Loaded flat dir dependency: [${lib}]")
                 } else {
-                    project.dependencies.add("compileOnly", lib)
+                    project.dependencies.add("implementation", lib)
+                    println("Loaded flat dir dependency: [${lib}]")
                 }
             }
         }
     }
 
-    private void manageMassDependenciesAllFileTree(Project project) {
-        for (String source : this.config.massDependenceConf.sources) {
-            project.dependencies.add("compileOnly", project.fileTree(dir: source, includes: ["*.jar"]))
+    private void manageMassDependenciesAllFileTree(MassDependenceConf config, Project project) {
+        for (String source : config.sources) {
+            FileTree tree = project.fileTree(dir: source, includes: ["*.jar"])
+
+            project.dependencies.add("implementation", tree)
+
+            tree.each {
+                println("Loaded file dependency: [${it}]")
+            }
         }
     }
 

@@ -6,16 +6,22 @@ import org.gradle.util.ConfigureUtil
 class MainConfigureExtension extends AbstractConfig {
     private DependenciesConfigureExtension dependenciesConf
     private ResourcesConfigureExtension resourcesConf
-    boolean doLoadProjectData
-    String repositoryUrl
-    String atFile
+    private JarBuildConfigureExtension jarBuildConf
+    private boolean doLoadProjectData
 
     MainConfigureExtension() {
         this.dependenciesConf = this.createNewConfig(DependenciesConfigureExtension)
         this.resourcesConf = this.createNewConfig(ResourcesConfigureExtension)
-        repositoryUrl = "https://maven.pkg.github.com/Artur114Projects/Armored_Arms"
+        this.jarBuildConf = this.createNewConfig(JarBuildConfigureExtension)
         doLoadProjectData = true
-        atFile = null
+    }
+
+    boolean getDoLoadProjectData() {
+        return doLoadProjectData
+    }
+
+    void setDoLoadProjectData(boolean doLoadProjectData) {
+        this.doLoadProjectData = doLoadProjectData
     }
 
     ResourcesConfigureExtension getResourcesConf() {
@@ -40,5 +46,17 @@ class MainConfigureExtension extends AbstractConfig {
 
     void dependenciesConf(Closure<? extends DependenciesConfigureExtension> c) {
         this.dependenciesConf(ConfigureUtil.configureUsing(c))
+    }
+
+    JarBuildConfigureExtension getJarBuildConf() {
+        return this.jarBuildConf
+    }
+
+    void jarConf(Action<? extends JarBuildConfigureExtension> action) {
+        action.execute(this.jarBuildConf)
+    }
+
+    void jarConf(Closure<? extends JarBuildConfigureExtension> c) {
+        this.jarConf(ConfigureUtil.configureUsing(c))
     }
 }

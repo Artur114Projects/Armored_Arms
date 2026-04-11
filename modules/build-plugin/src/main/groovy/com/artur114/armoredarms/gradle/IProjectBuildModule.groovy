@@ -6,4 +6,5 @@ import org.gradle.api.Project
 
 interface IProjectBuildModule extends IPrioritised {
     void configure(CoreBuildPlugin plugin, Project project)
+    void configureAfter(CoreBuildPlugin plugin, Project project)
 }

@@ -4,31 +4,28 @@ import com.artur114.armoredarms.gradle.CorePluginUtils
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.PasswordCredentials
-import org.gradle.api.internal.artifacts.repositories.DefaultPasswordCredentials
 import org.gradle.util.ConfigureUtil
+import org.gradle.util.GradleVersion
 
 import javax.annotation.Nullable
-import java.util.function.Function
 
 class DependenciesConfigureExtension extends AbstractConfig {
-    private MassDependenceConf massDependenceConf
     private CoreDependenceConf coreDependenceConf
     private GHPackagesConf ghPackagesConf
-    boolean doLoadCurseMaven
+    private Set<Object> dependencies
 
     DependenciesConfigureExtension() {
         this.coreDependenceConf = new CoreDependenceConf()
         this.ghPackagesConf = new GHPackagesConf()
-        this.massDependenceConf = null
-        this.doLoadCurseMaven = false;
+        this.dependencies = new HashSet<>()
     }
 
-    GHPackagesConf getGHPackagesConf() {
+    Set<Object> getDependencies() {
+        return this.dependencies
+    }
+
+    GHPackagesConf getGhPackagesConf() {
         return this.ghPackagesConf
-    }
-
-    MassDependenceConf getMassDependenceConf() {
-        return this.massDependenceConf
     }
 
     CoreDependenceConf getCoreDependenceConf() {
@@ -43,23 +40,16 @@ class DependenciesConfigureExtension extends AbstractConfig {
         this.ghPackages(ConfigureUtil.configureUsing(c))
     }
 
-    void massDependencies(Action<? extends MassDependenceConf> action) {
-        if (this.massDependenceConf == null) {
-            this.massDependenceConf = new MassDependenceConf()
-        }
-        action.execute(this.massDependenceConf)
-    }
-
-    void massDependencies(Closure<? extends MassDependenceConf> c) {
-        this.massDependencies(ConfigureUtil.configureUsing(c))
-    }
-
-    void core(Action<? extends CoreDependenceConf> action) {
+    void coreConf(Action<? extends CoreDependenceConf> action) {
         action.execute(this.coreDependenceConf)
     }
 
-    void core(Closure<? extends CoreDependenceConf> c) {
-        this.core(ConfigureUtil.configureUsing(c))
+    void coreConf(Closure<? extends CoreDependenceConf> c) {
+        this.coreConf(ConfigureUtil.configureUsing(c))
+    }
+
+    void afterDependence(Object... dependence) {
+        this.dependencies.addAll(Arrays.asList(dependence))
     }
 
     class CoreDependenceConf {
@@ -73,10 +63,34 @@ class DependenciesConfigureExtension extends AbstractConfig {
             this.artifactId = "core"
         }
 
+        String getArtifactId() {
+            return this.artifactId
+        }
+
+        void setArtifactId(String artifactId) {
+            this.artifactId = artifactId
+        }
+
+        String getVersion() {
+            return this.version
+        }
+
+        void setVersion(String version) {
+            this.version = version
+        }
+
+        String getGroup() {
+            return this.group
+        }
+
+        void setGroup(String group) {
+            this.group = group
+        }
+
         String build(Project project) {
-            def parsedGroup = CorePluginUtils.parseValue(project, this.group)?.toString()
-            def parsedArtifactId = CorePluginUtils.parseValue(project, this.artifactId)?.toString()
-            def parsedVersion = CorePluginUtils.parseValue(project, this.version)?.toString()
+            def parsedGroup = CorePluginUtils.parseValue(project, this.group).toString()
+            def parsedArtifactId = CorePluginUtils.parseValue(project, this.artifactId).toString()
+            def parsedVersion = CorePluginUtils.parseValue(project, this.version).toString()
             if (parsedGroup.isEmpty() || parsedArtifactId.isEmpty() || parsedVersion.isEmpty()) {
                 throw new IllegalStateException("Group, artifactId or version cannot be empty")
             }
@@ -127,41 +141,6 @@ class DependenciesConfigureExtension extends AbstractConfig {
         }
     }
 
-    class MassDependenceConf {
-//        public static final List<String> DEPENDENCE_LOAD_TYPES  = ["SEPARATED", "ALL_FLAT_DIR", "ALL_FILE_TREE"]
-        EnumDependenceLoadType dependenceLoadType
-        private Closure<Object> deObfHook
-        private Set<String> sources
-
-        MassDependenceConf() {
-            this.dependenceLoadType = EnumDependenceLoadType.SEPARATED
-            this.sources = new HashSet<>()
-            this.deObfHook = {it}
-        }
-
-        Closure<Object> getDeObfHook() { this.deObfHook }
-
-        EnumDependenceLoadType getDependenceLoadType() { this.dependenceLoadType }
-
-        Set<String> getSources() { Collections.unmodifiableSet(this.sources) }
-
-        void setDependenceLoadType(EnumDependenceLoadType type) {
-            this.dependenceLoadType = type
-        }
-
-        void deObfHook(Closure<?> closure) {
-            this.deObfHook = closure as Closure<Object>
-        }
-
-        void source(String... source) {
-            this.sources.addAll(Arrays.asList(source))
-        }
-
-        enum EnumDependenceLoadType {
-            SEPARATED, ALL_FLAT_DIR, ALL_FILE_TREE
-        }
-    }
-
     private class GenericPasswordCredentials implements PasswordCredentials {
         private String username = null
         private String password = null
@@ -173,10 +152,14 @@ class DependenciesConfigureExtension extends AbstractConfig {
 
         @Override
         String getUsername() {
-            if (this.username != null) {
+            if (this.username != null && this.username != '@gpr.user@') {
                 return this.username
             } else {
-                return this.project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR')
+                if (GradleVersion.current() >= GradleVersion.version('7.0')) {
+                    return this.project.providers.gradleProperty('gpr.user').getOrNull() ?: System.getenv('GITHUB_ACTOR')
+                } else {
+                    return this.project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR')
+                }
             }
         }
 
@@ -187,16 +170,31 @@ class DependenciesConfigureExtension extends AbstractConfig {
 
         @Override
         String getPassword() {
-            if (this.password != null) {
+            if (this.password != null && this.password != '@gpr.key@') {
                 return this.password
             } else {
-                return this.project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
+                if (GradleVersion.current() >= GradleVersion.version('7.0')) {
+                    return this.project.providers.gradleProperty('gpr.key').getOrNull() ?: System.getenv('GITHUB_TOKEN')
+                } else {
+                    return this.project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
+                }
             }
         }
 
         @Override
         void setPassword(@Nullable String password) {
             this.password = password
+        }
+
+        @Override
+        String toString() {
+            String password = this.getPassword()
+
+            if (password != null) {
+                password = "*" * password.length()
+            }
+
+            return "Credentials [username: ${this.getUsername()}, password: ${password}]"
         }
     }
 }
