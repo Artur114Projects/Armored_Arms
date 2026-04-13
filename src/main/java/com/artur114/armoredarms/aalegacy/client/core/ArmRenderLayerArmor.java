@@ -146,22 +146,24 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
     }
 
     public ItemStack itemStackArmor(AbstractClientPlayer player) {
-        if (ModsList.COSMETIC_ARMOR.isLoaded()) {
-            InventoryCosArmor stacks = CosmeticArmorReworked.invMan.getCosArmorInventoryClient(player.getUniqueID());
-            int chestId = ArmoredArms.CHEST_PLATE_ID + 1;
-
-            if (stacks.isSkinArmor(chestId)) {
-                return null;
-            }
-
-            ItemStack stack = stacks.getStackInSlot(chestId);
-
-            if (stack != null) {
-                return stack;
-            }
-        }
-
-        return player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID + 1);
+//        if (ModsList.COSMETIC_ARMOR.isLoaded()) {
+//            InventoryCosArmor stacks = CosmeticArmorReworked.invMan.getCosArmorInventoryClient(player.getUniqueID());
+//            int chestId = ArmoredArms.CHEST_PLATE_ID + 1;
+//
+//            if (stacks.isSkinArmor(chestId)) {
+//                return null;
+//            }
+//
+//            ItemStack stack = stacks.getStackInSlot(chestId);
+//
+//            if (stack != null) {
+//                return stack;
+//            }
+//        }
+//
+//        return player.getCurrentArmor(ArmoredArms.CHEST_PLATE_ID + 1);
+//
+        return null;
     }
 
     private void initEvent() {
@@ -322,7 +324,7 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
 
         @Override
         public IModelOnlyArms getModel(AbstractClientPlayer player, ItemArmor itemArmor, ItemStack stack) {
-            ModelBiped mb = ForgeHooksClient.getArmorModel(player, stack, ArmoredArms.CHEST_PLATE_ID, this.defaultModel);
+            ModelBiped mb = ForgeHooksClient.getArmorModel(player, stack, 0, this.defaultModel);
             if (mb == null) {
                 if (this.modelSize != AAConfig.vanillaArmorModelSize) {
                     this.defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
@@ -344,9 +346,9 @@ public class ArmRenderLayerArmor implements IArmRenderLayer {
         public ResourceLocation getTexture(AbstractClientPlayer player, ItemStack chestPlate, ItemArmor itemArmor, EnumTexType type) {
             switch (type) {
                 case NULL:
-                    return RenderBiped.getArmorResource(player, chestPlate, ArmoredArms.CHEST_PLATE_ID, null);
+                    return RenderBiped.getArmorResource(player, chestPlate, 0, null);
                 case OVERLAY:
-                    if (itemArmor.getColor(chestPlate) != -1) return RenderBiped.getArmorResource(player, chestPlate, ArmoredArms.CHEST_PLATE_ID, "overlay");
+                    if (itemArmor.getColor(chestPlate) != -1) return RenderBiped.getArmorResource(player, chestPlate, 0, "overlay");
             }
             return null;
         }

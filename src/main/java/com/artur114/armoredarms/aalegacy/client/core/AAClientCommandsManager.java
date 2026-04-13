@@ -166,63 +166,63 @@ public class AAClientCommandsManager {
 
         @Override
         public void execute(EntityPlayerSP player, String[] arg) {
-            ArmRenderLayerVanilla layerVanilla = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class);
-            ArmRenderLayerArmor layerArmor = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerArmor.class);
-            ModelBiped mb = null;
-
-            if (arg.length == 0) {
-                throw new RuntimeException("Illegal args");
-            }
-
-            if (arg[0].equals("player")) {
-                mb = layerVanilla.renderPlayer.modelBipedMain;
-            } else if (arg[0].equals("armor")) {
-                mb = layerArmor.currentArmorModel.original();
-            }
-
-            if (mb == null) {
-                throw new RuntimeException("Illegal arg 0");
-            }
-
-            if (arg.length < 2) {
-                throw new RuntimeException("Illegal args");
-            }
-
-            Set<String> args = new HashSet<>(Arrays.asList(Arrays.copyOfRange(arg, 1, arg.length)));
-
-            Set<String> fields = null;
-
-            if (args.contains("-bipall")) {
-                fields = new HashSet<>(Arrays.asList("bipedHead", "bipedHeadwear", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg"));
-            }
-            if (args.stream().anyMatch(s -> s.startsWith("-fields#"))) {
-                if (fields == null) fields = new HashSet<>();
-                fields.addAll(Arrays.asList(args.stream().filter(s -> s.startsWith("-fields#")).collect(Collectors.joining()).replaceAll("-fields#", "!").split("!")));
-            }
-            if (args.contains("-refall")) {
-                if (fields != null) throw new RuntimeException("Illegal search mode");
-                fields = new HashSet<>();
-            }
-
-            if (fields == null) {
-                throw new RuntimeException("Illegal args non method(bipall|refall|-fields#field!field!...)");
-            }
-
-            StringBuilder res = new StringBuilder();
-            this.loadFields(mb, mb.getClass(), res, fields, new HashSet<>(), args.contains("-deep"), args.contains("-mr"));
-
-            if (args.contains("-copy")) {
-                this.copyToClipboard(res.toString());
-                player.addChatMessage(new ChatComponentText("Data is successfully copped to clipboard").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
-            }
-            if (args.contains("-chat")) {
-                player.addChatMessage(new ChatComponentText(res.toString()));
-            }
-            if (args.contains("-console")) {
-                for (String string : res.toString().split("\n")) {
-                    System.out.println(string);
-                }
-            }
+//            ArmRenderLayerVanilla layerVanilla = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerVanilla.class);
+//            ArmRenderLayerArmor layerArmor = ArmoredArms.RENDER_ARM_MANAGER.getLayer(ArmRenderLayerArmor.class);
+//            ModelBiped mb = null;
+//
+//            if (arg.length == 0) {
+//                throw new RuntimeException("Illegal args");
+//            }
+//
+//            if (arg[0].equals("player")) {
+//                mb = layerVanilla.renderPlayer.modelBipedMain;
+//            } else if (arg[0].equals("armor")) {
+//                mb = layerArmor.currentArmorModel.original();
+//            }
+//
+//            if (mb == null) {
+//                throw new RuntimeException("Illegal arg 0");
+//            }
+//
+//            if (arg.length < 2) {
+//                throw new RuntimeException("Illegal args");
+//            }
+//
+//            Set<String> args = new HashSet<>(Arrays.asList(Arrays.copyOfRange(arg, 1, arg.length)));
+//
+//            Set<String> fields = null;
+//
+//            if (args.contains("-bipall")) {
+//                fields = new HashSet<>(Arrays.asList("bipedHead", "bipedHeadwear", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg"));
+//            }
+//            if (args.stream().anyMatch(s -> s.startsWith("-fields#"))) {
+//                if (fields == null) fields = new HashSet<>();
+//                fields.addAll(Arrays.asList(args.stream().filter(s -> s.startsWith("-fields#")).collect(Collectors.joining()).replaceAll("-fields#", "!").split("!")));
+//            }
+//            if (args.contains("-refall")) {
+//                if (fields != null) throw new RuntimeException("Illegal search mode");
+//                fields = new HashSet<>();
+//            }
+//
+//            if (fields == null) {
+//                throw new RuntimeException("Illegal args non method(bipall|refall|-fields#field!field!...)");
+//            }
+//
+//            StringBuilder res = new StringBuilder();
+//            this.loadFields(mb, mb.getClass(), res, fields, new HashSet<>(), args.contains("-deep"), args.contains("-mr"));
+//
+//            if (args.contains("-copy")) {
+//                this.copyToClipboard(res.toString());
+//                player.addChatMessage(new ChatComponentText("Data is successfully copped to clipboard").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
+//            }
+//            if (args.contains("-chat")) {
+//                player.addChatMessage(new ChatComponentText(res.toString()));
+//            }
+//            if (args.contains("-console")) {
+//                for (String string : res.toString().split("\n")) {
+//                    System.out.println(string);
+//                }
+//            }
         }
 
         private void loadFields(Object mb, Class<?> mbc, StringBuilder res, Set<String> fields, Set<String> loaded, boolean deep, boolean mr) {

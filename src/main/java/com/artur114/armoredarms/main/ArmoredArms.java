@@ -1,14 +1,20 @@
 package com.artur114.armoredarms.main;
 
-import com.artur114.armoredarms.aalegacy.api.AANonEventsApiProcessor;
-import com.artur114.armoredarms.aalegacy.client.core.RenderArmManager;
-import com.artur114.armoredarms.aalegacy.client.integration.EventsRetranslators;
-import com.artur114.armoredarms.aalegacy.client.integration.Overriders;
+import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
+import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
+import com.artur114.armoredarms.core.util.AbstractLoggingManager;
+import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.RenderException;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.Event;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -17,13 +23,19 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.Collection;
+import java.util.Collections;
+
 @Mod(modid = ArmoredArms.MODID, guiFactory = ArmoredArms.GUI_FACTORY, useMetadata = true)
-public class ArmoredArms {
-    public static final int CHEST_PLATE_ID = 1;
-    public static final RenderArmManager RENDER_ARM_MANAGER = new RenderArmManager();
+public class ArmoredArms implements IAAModContainer {
+    public static final LoggingManager LOGGER = new LoggingManager();
     public static final AAConfig CONFIGS = new AAConfig();
     public static final String GUI_FACTORY = "com.artur114.armoredarms.main.AAConfig$ConfigGuiFactory";
     public static final String MODID = "armoredarms";
+    private IArmRenderPipeline<?> pipeline = null;
+
+    @Mod.Instance
+    public static ArmoredArms ARMORED_ARMS;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
@@ -31,29 +43,50 @@ public class ArmoredArms {
     }
 
     @Mod.EventHandler
-    public void init(FMLInitializationEvent e) {
-        EventsRetranslators.init();
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new Overriders());
-        FMLCommonHandler.instance().bus().register(this);
-        MinecraftForge.EVENT_BUS.register(new AANonEventsApiProcessor());
+    public void postInit(FMLPostInitializationEvent e) {
+        this.pipeline = this.initPipelineSafety();
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    @SideOnly(Side.CLIENT)
-    public void renderHand(RenderHandEvent e) {
-        RENDER_ARM_MANAGER.renderHandEvent(e);
+    @Override
+    public IArmRenderPipeline<?> pipeline() {
+        return this.pipeline;
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    @SideOnly(Side.CLIENT)
-    public void clientTick(TickEvent.ClientTickEvent e) {
-        RENDER_ARM_MANAGER.tickEventClientTickEvent(e);
+    @Override
+    public boolean isPipelineLoaded() {
+        return this.pipeline != null;
     }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent e) {
-        CONFIGS.configChangedEventOnConfigChangedEvent(e);
+    @Override
+    public Collection<IArmRenderPipeline<?>> defaultPipelines() {
+        return Collections.singletonList(new ArmRenderPipelineForge());
+    }
+
+    @Override
+    public Collection<IArmRenderEngine<?>> defaultEngines() {
+        return Collections.singletonList(new ArmRenderEngineForge());
+    }
+
+    @Override
+    public void processException(RenderException exp) {
+        LOGGER.processException(exp);
+    }
+
+    @Override
+    public boolean isModLoaded(String modId) {
+        return Loader.isModLoaded(modId);
+    }
+
+    @Override
+    public AbstractLoggingManager logger() {
+        return LOGGER;
+    }
+
+    @Override
+    public boolean post(Object event) {
+        if (event instanceof Event) {
+            MinecraftForge.EVENT_BUS.post((Event) event);
+        }
+        return false;
     }
 }

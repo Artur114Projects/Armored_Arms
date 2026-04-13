@@ -5,7 +5,9 @@ import cpw.mods.fml.client.IModGuiFactory;
 import cpw.mods.fml.client.config.GuiConfig;
 import cpw.mods.fml.client.config.IConfigElement;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
@@ -41,16 +43,18 @@ public class AAConfig {
         System.out.println("AA Configs Is synced");
     }
 
-    public void configChangedEventOnConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent e) {
-        if (e.modID.equals(ArmoredArms.MODID)) {
-            this.sync();
-        }
-    }
-
     public void fMLPreInitializationEvent(FMLPreInitializationEvent e) {
+        FMLCommonHandler.instance().bus().register(this);
         config = new Configuration(e.getSuggestedConfigurationFile());
         config.load();
         this.sync();
+    }
+
+    @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent e) {
+        if (e.modID.equals(ArmoredArms.MODID)) {
+            this.sync();
+        }
     }
 
     public static class ConfigGuiFactory implements IModGuiFactory {
