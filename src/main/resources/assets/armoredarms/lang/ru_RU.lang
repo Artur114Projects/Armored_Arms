@@ -1,15 +1,22 @@
 armoredarms.cfg.disableArmWear=Отключить отрисовку одежды с надетой бронёй
 armoredarms.cfg.renderBlackList=Чёрный список брони для отрисовки
 armoredarms.cfg.renderArmWearList=Список брони для которой нужно рендерить одежду на руке
+armoredarms.cfg.noRenderArmWearList=Список брони для которой НЕ нужно рендерить одежду на руке
+armoredarms.cfg.renderSourcesPriority=Приоритет источников отрисовки
 armoredarms.cfg.vanillaArmorModelSize=Размер ванильной модели брони
 armoredarms.cfg.useCheckByItem=Использовать проверку по предмету
 armoredarms.cfg.enableArmWearWithVanillaM=Включить отрисовку одежды на руке для ванильной модели брони
 ##
-armoredarms.error.unknown.tryRender=При попытке рендера произошла неизвестная ошибка! Подробности:
-armoredarms.error.unknown.tryTick=При попытке обновления произошла неизвестная ошибка! Подробности:
-armoredarms.error.layer.fatal.tryRender=При попытке рендера слоя произошла фатальная ошибка! Слой будет удалён и не будет отриссоватся! Подробности:
-armoredarms.error.layer.fatal.tryTick=При попытке обновления слоя произошла фатальная ошибка! Слой будет удалён и не будет отриссоватся! Подробности:
-armoredarms.error.fatal.tryRender=При попытке рендера произошла фатальная ошибка! Броня на руках не будет отрисооватся! Подробности:
-armoredarms.error.fatal.tryTick=При попытке обновления произошла фатальная ошибка! Броня на руках не будет отрисооватся! Подробности:
-armoredarms.error.layer.armor.tryRender=При попытке рендера произошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:
-armoredarms.error.layer.armor.tryTick=При попытке обновления произошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:
+armoredarms.error=Во время работы компонента отрисовки: //////%1$s //////произошла ошибка!//////Компонент будет отключен. Подробности: /exp/
+armoredarms.error.warn=Во время работы компонента отрисовки: //////%1$s //////произошло исключение.//////Подробности: /exp/
+armoredarms.error.fatal=Во время работы компонента отрисовки: //////%1$s //////произошла фатальная ошибка!//////Мод будет отключен. Подробности: /exp/
+
+armoredarms.layer=Слой отрисовки: %1$s
+armoredarms.engine=Движок отрисовки: %1$s
+armoredarms.pipeline=Пайп лайн отрисовки: %1$s
+armoredarms.model-manager=Менеджер моделей: %1$s
+armoredarms.unknown-component=Компонент %2$s класс: %1$s
+armoredarms.null-component=Компонент отсутствует...
+
+armoredarms.error.layer.armor.render=При попытке рендера произошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:
+armoredarms.error.layer.armor.update=При попытке обновления произошла ошибка! Броня внесена в черный список и не будет отрисооватся! Подробности:

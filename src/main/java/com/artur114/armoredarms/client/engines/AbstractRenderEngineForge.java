@@ -52,7 +52,7 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     protected void updateBones() {
         RenderPlayer renderPlayer = (RenderPlayer) RenderManager.instance.getEntityRenderObject(this.mc.thePlayer);
         ModelBiped biped = renderPlayer.modelBipedMain;
-        bones.updateBones(biped.bipedRightArm, biped.bipedLeftArm);
+        this.bones.updateBones(biped.bipedRightArm, biped.bipedLeftArm);
     }
 
     @SuppressWarnings("unchecked")

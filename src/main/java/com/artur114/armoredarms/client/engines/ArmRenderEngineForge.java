@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.engines;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
@@ -26,12 +27,16 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEngineForge, ArmRenderPipelineForge> {
     @Override
     protected Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers() {
-        return Collections.singletonMap(ArmRenderLayerArmor.class, new ArmRenderLayerArmor());
+        Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> map = new HashMap<>();
+        map.put(ArmRenderLayerArmor.class, new ArmRenderLayerArmor());
+        map.put(ArmRenderLayerHand.class, new ArmRenderLayerHand());
+        return map;
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.EnumExceptionType;
 import com.artur114.armoredarms.core.util.RenderException;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -72,6 +73,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
     @Override
     protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineForge> engine) {
+        FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
     }
 

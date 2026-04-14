@@ -32,7 +32,7 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public String messageForPlayer(String type) {
-        return "aaaaaaaaaaaa";
+        return "armoredarms.error.layer.armor." + type;
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.artur114.armoredarms.client.layers;
 
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
+import com.artur114.armoredarms.client.modelrender.player.ArmModelContainerPlayer;
+import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
+import com.artur114.armoredarms.client.modelrender.player.ArmModelRendererPlayer;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
@@ -22,6 +25,13 @@ import java.util.List;
 public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, ItemStackAA, AbstractRenderEngineForge<?, ?>> {
     public final Minecraft mc = Minecraft.getMinecraft();
     public RenderPlayer renderPlayer = null;
+
+    @Override
+    public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
+        this.renderPlayer = (RenderPlayer) RenderManager.instance.getEntityRenderObject(this.mc.thePlayer);
+
+        super.init(engine, mod);
+    }
 
     @Override
     public void tryTick(AbstractRenderEngineForge<?, ?> engine) {
@@ -52,12 +62,12 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
 
     @Override
     public List<IArmModelManager<?, ?>> initModelManager() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ArmModelManagerPlayer());
     }
 
     @Override
     public List<IArmModelRenderContainer<?, ?>> initRenderContainers() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
     }
 
     @Override

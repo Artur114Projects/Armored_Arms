@@ -1,9 +1,6 @@
 package com.artur114.armoredarms.client.util;
 
-import com.artur114.armoredarms.core.util.IItemStack;
-import com.artur114.armoredarms.core.util.Immutable;
-import com.artur114.armoredarms.core.util.Int2ObjBoundedCache;
-import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.core.util.*;
 import com.artur114.armoredarms.main.AAConfig;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
@@ -18,11 +15,16 @@ import net.minecraftforge.client.ForgeHooksClient;
 @Immutable
 public class ItemStackAA implements IItemStack {
     private static final ModelBiped defaultModel = new ModelBiped(1.0F);
-    private static final Int2ObjBoundedCache<ItemStackAA> cache = new Int2ObjBoundedCache<>(512);
+    private static final IIntBoundedCache<ItemStackAA> cache = IIntBoundedCache.createBestInstance(512);
+
     public static final ItemStackAA EMPTY = new ItemStackAA(null);
     public static final int CHEST_PLATE_ID = 1;
 
     public static synchronized ItemStackAA from(ItemStack mcStack) {
+        if (mcStack == null) {
+            return EMPTY;
+        }
+
         ItemStackAA stack = cache.get(mcStack.hashCode());
 
         if (stack == null) {
@@ -76,6 +78,9 @@ public class ItemStackAA implements IItemStack {
     }
 
     public boolean isBiped() {
+        if (this.isEmpty()) {
+            return false;
+        }
         ModelBiped armor = ForgeHooksClient.getArmorModel(Minecraft.getMinecraft().thePlayer, this.stack, CHEST_PLATE_ID, defaultModel);
         return armor == null || armor.getClass() == ModelBiped.class;
     }
@@ -91,6 +96,9 @@ public class ItemStackAA implements IItemStack {
 
     @Override
     public ShapelessLocation location() {
+        if (this.isEmpty()) {
+            return ShapelessLocation.location("minecraft:air");
+        }
         return AAUtils.fromMc(Item.itemRegistry.getNameForObject(this.stack.getItem()));
     }
 

@@ -34,7 +34,6 @@ minecraft {
 }
 
 repositories {
-    mavenCentral()
     mavenLocal()
 }
 
@@ -46,8 +45,6 @@ coreBuildConf {
 }
 
 dependencies {
-    include 'it.unimi.dsi:fastutil:8.5.6'
-
     core.massDependencies {
         source "libs"
     }
