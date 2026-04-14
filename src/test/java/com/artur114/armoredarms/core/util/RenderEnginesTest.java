@@ -52,6 +52,11 @@ class RenderEnginesTest {
         public void tryTick(IArmRenderPipeline<?> context) {}
 
         @Override
+        public ArmsBone mainBones() {
+            return null;
+        }
+
+        @Override
         public <L extends IArmRenderLayer<?>> L layer(Class<L> clazz) {
             return null;
         }
@@ -95,6 +100,11 @@ class RenderEnginesTest {
 
         @Override
         public void tryTick(TestPipeline1 context) {}
+
+        @Override
+        public ArmsBone mainBones() {
+            return null;
+        }
 
         @Override
         public <L extends IArmRenderLayer<?>> L layer(Class<L> clazz) {

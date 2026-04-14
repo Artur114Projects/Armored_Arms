@@ -7,8 +7,8 @@ import java.util.*;
 
 @Immutable
 public class ShapelessLocation {
+    private static final IIntBoundedCache<ShapelessLocation> cache = IIntBoundedCache.createBestInstance(2048);
     private static final Logger LOGGER = LogManager.getLogger("ARMOREDARMS-SL");
-    private static final Int2ObjBoundedCache<ShapelessLocation> cache = new Int2ObjBoundedCache<>(2048);
     private static final Location SHAPELESS_L = new Location("*");
     private static final Location EMPTY_L = new Location("");
 

@@ -32,5 +32,11 @@ public abstract class AbstractRenderPipeline<I extends AbstractRenderPipeline<?>
         this.deactivated = true;
     }
 
+    @SuppressWarnings("unchecked")
+    protected void init() {
+        this.initTick = false;
+        this.engine.init((I) this, this.mod);
+    }
+
     protected abstract void register(IAAModContainer mod, IArmRenderEngine<I> engine);
 }

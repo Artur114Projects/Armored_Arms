@@ -1,13 +1,13 @@
 package com.artur114.armoredarms.core.util;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Int2ObjBoundedCache<V> implements IIntBoundedCache<V> {
-    private final Int2ObjectMap<CacheEntry<V>> cache = new Int2ObjectOpenHashMap<>();
+public class IntMapBoundedCache<V> implements IIntBoundedCache<V> {
+    private final Map<Integer, CacheEntry<V>> cache = new HashMap<>();
     private final int bound;
 
-    public Int2ObjBoundedCache(int bound) {
+    public IntMapBoundedCache(int bound) {
         this.bound = Math.max(1, bound);
     }
 

@@ -65,6 +65,11 @@ public abstract class AbstractArmorRenderLayer<I extends AbstractArmorRenderLaye
     }
 
     @Override
+    public E engine() {
+        return this.engine;
+    }
+
+    @Override
     public boolean needRender(E engine, boolean renderEngineState) {
         return this.render;
     }

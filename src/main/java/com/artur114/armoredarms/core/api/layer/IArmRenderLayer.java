@@ -12,6 +12,7 @@ public interface IArmRenderLayer<E extends IArmRenderEngine<?>> extends IPriorit
     void init(E engine, IAAModContainer mod);
     boolean needRender(E engine, boolean renderEngineState);
     Class<E> targetEngine();
+    E engine();
 
     @Override
     default String type() {

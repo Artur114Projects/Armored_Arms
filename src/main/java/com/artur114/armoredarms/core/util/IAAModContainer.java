@@ -30,9 +30,9 @@ public interface IAAModContainer {
             } else {
                 IArmRenderPipeline<?> pipelineTry = RenderPipelines.pickUp(this);
                 this.logger().AA_LOG.fatal("Rendering pipeline could not be loaded!");
-                this.logger().AA_LOG.fatal("   Try to pick up pipeline: {}", pipelineTry);
+                this.logger().AA_LOG.fatal("   Try to pick up pipeline: " + pipelineTry);
                 if (pipelineTry != null) {
-                    this.logger().AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(this, pipelineTry.clazz()));
+                    this.logger().AA_LOG.fatal("   Try to pick up engine: " + RenderEngines.pickUp(this, pipelineTry.clazz()));
                 }
             }
         } catch (Exception ex) {
