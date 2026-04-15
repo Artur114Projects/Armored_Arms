@@ -12,6 +12,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class ArmModelContainerArmor implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> {
+    private final Class<? extends IArmModelRenderer<ArmModelManagerArmor>> clazz;
     private final IConstructor creator;
     private final IPriority priority;
 
@@ -21,6 +22,7 @@ public class ArmModelContainerArmor implements IArmModelRenderContainer<ArmRende
 
     public ArmModelContainerArmor(Class<? extends IArmModelRenderer<ArmModelManagerArmor>> clazz, IPriority priority) {
         this.priority = priority;
+        this.clazz = clazz;
         try {
             Constructor<? extends IArmModelRenderer<ArmModelManagerArmor>> constructor = clazz.getDeclaredConstructor(ModelBiped.class, IMultiTexture.class);
             constructor.setAccessible(true);
@@ -60,6 +62,11 @@ public class ArmModelContainerArmor implements IArmModelRenderContainer<ArmRende
     @Override
     public IPriority priority() {
         return this.priority;
+    }
+
+    @Override
+    public String toString() {
+        return "DMC/A: " + this.clazz;
     }
 
     private interface IConstructor {

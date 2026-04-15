@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class ArmModelContainerPlayer implements IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> {
+    private final Class<? extends IArmModelRenderer<ArmModelManagerPlayer>> clazz;
     private final IConstructor creator;
     private final IPriority priority;
 
@@ -20,6 +21,7 @@ public class ArmModelContainerPlayer implements IArmModelRenderContainer<ArmRend
 
     public ArmModelContainerPlayer(Class<? extends IArmModelRenderer<ArmModelManagerPlayer>> clazz, IPriority priority) {
         this.priority = priority;
+        this.clazz = clazz;
         this.creator = () ->  {
             try {
                 return clazz.newInstance();
@@ -52,6 +54,11 @@ public class ArmModelContainerPlayer implements IArmModelRenderContainer<ArmRend
     @Override
     public IPriority priority() {
         return this.priority;
+    }
+
+    @Override
+    public String toString() {
+        return "DMC/P: " + this.clazz;
     }
 
     private interface IConstructor {

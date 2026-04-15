@@ -10,6 +10,8 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.ResourceLocation;
 
@@ -19,6 +21,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     public ItemStackAA chestPlate = ItemStackAA.EMPTY;
     public ResourceLocation playerSkin;
     public RenderPlayer renderPlayer;
+    public ArmRenderLayerHand layer;
     public boolean shouldRenderWear;
 
     @Override
@@ -45,7 +48,9 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     }
 
     @Override
-    public void load(ArmRenderLayerHand layer) {}
+    public void load(ArmRenderLayerHand layer) {
+        this.layer = layer;
+    }
 
     @Override
     public void unload(ArmRenderLayerHand layer) {}
@@ -65,6 +70,12 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
         this.chestPlate = null;
 
         return ret;
+    }
+
+    public void prepareModel(ModelBiped model) {
+        model.swingProgress = 0.0F;
+        model.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, this.mc.thePlayer);
+        this.layer.engine().mainBones().updateBones(model.bipedRightArm, model.bipedLeftArm);
     }
 
     @Override

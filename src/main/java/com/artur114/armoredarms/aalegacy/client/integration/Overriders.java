@@ -61,7 +61,7 @@
 //        e.registerOverrider("alfheim", "FenrirChestplate", new OverriderBotania("armR", "armL"), false);
 //
 //        e.registerOverrider("hbm", "item.t45_plate", new HBMOverrider("rightarm", "leftarm", "item"), false);
-//        e.registerOverrider("hbm", "item.ajr_plate", new HBMOverrider("rightAr m", "leftArm", "ajr_arm"), false);
+//        e.registerOverrider("hbm", "item.ajr_plate", new HBMOverrider("rightArm", "leftArm", "ajr_arm"), false);
 //        e.registerOverrider("hbm", "item.ajro_plate", new HBMOverrider("rightArm", "leftArm", "ajro_arm"), false);
 //        e.registerOverrider("hbm", "item.hev_plate", new HBMOverrider("rightArm", "leftArm", "hev_arm"), false);
 //        e.registerOverrider("hbm", "item.bj_plate", new HBMOverrider("rightArm", "leftArm", "bj_arm"), false);

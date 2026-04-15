@@ -12,8 +12,7 @@ public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManager
         context.mc.getTextureManager().bindTexture(context.playerSkin);
         ModelBiped mb = context.renderPlayer.modelBipedMain;
         GL11.glColor3f(1.0F, 1.0F, 1.0F);
-        mb.swingProgress = 0.0F;
-        mb.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, context.mc.thePlayer);
+        context.prepareModel(mb);
         AAUtils.handFromModelBiped(mb, side).render(1.0F / 16.0F);
     }
 }

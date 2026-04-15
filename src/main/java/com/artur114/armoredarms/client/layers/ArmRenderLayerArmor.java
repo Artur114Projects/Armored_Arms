@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.layers;
 
+import com.artur114.armoredarms.api.events.InitModelManagersEvent;
+import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
@@ -12,6 +14,7 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.SLContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 
 import java.util.Collections;
@@ -37,17 +40,23 @@ public class ArmRenderLayerArmor extends AbstractArmorRenderLayer<ArmRenderLayer
 
     @Override
     public List<ShapelessLocation> initBlackList() {
-        return Collections.emptyList();
+        return AAConfig.Baked.renderArmorBlackList;
     }
 
     @Override
     public List<SLContainer<IArmModelManager<?, ?>>> initModelManagers() {
-        return Collections.singletonList(new SLContainer<>(ShapelessLocation.ABSOLUTE, new ArmModelManagerArmor()));
+        InitModelManagersEvent event = new InitModelManagersEvent(this.getClass(), this.mod, true);
+        event.registerManager(new ArmModelManagerArmor(), ShapelessLocation.location("*", "*"));
+        this.mod.post(event);
+        return event.managersSL();
     }
 
     @Override
     public List<SLContainer<IArmModelRenderContainer<?, ?>>> initRenderContainers() {
-        return Collections.singletonList(new SLContainer<>(ShapelessLocation.ABSOLUTE, new ArmModelContainerArmor(ArmModelRendererArmor.class)));
+        InitRenderContainersEvent event = new InitRenderContainersEvent(this.getClass(), this.mod, true);
+        event.registerContainer(new ArmModelContainerArmor(ArmModelRendererArmor.class, Priority.LOWEST), ShapelessLocation.location("*", "*"));
+        this.mod.post(event);
+        return event.containersSL();
     }
 
     @Override

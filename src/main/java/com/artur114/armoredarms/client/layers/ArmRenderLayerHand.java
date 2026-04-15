@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.layers;
 
+import com.artur114.armoredarms.api.events.InitModelManagersEvent;
+import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelContainerPlayer;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
@@ -13,6 +15,7 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -52,22 +55,28 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
 
     @Override
     public List<ShapelessLocation> initRenderWearList() {
-        return Collections.emptyList();
+        return AAConfig.Baked.renderWearList;
     }
 
     @Override
     public List<ShapelessLocation> initNoRenderWearList() {
-        return Collections.emptyList();
+        return AAConfig.Baked.noRenderWearList;
     }
 
     @Override
     public List<IArmModelManager<?, ?>> initModelManager() {
-        return Collections.singletonList(new ArmModelManagerPlayer());
+        InitModelManagersEvent event = new InitModelManagersEvent(this.getClass(), this.mod, false);
+        event.registerManager(new ArmModelManagerPlayer());
+        this.mod.post(event);
+        return event.managers();
     }
 
     @Override
     public List<IArmModelRenderContainer<?, ?>> initRenderContainers() {
-        return Collections.singletonList(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
+        InitRenderContainersEvent event = new InitRenderContainersEvent(this.getClass(), this.mod, false);
+        event.registerContainer(new ArmModelContainerPlayer(ArmModelRendererPlayer.class));
+        this.mod.post(event);
+        return event.containers();
     }
 
     @Override

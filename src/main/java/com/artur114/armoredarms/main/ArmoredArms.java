@@ -1,7 +1,17 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.integration.alfheim.EventHandlerAL;
+import com.artur114.armoredarms.client.integration.backhand.EventHandlerBH;
+import com.artur114.armoredarms.client.integration.botania.EventHandlerBO;
+import com.artur114.armoredarms.client.integration.ears.EventHandlerEA;
+import com.artur114.armoredarms.client.integration.hbm.EventHandlerHB;
+import com.artur114.armoredarms.client.integration.skinport.EventHandlerSP;
+import com.artur114.armoredarms.client.integration.thaumicconcilium.EventHandlerTC;
+import com.artur114.armoredarms.client.integration.theaether.EventHandlerTA;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
+import com.artur114.armoredarms.client.util.IPreInitListener;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.AbstractLoggingManager;
@@ -23,8 +33,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Mod(modid = ArmoredArms.MODID, guiFactory = ArmoredArms.GUI_FACTORY, useMetadata = true)
 public class ArmoredArms implements IAAModContainer {
@@ -39,12 +51,19 @@ public class ArmoredArms implements IAAModContainer {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
-        CONFIGS.fMLPreInitializationEvent(e);
+        List<IPreInitListener> listeners = new ArrayList<>();
+        this.initListeners(listeners);
+
+        for (IPreInitListener listener : listeners) {
+            listener.fMLPreInitializationEvent(e);
+        }
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        this.pipeline = this.initPipelineSafety();
+        if (!MinecraftForge.EVENT_BUS.post(new InitRenderPipelineEvent(this))) {
+            this.pipeline = this.initPipelineSafety();
+        }
     }
 
     @Override
@@ -88,5 +107,18 @@ public class ArmoredArms implements IAAModContainer {
             MinecraftForge.EVENT_BUS.post((Event) event);
         }
         return false;
+    }
+
+    private void initListeners(List<IPreInitListener> listeners) {
+        listeners.add(CONFIGS);
+
+        listeners.add(new EventHandlerBH());
+        listeners.add(new EventHandlerBO());
+        listeners.add(new EventHandlerAL());
+        listeners.add(new EventHandlerHB());
+        listeners.add(new EventHandlerTA());
+        listeners.add(new EventHandlerSP());
+        listeners.add(new EventHandlerEA());
+        listeners.add(new EventHandlerTC());
     }
 }

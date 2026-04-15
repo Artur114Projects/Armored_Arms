@@ -28,8 +28,6 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
 
     @Override
     public void tryTick(P context) {
-        this.updateBones();
-
         super.tryTick(context);
     }
 
@@ -39,7 +37,6 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
         this.itemRenderer = this.entityRenderer.itemRenderer;
 
         Bone.register(new BoneAdapterModelRender());
-        this.updateBones();
 
         super.init(context, mod);
     }
@@ -47,12 +44,6 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     @Override
     public ArmsBone mainBones() {
         return this.bones;
-    }
-
-    protected void updateBones() {
-        RenderPlayer renderPlayer = (RenderPlayer) RenderManager.instance.getEntityRenderObject(this.mc.thePlayer);
-        ModelBiped biped = renderPlayer.modelBipedMain;
-        this.bones.updateBones(biped.bipedRightArm, biped.bipedLeftArm);
     }
 
     @SuppressWarnings("unchecked")
