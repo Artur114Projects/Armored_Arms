@@ -10,7 +10,7 @@ public class RenderPipelines {
     private static final Set<IArmRenderPipeline<?>> pipelines = new HashSet<>();
     private static boolean loadedDefaultKit = false;
 
-    public static boolean registerPipelineIfModLoaded(IAAModContainer aa, Class<IArmRenderPipeline<?>> clazz, String modId) {
+    public static boolean registerPipelineIfModLoaded(IAAModContainer aa, Class<? extends IArmRenderPipeline<?>> clazz, String modId) {
         if (aa.isModLoaded(modId)) {
             try {
                 return pipelines.add(clazz.newInstance());

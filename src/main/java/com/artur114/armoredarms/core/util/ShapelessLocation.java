@@ -139,6 +139,8 @@ public class ShapelessLocation {
         private Location(String location) {
             Objects.requireNonNull(location);
 
+            location = location.toLowerCase();
+
             this.location = location;
             this.hash = location.hashCode();
         }
