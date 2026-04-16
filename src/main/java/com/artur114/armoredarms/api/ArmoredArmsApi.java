@@ -1,70 +1,30 @@
 package com.artur114.armoredarms.api;
 
-import com.artur114.armoredarms.api.events.*;
+import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
+import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
+import com.artur114.armoredarms.core.util.RenderEngines;
+import com.artur114.armoredarms.core.util.RenderPipelines;
+import com.artur114.armoredarms.main.ArmoredArms;
+
 
 public class ArmoredArmsApi {
-
-    /**
-     * Not event realisation of {@link InitRenderLayersEvent#removeLayer}
-     * @see InitRenderLayersEvent#removeLayer
-     */
-    public static boolean aaNonEventRemoveLayer(Class<? extends IArmRenderLayer> renderLayer) {
-        return AANonEventsApiProcessor.aaNonEventRemoveLayer(renderLayer);
+    public static void registerPipeline(IArmRenderPipeline<?> pipeline) {
+        RenderPipelines.registerPipeline(pipeline);
     }
 
-    /**
-     * Not event realisation of {@link InitArmorRenderLayerEvent#removeOverrider}
-     * @see InitArmorRenderLayerEvent#removeOverrider
-     */
-    public static boolean aaNonEventRemoveOverrider(String modid, String itemName) {
-        return AANonEventsApiProcessor.aaNonEventRemoveOverrider(modid, itemName);
+    public static void registerPipelineIfModLoaded(Class<? extends IArmRenderPipeline<?>> pipeline, String modId) {
+        RenderPipelines.registerPipelineIfModLoaded(ArmoredArms.ARMORED_ARMS, pipeline, modId);
     }
 
-    /**
-     * Not event realisation of {@link InitArmorRenderLayerEvent#removeFromBlackList}
-     * @see InitArmorRenderLayerEvent#removeFromBlackList
-     */
-    public static boolean aaNonEventRemoveFromBlackList(String modid, String itemName) {
-        return AANonEventsApiProcessor.aaNonEventRemoveFromBlackList(modid, itemName);
+    public static void registerEngine(IArmRenderEngine<?> engine) {
+        RenderEngines.registerEngine(engine);
     }
 
-    /**
-     * Not event realisation of {@link InitRenderLayersEvent#addLayerIfModLoad}
-     * @see InitRenderLayersEvent#addLayerIfModLoad
-     */
-    public static void aaNonEventAddLayerIfModLoad(Class<? extends IArmRenderLayer> renderLayer, String modId) {
-        AANonEventsApiProcessor.aaNonEventAddLayerIfModLoad(renderLayer, modId);
+    public static void registerEngineIfModLoaded(Class<? extends IArmRenderEngine<?>> engine, String modId) {
+        RenderEngines.registerEngineIfModLoaded(ArmoredArms.ARMORED_ARMS, engine, modId);
     }
 
-    /**
-     * Not event realisation of {@link InitRenderLayersEvent#addLayer}
-     * @see InitRenderLayersEvent#addLayer
-     */
-    public static void aaNonEventAddLayer(Class<? extends IArmRenderLayer> renderLayer) {
-        AANonEventsApiProcessor.aaNonEventAddLayer(renderLayer);
-    }
-
-    /**
-     * Not event realisation of {@link InitArmorRenderLayerEvent#registerOverrider}
-     * @see InitArmorRenderLayerEvent#registerOverrider
-     */
-    public static void aaNonEventRegisterOverrider(String modid, String itemName, IOverrider overrider, boolean replaceIfHas) {
-        AANonEventsApiProcessor.aaNonEventRegisterOverrider(modid, itemName, overrider, replaceIfHas);
-    }
-
-    /**
-     * Not event realisation of {@link InitArmorRenderLayerEvent#addArmorToBlackList(String, String)}
-     * @see InitArmorRenderLayerEvent#removeOverrider(String, String)
-     */
-    public static void aaNonEventAddArmorToBlackList(String modid, String itemName) {
-        AANonEventsApiProcessor.aaNonEventAddArmorToBlackList(modid, itemName);
-    }
-
-    /**
-     * Not event realisation of {@link InitArmorRenderLayerEvent#addArmorToBlackList(String[])}
-     * @see InitArmorRenderLayerEvent#addArmorToBlackList(String[])
-     */
-    public static void aaNonEventAddArmorToBlackList(String[] rls) {
-        AANonEventsApiProcessor.aaNonEventAddArmorToBlackList(rls);
+    public static IArmRenderPipeline<?> currentPipeline() {
+        return ArmoredArms.ARMORED_ARMS.pipeline();
     }
 }
