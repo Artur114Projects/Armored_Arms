@@ -62,7 +62,7 @@ public class LoggingManager extends AbstractLoggingManager {
         return map;
     }
 
-    public void logDragonBlockC(IAAModContainer mod) {
+    public void logDragonBlockC(IAAModContainer mod) { // Best function on mod!
         String[] fuckYouJinGames = new String[] {"Jin Games... fuck you", "Fuck you Jin Games", "Jin Games иди нахуй", "Пошел нахуй Jin Games"};
         if (mod.isModLoaded("jinryuudragonblockc")) {
             AA_LOG.warn("Dragon Block C detected");

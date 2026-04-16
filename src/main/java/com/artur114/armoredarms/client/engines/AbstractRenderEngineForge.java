@@ -24,7 +24,7 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     public final Minecraft mc = Minecraft.getMinecraft();
     public EntityRenderer entityRenderer = null;
     public ItemRenderer itemRenderer = null;
-    public ArmsBone bones = new ArmsBone();
+    public ArmsBone bones = null;
 
     @Override
     public void tryTick(P context) {
@@ -35,6 +35,7 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     public void init(P context, IAAModContainer mod) {
         this.entityRenderer = this.mc.entityRenderer;
         this.itemRenderer = this.entityRenderer.itemRenderer;
+        this.bones = new ArmsBone(mod);
 
         Bone.register(new BoneAdapterModelRender());
 
