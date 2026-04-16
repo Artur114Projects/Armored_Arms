@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.core.util;
 
 import com.artur114.armoredarms.core.api.IPrioritised;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class Bone {
         return false;
     }
 
+    private final IAAModContainer mod;
+    private final String name;
     public float rotationPointX;
     public float rotationPointY;
     public float rotationPointZ;
@@ -32,6 +35,11 @@ public class Bone {
     public float offsetX;
     public float offsetY;
     public float offsetZ;
+
+    protected Bone(IAAModContainer mod, String name) {
+        this.name = name;
+        this.mod = mod;
+    }
 
     public void injectTo(Object obj) {
         Class<?> clazz = obj.getClass();
@@ -51,7 +59,38 @@ public class Bone {
 
         for (IBoneAdapter<Object> source : sources) {
             if (source.targetObjectClass().isAssignableFrom(clazz)) {
+                float rotationPointX = this.rotationPointX;
+                float rotationPointY = this.rotationPointY;
+                float rotationPointZ = this.rotationPointZ;
+                float rotateAngleX = this.rotateAngleX;
+                float rotateAngleY = this.rotateAngleY;
+                float rotateAngleZ = this.rotateAngleZ;
+                float offsetX = this.offsetX;
+                float offsetY = this.offsetY;
+                float offsetZ = this.offsetZ;
+
                 source.set(this, obj);
+
+                Logger logger = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
+
+                if (rotationPointX != this.rotationPointX || rotationPointY != this.rotationPointY || rotationPointZ != this.rotationPointZ) {
+                    logger.debug("Bone[{}] update result: rotationPoint was changed", this.name);
+                    logger.debug("    old rotationPoint: [{}, {}, {}]", rotationPointX, rotationPointY, rotationPointZ);
+                    logger.debug("    new rotationPoint: [{}, {}, {}]", this.rotationPointX, this.rotationPointY, this.rotationPointZ);
+                }
+
+                if (rotateAngleX != this.rotateAngleX || rotateAngleY != this.rotateAngleY || rotateAngleZ != this.rotateAngleZ) {
+                    logger.debug("Bone[{}] update result: rotateAngle was changed", this.name);
+                    logger.debug("    old rotateAngle: [{}, {}, {}]", rotateAngleX, rotateAngleY, rotateAngleZ);
+                    logger.debug("    new rotateAngle: [{}, {}, {}]", this.rotateAngleX, this.rotateAngleY, this.rotateAngleZ);
+                }
+
+                if (offsetX != this.offsetX || offsetY != this.offsetY || offsetZ != this.offsetZ) {
+                    logger.debug("Bone[{}] update result: offset was changed", this.name);
+                    logger.debug("    old offset: [{}, {}, {}]", offsetX, offsetY, offsetZ);
+                    logger.debug("    new offset: [{}, {}, {}]", this.offsetX, this.offsetY, this.offsetZ);
+                }
+
                 return;
             }
         }

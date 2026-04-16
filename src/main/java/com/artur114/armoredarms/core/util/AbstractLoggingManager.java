@@ -38,6 +38,33 @@ public abstract class AbstractLoggingManager {
         }
     }
 
+    public String[] stackTrace() {
+        return this.stackTrace(2);
+    }
+
+    public String[] stackTrace(int ignored) {
+        return this.stackTrace("", ignored);
+    }
+
+    public String[] stackTrace(String prefix) {
+        return this.stackTrace(prefix, 2);
+    }
+
+    public String[] stackTrace(String prefix, int ignored) {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        String[] ret = new String[stack.length - ignored];
+
+        if (stack.length <= ignored || ignored < 0) {
+            return new String[0];
+        }
+
+        for (int i = ignored; i != stack.length; i++) {
+            ret[i - ignored] = prefix + stack[i].toString();
+        }
+
+        return ret;
+    }
+
     protected void processSingleException(RenderException exp) {
         IArmRenderComponent broken = exp.brokenComponent();
         Level level = Level.ERROR;

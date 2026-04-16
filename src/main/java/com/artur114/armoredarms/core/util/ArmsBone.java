@@ -3,7 +3,11 @@ package com.artur114.armoredarms.core.util;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 
 public class ArmsBone {
-    private final Bone[] bones = new Bone[] {new Bone(), new Bone()};
+    private final Bone[] bones;
+
+    public ArmsBone(IAAModContainer mod) {
+        this.bones = new Bone[] {new Bone(mod, "leftArm"), new Bone(mod, "rightArm")};
+    }
 
     public Bone bySide(EnumHandSideAA side) {
         return this.bones[side.ordinal()];
