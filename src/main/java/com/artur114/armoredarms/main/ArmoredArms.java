@@ -5,11 +5,15 @@ import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.integration.alfheim.EventHandlerAL;
 import com.artur114.armoredarms.client.integration.backhand.EventHandlerBH;
 import com.artur114.armoredarms.client.integration.botania.EventHandlerBO;
+import com.artur114.armoredarms.client.integration.clfcsl.EventHandlerCL;
+import com.artur114.armoredarms.client.integration.dragonblockc.EventHandlerDB;
 import com.artur114.armoredarms.client.integration.ears.EventHandlerEA;
+import com.artur114.armoredarms.client.integration.galacticraftcore.EventHandlerGC;
 import com.artur114.armoredarms.client.integration.hbm.EventHandlerHB;
 import com.artur114.armoredarms.client.integration.skinport.EventHandlerSP;
 import com.artur114.armoredarms.client.integration.thaumicconcilium.EventHandlerTC;
 import com.artur114.armoredarms.client.integration.theaether.EventHandlerTA;
+import com.artur114.armoredarms.client.integration.wawelauth.EventHandlerWA;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.util.IPreInitListener;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -57,6 +61,10 @@ public class ArmoredArms implements IAAModContainer {
         for (IPreInitListener listener : listeners) {
             listener.fMLPreInitializationEvent(e);
         }
+
+        try {
+            LOGGER.logDragonBlockC(this);
+        } catch (Exception ignored) {}
     }
 
     @Mod.EventHandler
@@ -120,5 +128,9 @@ public class ArmoredArms implements IAAModContainer {
         listeners.add(new EventHandlerSP());
         listeners.add(new EventHandlerEA());
         listeners.add(new EventHandlerTC());
+        listeners.add(new EventHandlerWA());
+        listeners.add(new EventHandlerCL());
+        listeners.add(new EventHandlerDB());
+        listeners.add(new EventHandlerGC());
     }
 }

@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.backhand.engine;
 
-import com.artur114.armoredarms.aalegacy.client.util.EnumHandSide;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;

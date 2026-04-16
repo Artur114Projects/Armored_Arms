@@ -74,6 +74,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
 
     public void prepareModel(ModelBiped model) {
         model.swingProgress = 0.0F;
+        model.isRiding = false;
         model.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, this.mc.thePlayer);
         this.layer.engine().mainBones().updateBones(model.bipedRightArm, model.bipedLeftArm);
     }

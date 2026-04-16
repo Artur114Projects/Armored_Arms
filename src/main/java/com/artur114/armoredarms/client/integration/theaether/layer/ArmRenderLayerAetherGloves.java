@@ -1,8 +1,5 @@
 package com.artur114.armoredarms.client.integration.theaether.layer;
 
-import com.artur114.armoredarms.aalegacy.client.util.EnumHandSide;
-import com.artur114.armoredarms.aalegacy.client.util.MiscUtils;
-import com.artur114.armoredarms.aalegacy.client.util.Reflector;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
@@ -11,6 +8,7 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.Reflector;
 import com.artur114.armoredarms.main.AAConfig;
 import com.gildedgames.the_aether.api.accessories.AccessoryType;
 import com.gildedgames.the_aether.api.player.util.IAccessoryInventory;

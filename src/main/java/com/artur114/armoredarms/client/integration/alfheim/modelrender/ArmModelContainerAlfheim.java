@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.alfheim.modelrender;
 
-import com.artur114.armoredarms.aalegacy.client.util.Reflector;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
@@ -8,6 +7,7 @@ import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Reflector;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraftforge.client.model.IModelCustom;
 

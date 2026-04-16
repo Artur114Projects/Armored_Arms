@@ -46,6 +46,7 @@ coreBuildConf {
 
 dependencies {
     core.massDependencies {
+        dependenceLoadType = "ALL_FLAT_DIR"
         source "libs"
     }
 }

@@ -7,6 +7,7 @@ import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.EnumExceptionType;
 import com.artur114.armoredarms.core.util.RenderException;
+import com.artur114.armoredarms.main.AAConfig;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -79,7 +80,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
     @Override
     public boolean canWork(IAAModContainer mod) {
-        return true;
+        return AAConfig.Baked.pipelinesPriority.containsKey(ArmRenderPipelineForge.class);
     }
 
     @Override
@@ -89,6 +90,6 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
 
     @Override
     public IPriority priority() {
-        return Priority.NORMAL;
+        return AAConfig.Baked.pipelinesPriority.get(ArmRenderPipelineForge.class);
     }
 }

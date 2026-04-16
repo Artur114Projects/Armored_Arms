@@ -11,6 +11,8 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 
+import java.util.Random;
+
 public class LoggingManager extends AbstractLoggingManager {
     @Override
     protected String splitter() {
@@ -58,6 +60,14 @@ public class LoggingManager extends AbstractLoggingManager {
         map.put(new ShapelessLocation("pipeline:*"), "armoredarms.pipeline");
         map.put(new ShapelessLocation("model-manager:*"), "armoredarms.model-manager");
         return map;
+    }
+
+    public void logDragonBlockC(IAAModContainer mod) {
+        String[] fuckYouJinGames = new String[] {"Jin Games... fuck you", "Fuck you Jin Games", "Jin Games иди нахуй", "Пошел нахуй Jin Games"};
+        if (mod.isModLoaded("jinryuudragonblockc")) {
+            AA_LOG.warn("Dragon Block C detected");
+            AA_LOG.warn(fuckYouJinGames[new Random().nextInt(fuckYouJinGames.length)]);
+        }
     }
 
     private static class TextMessage implements ITextMessage {

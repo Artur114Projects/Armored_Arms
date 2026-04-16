@@ -1,7 +1,5 @@
 package com.artur114.armoredarms.client.integration.alfheim.modelrender;
 
-import com.artur114.armoredarms.aalegacy.client.util.EnumHandSide;
-import com.artur114.armoredarms.aalegacy.client.util.MiscUtils;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;

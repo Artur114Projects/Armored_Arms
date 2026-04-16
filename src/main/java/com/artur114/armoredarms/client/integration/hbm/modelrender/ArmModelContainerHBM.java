@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.hbm.modelrender;
 
-import com.artur114.armoredarms.aalegacy.client.util.Reflector;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
@@ -12,6 +11,7 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITexture;
 import com.artur114.armoredarms.core.util.MultiTexture;
+import com.artur114.armoredarms.core.util.Reflector;
 import com.artur114.armoredarms.main.ArmoredArms;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.loader.ModelRendererObj;
