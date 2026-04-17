@@ -17,43 +17,53 @@ import xonin.backhand.api.core.BackhandUtils;
 import xonin.backhand.api.core.IBackhandPlayer;
 
 public class ArmRenderEngineBackHand extends ArmRenderEngineForge {
+
     @Override
-    public void renderHand(RenderHandEvent e) {
-        boolean flag = this.itemRenderer.itemToRender == null || this.itemRenderer.itemToRender.getItem() instanceof ItemMap;
-        if (flag && this.entityRenderer.debugViewDirection <= 0) {
-            e.setCanceled(true);
-            GL11.glClear(256);
-            GL11.glMatrixMode(5889);
+    protected void renderHand(RenderHandEvent e, float partialTicks, int renderPass) {
+        if (this.entityRenderer.debugViewDirection <= 0)
+        {
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
             GL11.glLoadIdentity();
             float f1 = 0.07F;
-            if (this.mc.gameSettings.anaglyph) {
-                GL11.glTranslatef((float)(-(e.renderPass * 2 - 1)) * f1, 0.0F, 0.0F);
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                GL11.glTranslatef((float)(-(renderPass * 2 - 1)) * f1, 0.0F, 0.0F);
             }
 
-            if (this.entityRenderer.cameraZoom != 1.0) {
+            if (this.entityRenderer.cameraZoom != 1.0D)
+            {
                 GL11.glTranslatef((float)this.entityRenderer.cameraYaw, (float)(-this.entityRenderer.cameraPitch), 0.0F);
-                GL11.glScaled(this.entityRenderer.cameraZoom, this.entityRenderer.cameraZoom, 1.0);
+                GL11.glScaled(this.entityRenderer.cameraZoom, this.entityRenderer.cameraZoom, 1.0D);
             }
 
-            Project.gluPerspective(this.entityRenderer.getFOVModifier(e.partialTicks, false), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.entityRenderer.farPlaneDistance * 2.0F);
-            if (this.mc.playerController.enableEverythingIsScrewedUpMode()) {
-                GL11.glScalef(1.0F, 0.6666667F, 1.0F);
+            Project.gluPerspective(this.entityRenderer.getFOVModifier(partialTicks, false), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.entityRenderer.farPlaneDistance * 2.0F);
+
+            if (this.mc.playerController.enableEverythingIsScrewedUpMode())
+            {
+                float f2 = 0.6666667F;
+                GL11.glScalef(1.0F, f2, 1.0F);
             }
 
-            GL11.glMatrixMode(5888);
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
             GL11.glLoadIdentity();
-            if (this.mc.gameSettings.anaglyph) {
-                GL11.glTranslatef((float)(e.renderPass * 2 - 1) * 0.1F, 0.0F, 0.0F);
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                GL11.glTranslatef((float)(renderPass * 2 - 1) * 0.1F, 0.0F, 0.0F);
             }
 
             GL11.glPushMatrix();
-            this.entityRenderer.hurtCameraEffect(e.partialTicks);
-            if (this.mc.gameSettings.viewBobbing) {
-                this.entityRenderer.setupViewBobbing(e.partialTicks);
+            this.entityRenderer.hurtCameraEffect(partialTicks);
+
+            if (this.mc.gameSettings.viewBobbing)
+            {
+                this.entityRenderer.setupViewBobbing(partialTicks);
             }
 
-            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping() && !this.mc.gameSettings.hideGUI && !this.mc.playerController.enableEverythingIsScrewedUpMode()) {
-                this.entityRenderer.enableLightmap(e.partialTicks);
+            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping() && !this.mc.gameSettings.hideGUI && !this.mc.playerController.enableEverythingIsScrewedUpMode())
+            {
+                this.entityRenderer.enableLightmap(partialTicks);
                 this.renderItemInFirstPerson(EnumHandSideAA.RIGHT, e.partialTicks, this.mc.thePlayer.getSwingProgress(e.partialTicks), this.itemRenderer.itemToRender);
                 if (EnumMods.BACKHAND.isLoaded() && BackhandUtils.getOffhandItem(this.mc.thePlayer) != null && !this.isUsed2Arm(this.itemRenderer.itemToRender)) {
                     GL11.glEnable(2884);
@@ -69,17 +79,20 @@ public class ArmRenderEngineBackHand extends ArmRenderEngineForge {
                     GL11.glPopMatrix();
                     GL11.glCullFace(1029);
                 }
-                this.entityRenderer.disableLightmap(e.partialTicks);
+                this.entityRenderer.disableLightmap(partialTicks);
             }
 
             GL11.glPopMatrix();
-            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping()) {
-                this.itemRenderer.renderOverlays(e.partialTicks);
-                this.entityRenderer.hurtCameraEffect(e.partialTicks);
+
+            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping())
+            {
+                this.itemRenderer.renderOverlays(partialTicks);
+                this.entityRenderer.hurtCameraEffect(partialTicks);
             }
 
-            if (this.mc.gameSettings.viewBobbing) {
-                this.entityRenderer.setupViewBobbing(e.partialTicks);
+            if (this.mc.gameSettings.viewBobbing)
+            {
+                this.entityRenderer.setupViewBobbing(partialTicks);
             }
         }
     }

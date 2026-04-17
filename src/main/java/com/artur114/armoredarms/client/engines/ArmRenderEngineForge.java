@@ -27,8 +27,6 @@ import net.minecraftforge.client.event.RenderHandEvent;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEngineForge, ArmRenderPipelineForge> {
@@ -74,57 +72,77 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
     /*----------------------------------------MINECRAFT_SHIT_CODE_START----------------------------------------*/
 
     public void renderHand(RenderHandEvent e) {
-        boolean flag = this.itemRenderer.itemToRender == null || this.itemRenderer.itemToRender.getItem() instanceof ItemMap;
-        if (flag && this.entityRenderer.debugViewDirection <= 0) {
+        if (this.entityRenderer.cameraZoom == 1.0D) {
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            this.renderHand(e, e.partialTicks, e.renderPass);
             e.setCanceled(true);
-            GL11.glClear(256);
-            GL11.glMatrixMode(5889);
-            GL11.glLoadIdentity();
-            float f1 = 0.07F;
-            if (this.mc.gameSettings.anaglyph) {
-                GL11.glTranslatef((float)(-(e.renderPass * 2 - 1)) * f1, 0.0F, 0.0F);
-            }
-
-            if (this.entityRenderer.cameraZoom != 1.0) {
-                GL11.glTranslatef((float)this.entityRenderer.cameraYaw, (float)(-this.entityRenderer.cameraPitch), 0.0F);
-                GL11.glScaled(this.entityRenderer.cameraZoom, this.entityRenderer.cameraZoom, 1.0);
-            }
-
-            Project.gluPerspective(this.entityRenderer.getFOVModifier(e.partialTicks, false), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.entityRenderer.farPlaneDistance * 2.0F);
-            if (this.mc.playerController.enableEverythingIsScrewedUpMode()) {
-                GL11.glScalef(1.0F, 0.6666667F, 1.0F);
-            }
-
-            GL11.glMatrixMode(5888);
-            GL11.glLoadIdentity();
-            if (this.mc.gameSettings.anaglyph) {
-                GL11.glTranslatef((float)(e.renderPass * 2 - 1) * 0.1F, 0.0F, 0.0F);
-            }
-
-            GL11.glPushMatrix();
-            this.entityRenderer.hurtCameraEffect(e.partialTicks);
-            if (this.mc.gameSettings.viewBobbing) {
-                this.entityRenderer.setupViewBobbing(e.partialTicks);
-            }
-
-            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping() && !this.mc.gameSettings.hideGUI && !this.mc.playerController.enableEverythingIsScrewedUpMode()) {
-                this.entityRenderer.enableLightmap(e.partialTicks);
-                this.renderItemInFirstPerson(EnumHandSideAA.RIGHT, e.partialTicks, this.mc.thePlayer.getSwingProgress(e.partialTicks), this.itemRenderer.itemToRender);
-                this.entityRenderer.disableLightmap(e.partialTicks);
-            }
-
-            GL11.glPopMatrix();
-            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping()) {
-                this.itemRenderer.renderOverlays(e.partialTicks);
-                this.entityRenderer.hurtCameraEffect(e.partialTicks);
-            }
-
-            if (this.mc.gameSettings.viewBobbing) {
-                this.entityRenderer.setupViewBobbing(e.partialTicks);
-            }
         }
     }
 
+    protected void renderHand(RenderHandEvent e, float partialTicks, int renderPass)
+    {
+        if (this.entityRenderer.debugViewDirection <= 0)
+        {
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glLoadIdentity();
+            float f1 = 0.07F;
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                GL11.glTranslatef((float)(-(renderPass * 2 - 1)) * f1, 0.0F, 0.0F);
+            }
+
+            if (this.entityRenderer.cameraZoom != 1.0D)
+            {
+                GL11.glTranslatef((float)this.entityRenderer.cameraYaw, (float)(-this.entityRenderer.cameraPitch), 0.0F);
+                GL11.glScaled(this.entityRenderer.cameraZoom, this.entityRenderer.cameraZoom, 1.0D);
+            }
+
+            Project.gluPerspective(this.entityRenderer.getFOVModifier(partialTicks, false), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.entityRenderer.farPlaneDistance * 2.0F);
+
+            if (this.mc.playerController.enableEverythingIsScrewedUpMode())
+            {
+                float f2 = 0.6666667F;
+                GL11.glScalef(1.0F, f2, 1.0F);
+            }
+
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glLoadIdentity();
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                GL11.glTranslatef((float)(renderPass * 2 - 1) * 0.1F, 0.0F, 0.0F);
+            }
+
+            GL11.glPushMatrix();
+            this.entityRenderer.hurtCameraEffect(partialTicks);
+
+            if (this.mc.gameSettings.viewBobbing)
+            {
+                this.entityRenderer.setupViewBobbing(partialTicks);
+            }
+
+            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping() && !this.mc.gameSettings.hideGUI && !this.mc.playerController.enableEverythingIsScrewedUpMode())
+            {
+                this.entityRenderer.enableLightmap(partialTicks);
+                this.renderItemInFirstPerson(EnumHandSideAA.RIGHT, e.partialTicks, this.mc.thePlayer.getSwingProgress(e.partialTicks), this.itemRenderer.itemToRender);
+                this.entityRenderer.disableLightmap(partialTicks);
+            }
+
+            GL11.glPopMatrix();
+
+            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping())
+            {
+                this.itemRenderer.renderOverlays(partialTicks);
+                this.entityRenderer.hurtCameraEffect(partialTicks);
+            }
+
+            if (this.mc.gameSettings.viewBobbing)
+            {
+                this.entityRenderer.setupViewBobbing(partialTicks);
+            }
+        }
+    }
 
     public void renderItemInFirstPerson(EnumHandSideAA side, float partialTicks, float swingProgress, ItemStack itemstack) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

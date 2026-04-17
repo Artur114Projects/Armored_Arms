@@ -6,9 +6,11 @@ import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import net.minecraft.client.model.ModelRenderer;
+import org.lwjgl.opengl.GL11;
 
 public interface IArmModelRendererBase<M extends IArmModelManager<?, ?>> extends IArmModelRenderer<M> {
     default void defaultRenderModel(IArmRenderEngine<?> engine, ModelRenderer arm, EnumHandSideAA side) {
+        GL11.glColor3f(1.0F, 1.0F, 1.0F);
         arm.rotationPointX = -5.0F * side.delta();
         arm.rotationPointY = 2.0F;
         arm.rotationPointZ = 0.0F;
