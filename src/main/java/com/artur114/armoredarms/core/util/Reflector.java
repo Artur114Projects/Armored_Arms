@@ -89,7 +89,7 @@ public class Reflector {
 
     public static boolean isClassExists(String name) {
         try {
-            Class.forName(name);
+            Class.forName(name, false, Reflector.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;
