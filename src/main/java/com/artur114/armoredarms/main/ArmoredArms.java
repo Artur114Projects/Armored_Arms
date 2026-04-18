@@ -10,7 +10,7 @@ import com.artur114.armoredarms.client.integration.dragonblockc.EventHandlerDB;
 import com.artur114.armoredarms.client.integration.ears.EventHandlerEA;
 import com.artur114.armoredarms.client.integration.galacticraftcore.EventHandlerGC;
 import com.artur114.armoredarms.client.integration.hbm.EventHandlerHB;
-import com.artur114.armoredarms.client.integration.lotr.EventHandlerLO;
+import com.artur114.armoredarms.client.integration.lotr.EventHandlerLT;
 import com.artur114.armoredarms.client.integration.skinport.EventHandlerSP;
 import com.artur114.armoredarms.client.integration.smartmoving.EventHandlerSM;
 import com.artur114.armoredarms.client.integration.thaumicconcilium.EventHandlerTC;
@@ -23,20 +23,11 @@ import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.AbstractLoggingManager;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.RenderException;
-import cpw.mods.fml.client.event.ConfigChangedEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.Event;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
@@ -135,6 +126,6 @@ public class ArmoredArms implements IAAModContainer {
         listeners.add(new EventHandlerDB());
         listeners.add(new EventHandlerGC());
         listeners.add(new EventHandlerSM());
-        listeners.add(new EventHandlerLO());
+        listeners.add(new EventHandlerLT());
     }
 }
