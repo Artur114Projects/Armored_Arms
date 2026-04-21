@@ -60,6 +60,7 @@ coreBuildConf {
     dependenciesConf {
         afterDependence fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:7707268")
         afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
+        afterDependence fg.deobf("curse.maven:brimm-armors-tactical-military-armors-1281654:7476385")
 
         coreConf {
             version = "@core_version@"
