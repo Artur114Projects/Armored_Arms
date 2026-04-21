@@ -24,19 +24,19 @@ public class ArmModelRendererWawel extends ArmModelRendererPlayer {
         AbstractClientPlayer player = context.mc.thePlayer;
         IModelBipedModernExt ext = (IModelBipedModernExt) context.renderPlayer.modelBipedMain;
         UUID uuid = player.getUniqueID();
-        ext.wawelauth$setCurrentPlayerUuid(uuid);
+        ext.setCurrentPlayerUuid(uuid);
 
         if (!SkinLayers3DConfig.modernSkinSupport) {
-            ext.wawelauth$setSlim(false);
+            ext.setSlim(false);
             SkinLayers3DSetup.updateState(uuid, null);
         } else {
-            if (!ext.wawelauth$isModern()) {
-                ext.wawelauth$initModern();
+            if (!ext.isModern()) {
+                ext.initModern();
             }
 
             SkinModel model = SkinModelHelper.getSkinModel(player);
             boolean slim = model == SkinModel.SLIM;
-            ext.wawelauth$setSlim(slim);
+            ext.setSlim(slim);
             if (SkinLayers3DConfig.enabled3D) {
                 SkinLayers3DState existing = SkinLayers3DSetup.getState(uuid);
                 SkinLayers3DState state = SkinLayers3DSetup.createOrUpdate(player, existing, slim);
@@ -45,16 +45,16 @@ public class ArmModelRendererWawel extends ArmModelRendererPlayer {
                 SkinLayers3DSetup.updateState(uuid, null);
             }
 
-            if (((ISkinLayerExtender)player).wawelAuth$getRightSleeve()) {
-                ext.wawelAuth$getRightArmWear().showModel = false;
+            if (((ISkinLayerExtender)player).wawelAuth$getHideRightSleeve()) {
+                ext.getRightArmWear().showModel = false;
             }
         }
 
         super.renderArm(context, side);
 
         if (context.shouldRenderWear) {
-            ext.wawelauth$renderRightArmWear(0.0625F);
-            ext.wawelAuth$getRightArmWear().showModel = true;
+            ext.render3DRightArmWear(0.0625F);
+            ext.getRightArmWear().showModel = true;
         }
     }
 }
