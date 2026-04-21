@@ -11,10 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mod.EventBusSubscriber(modid = ArmoredArms.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AAConfig {
@@ -100,7 +97,7 @@ public class AAConfig {
         public static Map<Class<? extends IArmRenderPipeline<?>>, IPriority> pipelinesPriority = new HashMap<>();
 
         public static void reload() {
-            renderBlackList.clear(); renderBlackList.addAll(ShapelessLocation.location(AAConfig.renderBlackList));
+            renderBlackList.clear(); renderBlackList.addAll(ShapelessLocation.location(AAConfig.renderBlackList)); renderBlackList.addAll(ShapelessLocation.location(hiddenRenderBlackList));
             renderArmWearList.clear(); renderArmWearList.addAll(ShapelessLocation.location(AAConfig.renderArmWearList));
             noRenderArmWearList.clear(); noRenderArmWearList.addAll(ShapelessLocation.location(AAConfig.noRenderArmWearList));
 
@@ -136,4 +133,6 @@ public class AAConfig {
             };
         }
     }
+
+    private static final String[] hiddenRenderBlackList = new String[] {"brimm:*"};
 }
