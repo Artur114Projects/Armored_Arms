@@ -53,8 +53,16 @@ public class ArmModelRendererWawel extends ArmModelRendererPlayer {
         super.renderArm(context, side);
 
         if (context.shouldRenderWear) {
-            ext.render3DRightArmWear(0.0625F);
-            ext.getRightArmWear().showModel = true;
+            if (side == EnumHandSideAA.RIGHT) {
+                ext.render3DRightArmWear(0.0625F);
+                ext.getRightArmWear().showModel = true;
+            } else {
+                ext.render3DRightArmWear(0.0625F);
+                ext.getRightArmWear().showModel = true;
+
+//                ext.render3DLeftArmWear(0.0625F); Please add render method for left hand :D
+//                ext.getLeftArmWear().showModel = true;
+            }
         }
     }
 }

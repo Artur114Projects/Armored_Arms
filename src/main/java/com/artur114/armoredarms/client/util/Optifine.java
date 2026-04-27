@@ -12,4 +12,12 @@ public class Optifine {
     public static boolean isLoaded() {
         return LOADED;
     }
+
+    public static boolean isShaders() {
+        try {
+            return Reflector.invokeMethod(Class.forName("Config"), null, "isShaders", new Class[0], new Object[0]);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
