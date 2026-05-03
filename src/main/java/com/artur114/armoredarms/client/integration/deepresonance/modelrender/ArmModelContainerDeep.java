@@ -1,4 +1,4 @@
-package com.artur114.armoredarms.client.integration.botania.modelrender;
+package com.artur114.armoredarms.client.integration.deepresonance.modelrender;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
@@ -8,32 +8,14 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.Reflector;
+import mcjty.deepresonance.items.armor.ChestModel;
 import net.minecraft.client.model.ModelBiped;
 
-public class ArmModelContainerBotania implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> {
-    private final IPriority priority;
-    private final String rightArm;
-    private final String leftArm;
-
-    public ArmModelContainerBotania(IPriority priority, String rightArm, String leftArm) {
-        this.priority = priority;
-        this.rightArm = rightArm;
-        this.leftArm = leftArm;
-    }
-
-    public ArmModelContainerBotania() {
-        this.priority = Priority.NORMAL;
-        this.rightArm = "armR";
-        this.leftArm = "armL";
-    }
-
+public class ArmModelContainerDeep implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> {
     @Override
     public IArmModelRenderer<ArmModelManagerArmor> create(ArmModelManagerArmor manager) {
         ModelBiped mb = manager.model;
-        if (mb.getClass() == ModelBiped.class) {
-            return new ArmModelRendererArmor(mb, manager.texture);
-        }
-        return new ArmModelRendererArmor(mb, manager.texture, Reflector.getPrivateField(mb, this.rightArm), Reflector.getPrivateField(mb, this.leftArm));
+        return new ArmModelRendererDeep(manager.texture, (ChestModel) mb);
     }
 
     @Override
@@ -53,6 +35,6 @@ public class ArmModelContainerBotania implements IArmModelRenderContainer<ArmRen
 
     @Override
     public IPriority priority() {
-        return this.priority;
+        return Priority.NORMAL;
     }
 }

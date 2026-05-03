@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public enum EnumMods {
     COSMETIC_ARMOR("cosmeticarmorreworked"),
     THAUMCRAFT("Thaumcraft"),
+    GADOMANCY("gadomancy"),
     BACKHAND("backhand");
 
     private AtomicBoolean loaded = null;

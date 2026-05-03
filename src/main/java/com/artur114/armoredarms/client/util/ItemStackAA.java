@@ -4,12 +4,15 @@ import com.artur114.armoredarms.core.util.*;
 import com.artur114.armoredarms.main.AAConfig;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
+import makeo.gadomancy.common.utils.NBTHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.ForgeHooksClient;
 
 @Immutable
@@ -49,6 +52,21 @@ public class ItemStackAA implements IItemStack {
 
             if (stack != null) {
                 return ItemStackAA.from(stack);
+            }
+        }
+
+        if (EnumMods.GADOMANCY.isLoaded()) {
+            ItemStack stack = player.getCurrentArmor(chestId);
+            if (stack != null) {
+                NBTTagCompound compound = NBTHelper.getPersistentData(stack);
+                if (compound.hasKey("disguise")) {
+                    NBTBase base = compound.getTag("disguise");
+                    if (base instanceof NBTTagCompound) {
+                        return ItemStackAA.from(ItemStack.loadItemStackFromNBT((NBTTagCompound) base));
+                    } else {
+                        return EMPTY;
+                    }
+                }
             }
         }
 

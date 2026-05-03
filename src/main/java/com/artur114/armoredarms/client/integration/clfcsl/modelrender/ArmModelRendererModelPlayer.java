@@ -8,6 +8,8 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -15,16 +17,23 @@ import java.util.List;
 public class ArmModelRendererModelPlayer implements IArmModelRenderer<ArmModelManagerPlayer> {
     @Override
     public void renderArm(ArmModelManagerPlayer context, EnumHandSideAA side) {
+        ModelBiped mb = ((RenderPlayer) RenderManager.instance.getEntityRenderObject(context.mc.thePlayer)).modelBipedMain;
+        ModelPlayer mp;
+        try {
+            mp = ((ModelPlayer) mb);
+        } catch (ClassCastException ignored) {
+            return;
+        }
+
         context.mc.getTextureManager().bindTexture(context.playerSkin);
-        ModelBiped mb = context.renderPlayer.modelBipedMain;
         GL11.glColor3f(1.0F, 1.0F, 1.0F);
         context.prepareModel(mb);
         ModelRenderer renderer = AAUtils.handFromModelBiped(mb, side);
         ModelRenderer rendererWear;
         if (side == EnumHandSideAA.RIGHT) {
-            rendererWear = ((ModelPlayer) mb).field_178732_b;
+            rendererWear = mp.field_178732_b;
         } else {
-            rendererWear = ((ModelPlayer) mb).field_178734_a;
+            rendererWear = mp.field_178734_a;
         }
         if (context.shouldRenderWear) {
             this.renderWithoutChild(renderer);
@@ -72,24 +81,4 @@ public class ArmModelRendererModelPlayer implements IArmModelRenderer<ArmModelMa
         renderer.render(0.0625F);
         renderer.childModels = child;
     }
-
-    /*
-        context.mc.getTextureManager().bindTexture(context.playerSkin);
-        ModelBiped mb = context.renderPlayer.modelBipedMain;
-        GL11.glColor3f(1.0F, 1.0F, 1.0F);
-        context.prepareModel(mb);
-        ModelRenderer renderer = AAUtils.handFromModelBiped(mb, side);
-        ModelRenderer rendererWear;
-        if (side == EnumHandSideAA.RIGHT) {
-            rendererWear = ((ModelPlayer) mb).field_178732_b;
-        } else {
-            rendererWear = ((ModelPlayer) mb).field_178734_a;
-        }
-        if (context.shouldRenderWear) {
-            renderer.render(0.0625F);
-            rendererWear.render(0.0625F);
-        } else {
-            renderer.render(0.0625F);
-        }
-     */
 }

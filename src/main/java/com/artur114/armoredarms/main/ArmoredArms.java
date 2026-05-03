@@ -6,6 +6,7 @@ import com.artur114.armoredarms.client.integration.alfheim.EventHandlerAL;
 import com.artur114.armoredarms.client.integration.backhand.EventHandlerBH;
 import com.artur114.armoredarms.client.integration.botania.EventHandlerBO;
 import com.artur114.armoredarms.client.integration.clfcsl.EventHandlerCL;
+import com.artur114.armoredarms.client.integration.deepresonance.EventHandlerDR;
 import com.artur114.armoredarms.client.integration.dragonblockc.EventHandlerDB;
 import com.artur114.armoredarms.client.integration.ears.EventHandlerEA;
 import com.artur114.armoredarms.client.integration.galacticraftcore.EventHandlerGC;
@@ -129,5 +130,6 @@ public class ArmoredArms implements IAAModContainer {
         listeners.add(new EventHandlerSM());
         listeners.add(new EventHandlerLT());
         listeners.add(new EventHandlerOP());
+        listeners.add(new EventHandlerDR());
     }
 }
