@@ -3,7 +3,9 @@
   "compatibilityLevel": "JAVA_17",
   "package": "com.artur114.armoredarms.client.mixin.impl",
   "refmap": "mixins.armoredarms.refmap.json",
-  "mixins": [],
+  "mixins": [
+    "PunchyArmRendererMixin"
+  ],
   "client": [
     "PlayerRendererMixin"
   ],

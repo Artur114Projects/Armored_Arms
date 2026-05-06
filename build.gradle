@@ -52,6 +52,10 @@ minecraft {
     }
 }
 
+repositories {
+    mavenLocal()
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 coreBuildConf {
@@ -60,6 +64,7 @@ coreBuildConf {
     dependenciesConf {
         afterDependence fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:7707268")
         afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
+        afterDependence fg.deobf("curse.maven:punchy-1374153:8029969")
 
         coreConf {
             version = "@core_version@"

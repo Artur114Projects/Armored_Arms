@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.api.events;
 
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.main.AAConfig;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 

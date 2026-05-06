@@ -10,6 +10,7 @@ import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
+import com.artur114.armoredarms.core.util.ArmsBone;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import net.minecraftforge.event.TickEvent;
 

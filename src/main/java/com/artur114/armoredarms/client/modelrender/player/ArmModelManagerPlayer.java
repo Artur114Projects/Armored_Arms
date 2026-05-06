@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.modelrender.player;
 
-import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextPlayer;
 import com.artur114.armoredarms.client.util.ArmRenderContext;
@@ -12,9 +11,9 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -29,6 +28,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     public MultiModelRenderContext context;
     public ArmRenderContext rawContext;
     public PlayerRenderer renderPlayer;
+    public ArmRenderLayerHand layer;
     public boolean shouldRenderWear;
 
     @Override
@@ -59,10 +59,21 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     @Override
     public void load(ArmRenderLayerHand layer) {
         this.context = new MultiModelRenderContext(new ModelRenderContextPlayer(false), new ModelRenderContextPlayer(true, Priority.LOW));
+        this.layer = layer;
     }
 
     @Override
     public void unload(ArmRenderLayerHand layer) {}
+
+    @Override
+    public ArmRenderLayerHand layer() {
+        return this.layer;
+    }
+
+    @Override
+    public Bone bone(EnumHandSideAA side) {
+        return this.layer.engine.mainBones().bySide(side);
+    }
 
     @Override
     public IArmModelRenderer<ArmModelManagerPlayer> cacheRenderer(ArmRenderLayerHand layer, IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> container) {
@@ -115,6 +126,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
         model.crouching = false;
         model.swimAmount = 0.0F;
         model.setupAnim(this.mc.player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+        this.layer.engine().mainBones().updateBones(model.rightArm, model.leftArm);
     }
 
     @Override

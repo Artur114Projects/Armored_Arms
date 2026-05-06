@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextBase;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextGlint;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
@@ -15,6 +16,7 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.google.common.collect.Maps;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.Model;
@@ -126,6 +128,16 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         }
 
         return resourcelocation;
+    }
+
+    @Override
+    public ArmRenderLayerArmor layer() {
+        return this.layer;
+    }
+
+    @Override
+    public Bone bone(EnumHandSideAA side) {
+        return this.layer.engine.mainBones().bySide(side);
     }
 
     @Override

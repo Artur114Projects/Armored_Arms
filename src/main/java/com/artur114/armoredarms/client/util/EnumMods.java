@@ -9,7 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public enum EnumMods {
     PLAYER_ANIMATOR("playeranimator"),
-    COSMETIC_ARMOR("cosmeticarmorreworked");
+    COSMETIC_ARMOR("cosmeticarmorreworked"),
+    PUNCHY("punchy");
 
 
     private AtomicBoolean loaded = null;

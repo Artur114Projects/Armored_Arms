@@ -7,8 +7,8 @@ import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.core.api.IArmRenderComponent;
-import com.artur114.armoredarms.core.util.EnumExceptionType;
-import com.artur114.armoredarms.core.util.RenderException;
+import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
+import com.artur114.armoredarms.core.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LoggingManager {
+public class LoggingManager extends AbstractLoggingManager {
     public final Logger AA_LOG = LogManager.getLogger("ARMOREDARMS");
     protected static final Map<String, Logger> loggers = new HashMap<>();
 
@@ -47,7 +47,7 @@ public class LoggingManager {
             broken.deactivate();
         }
         if (exp.type() == EnumExceptionType.FATAL) {
-            ArmoredArms.pipeline.deactivate();
+            ArmoredArms.ARMORED_ARMS.pipeline.deactivate();
         }
 
         String component = "unknown-component";
@@ -73,7 +73,7 @@ public class LoggingManager {
 
         Minecraft mc = Minecraft.getInstance();
 
-        Component[] messageForPlayer = this.compileMessageForPlayer(exp);
+        Component[] messageForPlayer = this.compileMessageForPlaye1(exp);
 
         for (Component comp : messageForPlayer) {
             if (mc.player != null) {
@@ -82,7 +82,7 @@ public class LoggingManager {
         }
     }
 
-    public Component[] compileMessageForPlayer(RenderException exp) {
+    public Component[] compileMessageForPlaye1(RenderException exp) {
         Style red = Style.EMPTY.withColor(ChatFormatting.RED);
         List<Component> list = new ArrayList<>();
         if (exp.messageForPlayer() != null) {
@@ -203,5 +203,45 @@ public class LoggingManager {
         }
 
         return I18n.get(localisationKey, args);
+    }
+
+    @Override
+    protected String splitter() {
+        return "";
+    }
+
+    @Override
+    protected String expMessageKey() {
+        return "";
+    }
+
+    @Override
+    protected IArmRenderPipeline<?> pipeline() {
+        return null;
+    }
+
+    @Override
+    protected String formatingToString(MessageFormating formating) {
+        return "";
+    }
+
+    @Override
+    protected String localise(String translateKey, Object... parameters) {
+        return "";
+    }
+
+    @Override
+    protected ITextMessage createMessageLiteral(String message) {
+        return null;
+    }
+
+    @Override
+    protected ITextMessage createMessageTranslate(String key) {
+        return null;
+    }
+
+    @Override
+    protected ShapelessLocationMap<String> initLocaliseMap() {
+        return null;
     }
 }

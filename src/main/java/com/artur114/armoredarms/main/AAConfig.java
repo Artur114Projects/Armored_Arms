@@ -2,6 +2,7 @@ package com.artur114.armoredarms.main;
 
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
+import com.artur114.armoredarms.client.integration.punchy.pipeline.ArmRenderPipelinePunchy;
 import com.artur114.armoredarms.client.util.GenericPriority;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
@@ -47,7 +48,7 @@ public class AAConfig {
 
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> RENDER_SOURCES_PRIORITY = BUILDER
             .comment("Different sources can work differently, choose the one that works better", "The higher the source is on the list, the higher its priority", "Deleting a render source will prevent it from working", "Changes are applied after restarting the game", "[event] - Standard rendering source, сan always work", "[mixin] - Additional rendering source, can work if mixins loader is installed")
-            .defineListAllowEmpty("renderSourcesPriority", List.of("event", "mixin"), Baked::validateSourceName);
+            .defineListAllowEmpty("renderSourcesPriority", List.of("punchy-inject", "event", "mixin"), Baked::validateSourceName);
 
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
@@ -119,6 +120,7 @@ public class AAConfig {
             return switch (id) {
                 case "event" -> ArmRenderPipelineForge.class;
                 case "mixin" -> ArmRenderPipelineMixin.class;
+                case "punchy-inject" -> ArmRenderPipelinePunchy.class;
                 default -> null;
             };
         }
@@ -128,7 +130,7 @@ public class AAConfig {
                 return false;
             }
             return switch ((String) id) {
-                case "event", "mixin" -> true;
+                case "event", "mixin", "punchy-inject" -> true;
                 default -> false;
             };
         }

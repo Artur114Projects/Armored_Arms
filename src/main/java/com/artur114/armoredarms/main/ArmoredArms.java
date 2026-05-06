@@ -1,19 +1,20 @@
 package com.artur114.armoredarms.main;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.integration.punchy.engine.ArmRenderEnginePunchy;
+import com.artur114.armoredarms.client.integration.punchy.pipeline.ArmRenderPipelinePunchy;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
-import com.artur114.armoredarms.core.util.IAAModContainer;
-import com.artur114.armoredarms.core.util.RenderEngines;
-import com.artur114.armoredarms.core.util.RenderException;
-import com.artur114.armoredarms.core.util.RenderPipelines;
+import com.artur114.armoredarms.core.util.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.Bindings;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -27,52 +28,36 @@ import java.util.List;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ArmoredArms.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(ArmoredArms.MODID)
 public class ArmoredArms implements IAAModContainer {
-    protected static IArmRenderPipeline<?> pipeline;
-    protected static ArmoredArms mod;
-
+    protected IArmRenderPipeline<?> pipeline;
     public static final LoggingManager LOGGER = new LoggingManager();
     public static final String MODID = "armoredarms";
-
-    public static ArmoredArms mod() {
-        return mod;
-    }
-
-    public static IArmRenderPipeline<?> pipeline() {
-        return pipeline;
-    }
-
-    public static boolean isPipelineLoaded() {
-        return pipeline != null;
-    }
+    public static ArmoredArms ARMORED_ARMS;
 
     public ArmoredArms() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, AAConfig.SPEC);
-        mod = this;
+        ARMORED_ARMS = this;
     }
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent e) {
-        try {
-            if (!mod().post(new InitRenderPipelineEvent(mod()))) {
-                pipeline = RenderPipelines.pickUpAndRegister(mod);
-            }
+        ArmoredArmsApi.registerPipelineIfModLoaded(ArmRenderPipelinePunchy.class, "punchy");
+        ArmoredArmsApi.registerEngineIfModLoaded(ArmRenderEnginePunchy.class, "punchy");
 
-            if (isPipelineLoaded()) {
-                LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
-                LOGGER.AA_LOG.info("   Pipeline: {}", pipeline);
-            } else {
-                IArmRenderPipeline<?> pipeline = RenderPipelines.pickUp(mod);
-                LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!");
-                LOGGER.AA_LOG.fatal("   Try to pick up pipeline: {}", pipeline);
-                if (pipeline != null) {
-                    LOGGER.AA_LOG.fatal("   Try to pick up engine: {}", RenderEngines.pickUp(mod, pipeline.clazz()));
-                }
-            }
-        } catch (Exception exp) {
-            LOGGER.AA_LOG.fatal("Rendering pipeline could not be loaded!", exp);
+        if (!Bindings.getForgeBus().get().post(new InitRenderPipelineEvent(ARMORED_ARMS))) {
+            ARMORED_ARMS.pipeline = ARMORED_ARMS.initPipelineSafety();
         }
     }
-    
+
+    @Override
+    public IArmRenderPipeline<?> pipeline() {
+        return this.pipeline;
+    }
+
+    @Override
+    public boolean isPipelineLoaded() {
+        return this.pipeline != null;
+    }
+
     @Override
     public Collection<IArmRenderPipeline<?>> defaultPipelines() {
         return List.of(new ArmRenderPipelineForge(), new ArmRenderPipelineMixin());
@@ -94,15 +79,15 @@ public class ArmoredArms implements IAAModContainer {
     }
 
     @Override
-    public boolean post(Object obj) {
-        if (obj instanceof Event event) {
-            return MinecraftForge.EVENT_BUS.post(event);
-        }
-        return false;
+    public AbstractLoggingManager logger() {
+        return LOGGER;
     }
 
     @Override
-    public Logger logger(String name) {
-        return LOGGER.logger(name);
+    public boolean post(Object obj) {
+        if (obj instanceof Event event) {
+            return Bindings.getForgeBus().get().post(event);
+        }
+        return false;
     }
 }

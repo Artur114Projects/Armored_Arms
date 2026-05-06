@@ -1,27 +1,34 @@
-package com.artur114.armoredarms.client.pipelines;
+package com.artur114.armoredarms.client.integration.punchy.pipeline;
 
+import com.artur114.armoredarms.client.mixin.RenderArmPunchyMixinEvent;
+import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
 import com.artur114.armoredarms.client.util.AAUtils;
+import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
-import com.artur114.armoredarms.core.util.*;
+import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
+import com.artur114.armoredarms.core.util.EnumExceptionType;
+import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.RenderException;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRenderPipelineForge> {
+public class ArmRenderPipelinePunchy extends AbstractRenderPipelineForge<ArmRenderPipelinePunchy> {
+    public RenderArmPunchyMixinEvent context = null;
+    public final Minecraft mc = Minecraft.getInstance();
     public int noRenderingTicks = 0;
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public void renderHand(RenderArmEvent e) {
+    public void renderHand(RenderArmPunchyMixinEvent e) {
         this.noRenderingTicks = 0;
 
         if (this.deactivated) {
@@ -77,28 +84,36 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
         this.noRenderingTicks++;
     }
 
-    public void populateContext(RenderArmEvent e) {
-        this.renderContext.multiBufferSource = e.getMultiBufferSource();
-        this.renderContext.arm = AAUtils.fromMc(e.getArm());
-        this.renderContext.packedLight = e.getPackedLight();
-        this.renderContext.poseStack = e.getPoseStack();
-        this.renderContext.player = e.getPlayer();
+
+    public void populateContext(RenderArmPunchyMixinEvent e) {
+        this.renderContext.multiBufferSource = e.buffer();
+        this.renderContext.arm = AAUtils.fromMc(e.arm());
+        this.renderContext.packedLight = e.combinedLight();
+        this.renderContext.poseStack = e.poseStack();
+        this.renderContext.player = e.player();
+        this.context = e;
     }
 
-    public void postProcess(RenderArmEvent e) {
+    public void postProcess(RenderArmPunchyMixinEvent e) {
         if (this.renderContext.isCanceled()) {
             e.setCanceled(true);
         }
         this.renderContext.reload();
+        this.context = null;
     }
 
     @Override
-    protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineForge> engine) {
+    protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelinePunchy> engine) {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
-    public Class<ArmRenderPipelineForge> clazz() {
-        return ArmRenderPipelineForge.class;
+    public boolean canWork(IAAModContainer mod) {
+        return super.canWork(mod) && EnumMods.PUNCHY.isLoaded();
+    }
+
+    @Override
+    public Class<ArmRenderPipelinePunchy> clazz() {
+        return ArmRenderPipelinePunchy.class;
     }
 }

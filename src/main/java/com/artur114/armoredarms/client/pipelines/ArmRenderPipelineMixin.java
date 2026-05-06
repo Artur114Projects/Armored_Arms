@@ -106,9 +106,4 @@ public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRende
     public Class<ArmRenderPipelineMixin> clazz() {
         return ArmRenderPipelineMixin.class;
     }
-
-    @Override
-    public IPriority priority() {
-        return AAConfig.Baked.pipelinesPriority.get(ArmRenderPipelineMixin.class);
-    }
 }

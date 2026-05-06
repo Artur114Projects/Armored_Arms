@@ -7,6 +7,7 @@ import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.core.util.Reflector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -34,7 +35,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerArmor> {
-    public final ModelPart[] playerArms = AAUtils.playerArms();
     public final AzModelRenderer<UUID, ItemStack> renderer;
     public final MultiModelRenderContext context;
     public final AzArmorRendererPipeline pipeline;
@@ -57,11 +57,11 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
     @Override
     public void renderArm(ArmModelManagerArmor context, EnumHandSideAA side) {
         for (IModelRenderContext contextPart : this.context) {
-            this.render(contextPart.poseStack(), contextPart.multiBuffer(), context.chestPlate, side, contextPart.packedLight());
+            this.render(context, contextPart.poseStack(), contextPart.multiBuffer(), context.chestPlate, side, contextPart.packedLight());
         }
     }
 
-    public void render(PoseStack pPoseStack, MultiBufferSource multiBuffer, ItemStackAA stack, EnumHandSideAA side, int pPackedLight) {
+    public void render(ArmModelManagerArmor manager, PoseStack pPoseStack, MultiBufferSource multiBuffer, ItemStackAA stack, EnumHandSideAA side, int pPackedLight) {
         Minecraft mc = Minecraft.getInstance();
         AbstractClientPlayer player = mc.player;
         AzArmorRendererPipelineContext context = this.pipeline.context();
@@ -79,7 +79,7 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
             return;
         }
 
-        ModelPart playerArm = this.playerArms[side.ordinal()];
+        Bone bone = manager.bone(side);
         AzBone arm = model.getBoneOrNull(this.arms[side.ordinal()]);
 
         if (arm == null) {
@@ -91,9 +91,9 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         this.ma.swimAmount = 0.0F;
 
         int delta = side.delta();
-        arm.setRotX(playerArm.xRot);
-        arm.setRotY(playerArm.yRot);
-        arm.setRotZ((float) (Math.PI * delta) + playerArm.zRot);
+        arm.setRotX(bone.rotationPointX);
+        arm.setRotY(bone.rotationPointY);
+        arm.setRotZ((float) (Math.PI * delta) + bone.rotationPointZ);
 
         arm.setPosX(arm.getPivotX() * 2);
         arm.setPosY(2.0F * -1 * 10);

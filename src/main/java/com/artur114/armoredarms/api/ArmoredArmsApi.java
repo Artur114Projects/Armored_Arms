@@ -11,19 +11,19 @@ public class ArmoredArmsApi {
         RenderPipelines.registerPipeline(pipeline);
     }
 
-    public static void registerPipelineIfModLoaded(Class<IArmRenderPipeline<?>> pipeline, String modId) {
-        RenderPipelines.registerPipelineIfModLoaded(ArmoredArms.mod(), pipeline, modId);
+    public static void registerPipelineIfModLoaded(Class<? extends IArmRenderPipeline<?>> pipeline, String modId) {
+        RenderPipelines.registerPipelineIfModLoaded(ArmoredArms.ARMORED_ARMS, pipeline, modId);
     }
 
     public static void registerEngine(IArmRenderEngine<?> engine) {
         RenderEngines.registerEngine(engine);
     }
 
-    public static void registerEngineIfModLoaded(Class<IArmRenderEngine<?>> engine, String modId) {
-        RenderEngines.registerEngineIfModLoaded(ArmoredArms.mod(), engine, modId);
+    public static void registerEngineIfModLoaded(Class<? extends IArmRenderEngine<?>> engine, String modId) {
+        RenderEngines.registerEngineIfModLoaded(ArmoredArms.ARMORED_ARMS, engine, modId);
     }
 
     public static IArmRenderPipeline<?> currentPipeline() {
-        return ArmoredArms.pipeline();
+        return ArmoredArms.ARMORED_ARMS.pipeline();
     }
 }

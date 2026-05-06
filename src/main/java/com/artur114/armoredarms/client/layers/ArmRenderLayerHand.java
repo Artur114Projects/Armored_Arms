@@ -27,8 +27,6 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import java.util.List;
 
 public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, ItemStackAA, AbstractRenderEngineForge<?, ?>> {
-    private final ModelPart[] actualPlayerHands = new ModelPart[2];
-    public List<ShapelessLocation> noRenderArmWearList;
     public final Minecraft mc = Minecraft.getInstance();
     public ArmRenderContext context = null;
 
@@ -36,7 +34,6 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
     public void tryRender(AbstractRenderEngineForge<?, ?> engine, EnumHandSideAA handSide) {
         if (this.mc.player != null && this.mc.player.isInvisible()) return;
         this.context = engine.renderContext;
-        this.updatePlayerHands();
         super.tryRender(engine, handSide);
     }
 
@@ -53,8 +50,12 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
 
     @Override
     public List<ShapelessLocation> initRenderWearList() {
-        this.noRenderArmWearList = AAConfig.Baked.noRenderArmWearList;
         return AAConfig.Baked.renderArmWearList;
+    }
+
+    @Override
+    public List<ShapelessLocation> initNoRenderWearList() {
+        return AAConfig.Baked.noRenderArmWearList;
     }
 
     @Override
@@ -82,18 +83,6 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
             return nr.needRender(engine, renderEngineState);
         }
         return super.needRender(engine, renderEngineState);
-    }
-
-    public ModelPart[] actualPlayerHands() {
-        this.updatePlayerHands();
-        return this.actualPlayerHands;
-    }
-
-    private void updatePlayerHands() {
-        if (this.mc.player == null) return;
-        PlayerModel<?> player = ((PlayerRenderer) this.mc.getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(this.mc.player)).getModel();
-        this.actualPlayerHands[0] = player.leftArm;
-        this.actualPlayerHands[1] = player.rightArm;
     }
 
     @Override
