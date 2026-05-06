@@ -24,4 +24,15 @@ public enum EnumHandSideAA {
                 throw new IllegalStateException();
         }
     }
+
+    public <T> T sided(T right, T left) {
+        switch (this) {
+            case RIGHT:
+                return right;
+            case LEFT:
+                return left;
+            default:
+                throw new IllegalStateException();
+        }
+    }
 }

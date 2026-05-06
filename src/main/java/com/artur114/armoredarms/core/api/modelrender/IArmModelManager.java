@@ -5,6 +5,7 @@ import com.artur114.armoredarms.core.api.IArmRenderComponent;
 import com.artur114.armoredarms.core.api.IPrioritised;
 import com.artur114.armoredarms.core.api.layer.AbstractArmorRenderLayer;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
+import com.artur114.armoredarms.core.util.Bone;
 
 import java.util.function.Function;
 
@@ -13,6 +14,9 @@ public interface IArmModelManager<I extends IArmModelManager<?, L>, L extends IA
     void render(L layer, IArmModelRenderer<I> renderer, EnumHandSideAA side);
     void load(L layer);
     void unload(L layer);
+
+    L layer();
+    Bone bone(EnumHandSideAA side);
     IArmModelRenderer<I> cacheRenderer(L layer, IArmModelRenderContainer<L, I> container);
     Class<L> targetLayer();
     Class<I> clazz();
