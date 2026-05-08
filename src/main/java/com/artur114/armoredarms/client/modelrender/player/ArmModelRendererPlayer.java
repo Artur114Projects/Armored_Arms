@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.client.modelrender.player;
 
+import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
@@ -7,7 +8,7 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 
-public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManagerPlayer> {
+public class ArmModelRendererPlayer implements IArmModelRendererBase<ArmModelManagerPlayer> {
     protected final Minecraft mc = Minecraft.getInstance();
     protected final MultiModelRenderContext context;
 
@@ -38,8 +39,7 @@ public class ArmModelRendererPlayer implements IArmModelRenderer<ArmModelManager
                 continue;
             }
 
-            modelPart.xRot = 0.0F;
-            part.renderPart(modelPart);
+            this.renderDefault(part, context.bone(side), modelPart);
         }
     }
 }

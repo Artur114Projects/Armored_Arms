@@ -58,7 +58,6 @@ public class ArmRenderEnginePunchy extends AbstractRenderEngineForge<ArmRenderEn
 
         this.provider.armoredarms$applyArmMeshOffsets(poseStack, isLeft);
         this.provider.armoredarms$applyFreezeShake(poseStack, player, partialTicks);
-        this.renderAllLayers(AAUtils.fromMc(renderContext.arm()));
         this.provider.armoredarms$renderLavaHandOverlay(armPart, poseStack, buffer, combinedLight, player, isLeft ? HumanoidArm.LEFT : HumanoidArm.RIGHT, partialTicks);
         this.provider.armoredarms$renderFreezeOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight, player, partialTicks);
         this.provider.armoredarms$renderMudOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight);
@@ -73,10 +72,12 @@ public class ArmRenderEnginePunchy extends AbstractRenderEngineForge<ArmRenderEn
             poseStack.popPose();
         }
 
+        this.renderAllLayers(AAUtils.fromMc(renderContext.arm()));
+
         poseStack.popPose();
 
         if (!this.sortedLayers.isEmpty()) {
-            renderContext.setCanceled(true);
+            context.renderContext.cancel();
         }
     }
 

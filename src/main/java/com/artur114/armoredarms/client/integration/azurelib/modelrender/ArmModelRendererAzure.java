@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.client.integration.azurelib.modelrender;
 
+import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerArmor> {
+    private final PSAzBone azBone = new PSAzBone();
     public final AzModelRenderer<UUID, ItemStack> renderer;
     public final MultiModelRenderContext context;
     public final AzArmorRendererPipeline pipeline;
@@ -89,19 +91,9 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         this.ma.attackTime = 0.0F;
         this.ma.crouching = false;
         this.ma.swimAmount = 0.0F;
-
-        int delta = side.delta();
-        arm.setRotX(bone.rotationPointX);
-        arm.setRotY(bone.rotationPointY);
-        arm.setRotZ((float) (Math.PI * delta) + bone.rotationPointZ);
-
-        arm.setPosX(arm.getPivotX() * 2);
-        arm.setPosY(2.0F * -1 * 10);
-        arm.setPosZ(0.0F);
-
-        arm.setScaleX(1.0F);
-        arm.setScaleY(1.0F);
-        arm.setScaleZ(1.0F);
+        this.azBone.arm = arm;
+        this.azBone.stack = pPoseStack;
+        bone.injectTo(this.azBone);
 
         boolean h = arm.isHidden();
         arm.setHidden(false);

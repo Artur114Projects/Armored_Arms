@@ -22,6 +22,7 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerArmor> {
+    private final PSGeoBone geoBone = new PSGeoBone();
     public final MultiModelRenderContext context;
     public final GeoArmorRenderer<?> mg;
     public final String[] arms;
@@ -55,19 +56,9 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
         this.mg.attackTime = 0.0F;
         this.mg.crouching = false;
         this.mg.swimAmount = 0.0F;
-
-        int delta = side.delta();
-        arm.setRotX(bone.rotationPointX);
-        arm.setRotY(bone.rotationPointY);
-        arm.setRotZ((float) (Math.PI * delta) + bone.rotationPointZ);
-
-        arm.setPosX(arm.getPivotX() * 2);
-        arm.setPosY(2.0F * -1 * 10);
-        arm.setPosZ(0.0F);
-
-        arm.setScaleX(1.0F);
-        arm.setScaleY(1.0F);
-        arm.setScaleZ(1.0F);
+        this.geoBone.arm = arm;
+        this.geoBone.stack = pPoseStack;
+        bone.injectTo(this.geoBone);
 
         boolean h = arm.isHidden();
         arm.setHidden(false);

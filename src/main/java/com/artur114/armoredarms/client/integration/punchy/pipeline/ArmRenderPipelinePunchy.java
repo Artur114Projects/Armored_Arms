@@ -84,7 +84,6 @@ public class ArmRenderPipelinePunchy extends AbstractRenderPipelineForge<ArmRend
         this.noRenderingTicks++;
     }
 
-
     public void populateContext(RenderArmPunchyMixinEvent e) {
         this.renderContext.multiBufferSource = e.buffer();
         this.renderContext.arm = AAUtils.fromMc(e.arm());
