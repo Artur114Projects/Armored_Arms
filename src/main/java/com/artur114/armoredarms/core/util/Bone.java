@@ -1,42 +1,19 @@
 package com.artur114.armoredarms.core.util;
 
-import com.artur114.armoredarms.core.api.IPrioritised;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Bone {
-    private static List<IBoneAdapter<Object>> sources = new ArrayList<>();
-
-    @SuppressWarnings("unchecked")
-    public static void register(IBoneAdapter<?> source) {
-        sources.add((IBoneAdapter<Object>) source);
-        sources = CoreUtils.sortPrioritisedList(sources);
-    }
-
-    public static boolean hasAdapterFor(Class<?> clazz) {
-        for (IBoneAdapter<Object> source : sources) {
-            if (source.targetObjectClass().isAssignableFrom(clazz)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    private List<IBoneAdapter<Object>> adapters = new ArrayList<>();
+    private final ObjectBuff loggingBuff = new ObjectBuff();
     private final IAAModContainer mod;
+    private final ObjectBuff data;
     private final String name;
-    public float rotationPointX;
-    public float rotationPointY;
-    public float rotationPointZ;
-    public float rotateAngleX;
-    public float rotateAngleY;
-    public float rotateAngleZ;
-    public float offsetX;
-    public float offsetY;
-    public float offsetZ;
 
     protected Bone(IAAModContainer mod, String name) {
+        this.data = new ObjectBuff();
         this.name = name;
         this.mod = mod;
     }
@@ -44,63 +21,72 @@ public class Bone {
     public void injectTo(Object obj) {
         Class<?> clazz = obj.getClass();
 
-        for (IBoneAdapter<Object> source : sources) {
-            if (source.targetObjectClass().isAssignableFrom(clazz)) {
-                source.inject(this, obj);
+        for (IBoneAdapter<Object> adapter : this.adapters) {
+            if (adapter.targetObjectClass().isAssignableFrom(clazz) && adapter.canWork(obj)) {
+                adapter.inject(this, this.data.reset(), obj);
                 return;
             }
         }
 
-        throw new IllegalArgumentException("Can't find bone source for " + clazz);
+        throw new IllegalArgumentException("Can't find bone adapter for " + clazz);
     }
 
     public void setFrom(Object obj) {
         Class<?> clazz = obj.getClass();
 
-        for (IBoneAdapter<Object> source : sources) {
-            if (source.targetObjectClass().isAssignableFrom(clazz)) {
-                float rotationPointX = this.rotationPointX;
-                float rotationPointY = this.rotationPointY;
-                float rotationPointZ = this.rotationPointZ;
-                float rotateAngleX = this.rotateAngleX;
-                float rotateAngleY = this.rotateAngleY;
-                float rotateAngleZ = this.rotateAngleZ;
-                float offsetX = this.offsetX;
-                float offsetY = this.offsetY;
-                float offsetZ = this.offsetZ;
+        for (IBoneAdapter<Object> adapter : this.adapters) {
+            if (adapter.targetObjectClass().isAssignableFrom(clazz) && adapter.canWork(obj)) {
+                this.loggingBuff.copyFrom(this.data).reset();
 
-                source.set(this, obj);
+                adapter.set(this, this.data.reset(), obj);
+
+                if (this.data.equals(this.loggingBuff)) {
+                    return;
+                }
 
                 Logger logger = this.mod.logger().namedLogger("ARMOREDARMS-CORE");
+                logger.debug("-Bone [{}] data change trace start:", this.name);
+                this.data.reset();
+                while (this.loggingBuff.hasNext() && this.data.hasNext()) {
+                    String nameOld = this.loggingBuff.peekName();
+                    Object objOld = this.loggingBuff.readObject();
 
-                if (rotationPointX != this.rotationPointX || rotationPointY != this.rotationPointY || rotationPointZ != this.rotationPointZ) {
-                    logger.debug("Bone[{}] update result: rotationPoint was changed", this.name);
-                    logger.debug("    old rotationPoint: [{}, {}, {}]", rotationPointX, rotationPointY, rotationPointZ);
-                    logger.debug("    new rotationPoint: [{}, {}, {}]", this.rotationPointX, this.rotationPointY, this.rotationPointZ);
+                    String nameNew = this.data.peekName();
+                    Object objNew = this.data.readObject();
+
+                    if (!nameOld.equals(nameNew)) {
+                        logger.debug("   Value {} has been renamed to {}", nameOld, nameNew);
+                    }
+                    if (!nameNew.startsWith("nlc|") && !objOld.equals(objNew)) {
+                        logger.debug("   Value {}:{} has been changed to {}", nameOld, objOld, objNew);
+                    }
                 }
+                while (this.data.hasNext()) {
+                    String nameNew = this.data.peekName();
+                    Object objNew = this.data.readObject();
 
-                if (rotateAngleX != this.rotateAngleX || rotateAngleY != this.rotateAngleY || rotateAngleZ != this.rotateAngleZ) {
-                    logger.debug("Bone[{}] update result: rotateAngle was changed", this.name);
-                    logger.debug("    old rotateAngle: [{}, {}, {}]", rotateAngleX, rotateAngleY, rotateAngleZ);
-                    logger.debug("    new rotateAngle: [{}, {}, {}]", this.rotateAngleX, this.rotateAngleY, this.rotateAngleZ);
+                    logger.debug("   Value {}:{} has been added", nameNew, objNew);
                 }
-
-                if (offsetX != this.offsetX || offsetY != this.offsetY || offsetZ != this.offsetZ) {
-                    logger.debug("Bone[{}] update result: offset was changed", this.name);
-                    logger.debug("    old offset: [{}, {}, {}]", offsetX, offsetY, offsetZ);
-                    logger.debug("    new offset: [{}, {}, {}]", this.offsetX, this.offsetY, this.offsetZ);
-                }
-
+                logger.debug("-Bone [{}] data change trace end|", this.name);
                 return;
             }
         }
 
-        throw new IllegalArgumentException("Can't find bone source for " + clazz);
+        throw new IllegalArgumentException("Can't find bone adapter for " + clazz);
     }
 
-    public interface IBoneAdapter<T> extends IPrioritised {
-        void inject(Bone bone, T to);
-        void set(Bone bone, T from);
-        Class<T> targetObjectClass();
+    @SuppressWarnings("unchecked")
+    public void registerAdapter(IBoneAdapter<?> adapter) {
+        this.adapters.add((IBoneAdapter<Object>) adapter);
+        this.adapters = CoreUtils.sortPrioritisedList(this.adapters);
+    }
+
+    public boolean hasAdapterFor(Class<?> clazz) {
+        for (IBoneAdapter<Object> adapter : this.adapters) {
+            if (adapter.targetObjectClass().isAssignableFrom(clazz)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

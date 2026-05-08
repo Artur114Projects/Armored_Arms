@@ -17,4 +17,13 @@ public class ArmsBone {
         this.bySide(EnumHandSideAA.RIGHT).setFrom(right);
         this.bySide(EnumHandSideAA.LEFT).setFrom(left);
     }
+
+    public void registerAdapter(IBoneAdapter<?> adapter) {
+        this.bones[0].registerAdapter(adapter);
+        this.bones[1].registerAdapter(adapter);
+    }
+
+    public boolean hasAdapterFor(Class<?> clazz) {
+        return this.bones[0].hasAdapterFor(clazz) || this.bones[1].hasAdapterFor(clazz);
+    }
 }

@@ -16,6 +16,7 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
     protected List<IArmRenderLayer<E>> sortedLayers;
     public IAAModContainer mod = null;
     public boolean deactivated = false;
+    protected ArmsBone bones = null;
     public boolean render = false;
     public P pipeline = null;
 
@@ -43,6 +44,15 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
                 loggerCore.error("   Engine: {}", this);
             }
         }));
+
+        this.bones = new ArmsBone(mod);
+        for (IBoneAdapter<?> adapter : this.initBoneAdapters()) {
+            loggerCore.info("Registered bone adapter");
+            loggerCore.info("   Adapter: {}", adapter);
+            loggerCore.info("   Target class: {}", adapter.targetObjectClass());
+            loggerCore.info("   Priority: {}", adapter.priority());
+            this.bones.registerAdapter(adapter);
+        }
 
         this.sortedLayers = CoreUtils.sortPrioritisedList(this.layerMap.values());
 
@@ -95,6 +105,11 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         }
 
         this.tick(context);
+    }
+
+    @Override
+    public ArmsBone mainBones() {
+        return this.bones;
     }
 
     @Override
@@ -157,5 +172,6 @@ public abstract class AbstractRenderEngine<E extends AbstractRenderEngine<?, ?>,
         return render;
     }
 
+    protected abstract List<IBoneAdapter<?>> initBoneAdapters();
     protected abstract Map<Class<? extends IArmRenderLayer<?>>, IArmRenderLayer<?>> initLayers();
 }
