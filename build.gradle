@@ -63,7 +63,10 @@ coreBuildConf {
 
     dependenciesConf {
         afterDependence fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:7707268")
+        afterDependence fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
         afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
+        afterDependence fg.deobf("curse.maven:scorched-guns-802940:7232063")
+        afterDependence fg.deobf("curse.maven:aether-255308:6134920")
         afterDependence fg.deobf("curse.maven:punchy-1374153:8029969")
 
         coreConf {

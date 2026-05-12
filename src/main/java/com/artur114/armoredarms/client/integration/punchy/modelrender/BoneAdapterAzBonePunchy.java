@@ -14,13 +14,33 @@ import org.joml.Vector3f;
 public class BoneAdapterAzBonePunchy extends BoneAdapterAzBone {
     @Override
     public void inject(Bone bone, ObjectBuff data, PSAzBone to) {
-        super.inject(bone, data, to);
-        data.jump(3);
+        float rotX = data.readFloat();
+        float rotY = data.readFloat();
+        float rotZ = data.readFloat();
+
+        float posX = data.readFloat();
+        float posY = data.readFloat();
+        float posZ = data.readFloat();
+
+        to.arm.setRotX(rotX);
+        to.arm.setRotY(rotY);
+        int delta = rotZ < 0.0F ? -1 : 1;
+        to.arm.setRotZ((float) (Math.PI * delta) + rotZ);
+
+        float xd = Math.abs(to.arm.getPivotX()) < 5 ? (delta < 0 ? -2 : -1) : 0;
+        to.arm.setPosX(to.arm.getPivotX() + xd);
+        to.arm.setPosY(-to.arm.getPivotY());
+        to.arm.setPosZ(to.arm.getPivotZ());
+
+        to.arm.setScaleX(1.0F);
+        to.arm.setScaleY(1.0F);
+        to.arm.setScaleZ(1.0F);
+
         Matrix4f explicit = new Matrix4f(data.readObject(Matrix4f.class));
         Vector3f translation = explicit.getTranslation(new Vector3f());
         translation.div(16.0F);
         explicit.setTranslation(translation);
-        Matrix4f vanilla = (new Matrix4f()).translate(to.arm.getPosX() / 16.0F, to.arm.getPosY() / 16.0F, to.arm.getPosZ() / 16.0F).rotateZ(to.arm.getRotZ()).rotateY(to.arm.getRotY()).rotateX(to.arm.getRotX()).scale(to.arm.getScaleX(), to.arm.getScaleY(), to.arm.getScaleZ());
+        Matrix4f vanilla = (new Matrix4f());//.translate(posX / 16.0F, posY / 16.0F, posZ / 16.0F).rotateZ(rotZ).rotateY(rotY).rotateX(rotX).scale(1.0F, 1.0F, 1.0F);
         Matrix4f correction = vanilla.invert(new Matrix4f()).mul(explicit);
         to.stack.mulPoseMatrix(correction);
     }
