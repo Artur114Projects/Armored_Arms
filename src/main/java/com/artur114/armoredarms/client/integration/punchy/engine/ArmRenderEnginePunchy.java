@@ -4,77 +4,89 @@ import com.artur114.armoredarms.api.events.ArmLayerRenderingEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
-import com.artur114.armoredarms.client.integration.punchy.pipeline.ArmRenderPipelinePunchy;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.mixin.IPunchyArmRenderProvider;
-import com.artur114.armoredarms.client.mixin.RenderArmPunchyMixinEvent;
+import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.ObjectBuff;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.HumanoidArm;
-import punchy.client.render.PunchyArmRenderer;
 import punchy.config.PunchyConfig;
 
 import java.util.Map;
 
-public class ArmRenderEnginePunchy extends AbstractRenderEngineForge<ArmRenderEnginePunchy, ArmRenderPipelinePunchy> {
+public class ArmRenderEnginePunchy extends AbstractRenderEngineForge<ArmRenderEnginePunchy, AbstractRenderPipelineForge<?>> {
     /**
         @see com.artur114.armoredarms.client.mixin.impl.PunchyArmRendererMixin
      */
     private final IPunchyArmRenderProvider provider = IPunchyArmRenderProvider.INSTANCE;
 
     @Override
-    public void render(ArmRenderPipelinePunchy context) {
-        RenderArmPunchyMixinEvent renderContext = context.context;
-        PlayerModel<?> playerModel = renderContext.playerModel();
-        AbstractClientPlayer player = renderContext.player();
-        float partialTicks = renderContext.partialTicks();
-        int combinedLight = renderContext.combinedLight();
-        MultiBufferSource buffer = renderContext.buffer();
-        PoseStack poseStack = renderContext.poseStack();
-        HumanoidArm arm = renderContext.arm();
-        boolean slim = renderContext.slim();
+    public void render(AbstractRenderPipelineForge<?> context) {
+        ObjectBuff data = context.renderArgs();
 
-        ModelPart armPart = arm == HumanoidArm.LEFT ? playerModel.leftArm : playerModel.rightArm;
-        ModelPart sleevePart = arm == HumanoidArm.LEFT ? playerModel.leftSleeve : playerModel.rightSleeve;
-        boolean isLeft = arm == HumanoidArm.LEFT;
-        this.provider.armoredarms$copyMatrixToSleeve(armPart, sleevePart);
-        poseStack.pushPose();
-        if (slim) {
-            poseStack.translate((isLeft ? 1.0F : -1.0F) * 0.5F / 16.0F, 0.0F, 0.0F);
+        PlayerModel<?> playerModel = null;
+        float partialTicks = -1;
+        boolean slim = false;
+        boolean hasContext = true;
+
+        try {
+            data.jump(1);
+            playerModel = data.readObject(PlayerModel.class);
+            partialTicks = data.readFloat();
+            slim = data.readBoolean();
+        } catch (Exception e) {
+            hasContext = false;
         }
 
-        this.provider.armoredarms$applyArmMeshOffsets(poseStack, isLeft);
-        this.provider.armoredarms$applyFreezeShake(poseStack, player, partialTicks);
-        this.provider.armoredarms$renderLavaHandOverlay(armPart, poseStack, buffer, combinedLight, player, isLeft ? HumanoidArm.LEFT : HumanoidArm.RIGHT, partialTicks);
-        this.provider.armoredarms$renderFreezeOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight, player, partialTicks);
-        this.provider.armoredarms$renderMudOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight);
-        this.provider.armoredarms$renderSweatOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight);
-        if (player.isOnFire()) {
+        if (hasContext) {
+            AbstractClientPlayer player = this.renderContext.player;
+            int combinedLight = this.renderContext.packedLight;
+            MultiBufferSource buffer = this.renderContext.multiBufferSource;
+            PoseStack poseStack = this.renderContext.poseStack;
+            EnumHandSideAA arm = this.renderContext.arm;
+
+            ModelPart armPart = arm == EnumHandSideAA.LEFT ? playerModel.leftArm : playerModel.rightArm;
+            ModelPart sleevePart = arm == EnumHandSideAA.LEFT ? playerModel.leftSleeve : playerModel.rightSleeve;
+            boolean isLeft = arm == EnumHandSideAA.LEFT;
+            this.provider.armoredarms$copyMatrixToSleeve(armPart, sleevePart);
             poseStack.pushPose();
-            armPart.translateAndRotate(poseStack);
-            if (!PunchyConfig.disableEnhancedFireArmEffects()) {
-                this.provider.armoredarms$renderFlameOnArm(poseStack, buffer);
+            if (slim) {
+                poseStack.translate((isLeft ? 1.0F : -1.0F) * 0.5F / 16.0F, 0.0F, 0.0F);
             }
 
+            this.provider.armoredarms$applyArmMeshOffsets(poseStack, isLeft);
+            this.provider.armoredarms$applyFreezeShake(poseStack, player, partialTicks);
+            this.provider.armoredarms$renderLavaHandOverlay(armPart, poseStack, buffer, combinedLight, player, isLeft ? HumanoidArm.LEFT : HumanoidArm.RIGHT, partialTicks);
+            this.provider.armoredarms$renderFreezeOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight, player, partialTicks);
+            this.provider.armoredarms$renderMudOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight);
+            this.provider.armoredarms$renderSweatOverlay(armPart, isLeft, slim, poseStack, buffer, combinedLight);
+            if (player.isOnFire()) {
+                poseStack.pushPose();
+                armPart.translateAndRotate(poseStack);
+                if (!PunchyConfig.disableEnhancedFireArmEffects()) {
+                    this.provider.armoredarms$renderFlameOnArm(poseStack, buffer);
+                }
+
+                poseStack.popPose();
+            }
+
+            this.renderAllLayers(arm);
+
             poseStack.popPose();
+        } else {
+            this.renderAllLayers(context.renderContext.arm);
         }
-
-        this.renderAllLayers(AAUtils.fromMc(renderContext.arm()));
-
-        poseStack.popPose();
 
         if (!this.sortedLayers.isEmpty()) {
             context.renderContext.cancel();
@@ -82,7 +94,7 @@ public class ArmRenderEnginePunchy extends AbstractRenderEngineForge<ArmRenderEn
     }
 
     @Override
-    public void tick(ArmRenderPipelinePunchy context) {
+    public void tick(AbstractRenderPipelineForge<?> context) {
         this.cleanUpLayers();
         this.render = this.updateAllLayers();
     }
@@ -107,8 +119,8 @@ public class ArmRenderEnginePunchy extends AbstractRenderEngineForge<ArmRenderEn
     }
 
     @Override
-    public Class<ArmRenderPipelinePunchy> targetPipeline() {
-        return ArmRenderPipelinePunchy.class;
+    public Class<AbstractRenderPipelineForge<?>> targetPipeline() {
+        return AbstractRenderPipelineForge.clazzz();
     }
 
     @Override

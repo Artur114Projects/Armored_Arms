@@ -4,7 +4,6 @@ import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.integration.punchy.engine.ArmRenderEnginePunchy;
-import com.artur114.armoredarms.client.integration.punchy.pipeline.ArmRenderPipelinePunchy;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineMixin;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -40,7 +39,6 @@ public class ArmoredArms implements IAAModContainer {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent e) {
-        ArmoredArmsApi.registerPipelineIfModLoaded(ArmRenderPipelinePunchy.class, "punchy");
         ArmoredArmsApi.registerEngineIfModLoaded(ArmRenderEnginePunchy.class, "punchy");
 
         if (!Bindings.getForgeBus().get().post(new InitRenderPipelineEvent(ARMORED_ARMS))) {

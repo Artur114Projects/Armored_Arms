@@ -1,7 +1,9 @@
 package com.artur114.armoredarms.client.mixin.impl;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.client.mixin.IPunchyArmRenderProvider;
-import com.artur114.armoredarms.client.mixin.RenderArmPunchyMixinEvent;
+import com.artur114.armoredarms.client.util.AAUtils;
+import com.artur114.armoredarms.core.util.ObjectBuff;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -40,13 +42,16 @@ public class PunchyArmRendererMixin implements IPunchyArmRenderProvider {
     @Shadow(remap = false)
     private static PlayerModel getFirstPersonModel(boolean slim) {return null;}
 
-
-
     @Inject(method = "renderArm", at = @At("HEAD"), cancellable = true)
     private static void renderArm(PlayerModel playerModel, AbstractClientPlayer player, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation texture, boolean slim, float partialTicks, CallbackInfo ci) {
-        if (MinecraftForge.EVENT_BUS.post(new RenderArmPunchyMixinEvent(playerModel, player, arm, poseStack, buffer, combinedLight, texture, slim, partialTicks))) {
-            ci.cancel();
-        }
+        ObjectBuff args = ArmoredArmsApi.renderArgs();
+        args.writeObject("FORCED_RENDER");
+        args.writeObject(playerModel);
+        args.writeFloat(partialTicks);
+        args.writeBoolean(slim);
+        args.reset();
+        AAUtils.renderArmPlayerRenderer(arm, poseStack, buffer, combinedLight, player);
+        ci.cancel();
     }
 
     @Override

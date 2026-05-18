@@ -3,9 +3,11 @@ package com.artur114.armoredarms.client.engines;
 import com.artur114.armoredarms.api.events.InitBoneAdaptersEvent;
 import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
 import com.artur114.armoredarms.client.util.ArmRenderContext;
+import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.AbstractRenderEngine;
+import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.*;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
@@ -25,6 +27,7 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     public final Minecraft mc = Minecraft.getInstance();
     private double lastModelSize = Double.MIN_VALUE;
     public ArmRenderContext renderContext = null;
+    protected boolean forcedRender = false;
 
     public HumanoidArmorModel<AbstractClientPlayer> actualHumanoidModel(float delta) {
         if (this.actualHumanoidModels == null) {
@@ -63,8 +66,40 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
 
     @Override
     public void tryRender(P context) {
+        this.forcedRender = this.readForcedRender(context.renderArgs());
         this.renderContext = context.renderContext;
         super.tryRender(context);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void renderAllLayers(EnumHandSideAA side) {
+        for (IArmRenderLayer<E> layer : this.sortedLayers) {
+            if (this.forcedRender || layer.needRender((E) this, this.render)) {
+                try {
+                    if (this.onLayerRendering(layer, side)) {
+                        layer.render((E) this, side);
+                    }
+                } catch (RenderException rm) {
+                    throw rm;
+                } catch (Throwable tr) {
+                    throw new RenderException(tr).setComponent(layer);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean updateAllLayers() {
+        return super.updateAllLayers() || this.forcedRender;
+    }
+
+    protected boolean readForcedRender(ObjectBuff buff) {
+        if (buff.size() > 0) {
+            Object obj = buff.readObject(); buff.reset();
+            return "FORCED_RENDER".equals(obj);
+        }
+        return false;
     }
 
     private static class BoneAdepterModelPart implements IBoneAdapter<ModelPart> {

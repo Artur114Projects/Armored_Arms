@@ -2,6 +2,7 @@ package com.artur114.armoredarms.client.integration.azurelib.modelrender;
 
 import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
@@ -59,6 +60,7 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
     @Override
     public void renderArm(ArmModelManagerArmor context, EnumHandSideAA side) {
         for (IModelRenderContext contextPart : this.context) {
+            if (contextPart instanceof ModelRenderContextOverlay) continue;
             this.render(context, contextPart.poseStack(), contextPart.multiBuffer(), context.chestPlate, side, contextPart.packedLight());
         }
     }
@@ -92,6 +94,7 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         this.ma.crouching = false;
         this.ma.swimAmount = 0.0F;
         this.azBone.arm = arm;
+        this.azBone.side = side;
         this.azBone.stack = pPoseStack;
         bone.injectTo(this.azBone);
 

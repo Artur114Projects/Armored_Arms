@@ -90,6 +90,7 @@ public class ArmRenderPipelineForge extends AbstractRenderPipelineForge<ArmRende
             e.setCanceled(true);
         }
         this.renderContext.reload();
+        this.renderArgs.clear();
     }
 
     @Override

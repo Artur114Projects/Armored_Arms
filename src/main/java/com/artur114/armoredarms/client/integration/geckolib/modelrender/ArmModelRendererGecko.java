@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.integration.geckolib.modelrender;
 
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
+import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
@@ -21,6 +22,8 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
+import java.util.Arrays;
+
 public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerArmor> {
     private final PSGeoBone geoBone = new PSGeoBone();
     public final MultiModelRenderContext context;
@@ -30,7 +33,6 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
     public ArmModelRendererGecko(MultiModelRenderContext context, GeoArmorRenderer<?> model) {
         this.context = context;
         this.mg = model;
-
         this.arms = new String[] {"armorLeftArm", "armorRightArm"};
     }
 
@@ -38,6 +40,7 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
     @Override
     public void renderArm(ArmModelManagerArmor context, EnumHandSideAA side) {
         for (IModelRenderContext contextPart : this.context) {
+            if (contextPart instanceof ModelRenderContextOverlay) continue;
             this.render(context, contextPart.poseStack(), contextPart.multiBuffer(), context.chestPlate, side, contextPart.packedLight(), contextPart.packedOverlay());
         }
     }
@@ -57,6 +60,7 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
         this.mg.crouching = false;
         this.mg.swimAmount = 0.0F;
         this.geoBone.arm = arm;
+        this.geoBone.side = side;
         this.geoBone.stack = pPoseStack;
         bone.injectTo(this.geoBone);
 

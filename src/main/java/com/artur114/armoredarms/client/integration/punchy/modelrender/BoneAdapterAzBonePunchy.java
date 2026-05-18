@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.integration.punchy.modelrender;
 import com.artur114.armoredarms.client.integration.azurelib.modelrender.BoneAdapterAzBone;
 import com.artur114.armoredarms.client.integration.azurelib.modelrender.PSAzBone;
 import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
+import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.util.Bone;
@@ -27,7 +28,7 @@ public class BoneAdapterAzBonePunchy extends BoneAdapterAzBone {
         int delta = rotZ < 0.0F ? -1 : 1;
         to.arm.setRotZ((float) (Math.PI * delta) + rotZ);
 
-        float xd = Math.abs(to.arm.getPivotX()) < 5 ? (delta < 0 ? -2 : -1) : 0;
+        float xd = Math.abs(to.arm.getPivotX()) < 5 ? (to.side == EnumHandSideAA.LEFT ? 1 : -1) : 0;
         to.arm.setPosX(to.arm.getPivotX() + xd);
         to.arm.setPosY(-to.arm.getPivotY());
         to.arm.setPosZ(to.arm.getPivotZ());

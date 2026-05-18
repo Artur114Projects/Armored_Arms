@@ -9,7 +9,6 @@ import com.artur114.armoredarms.client.integration.punchy.modelrender.ArmModelMa
 import com.artur114.armoredarms.client.integration.punchy.modelrender.BoneAdapterAzBonePunchy;
 import com.artur114.armoredarms.client.integration.punchy.modelrender.BoneAdapterGeoBonePunchy;
 import com.artur114.armoredarms.client.integration.punchy.modelrender.BoneAdapterModelPartPunchy;
-import com.artur114.armoredarms.client.integration.punchy.pipeline.ArmRenderPipelinePunchy;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
