@@ -151,6 +151,10 @@ public class ObjectBuff {
         this.cursor = 0; return this;
     }
 
+    public int size() {
+        return this.dataSize;
+    }
+
     private void write(Object obj, String entryName, int index) {
         if (this.data.length <= index) {
             this.data = Arrays.copyOf(this.data, index + 1);
