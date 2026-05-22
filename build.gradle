@@ -69,6 +69,10 @@ coreBuildConf {
         afterDependence fg.deobf("curse.maven:scorched-guns-802940:7232063")
         afterDependence fg.deobf("curse.maven:aether-255308:6134920")
         afterDependence fg.deobf("curse.maven:punchy-1374153:8029969")
+        afterDependence fg.deobf("curse.maven:curios-309927:6418456")
+
+        afterDependence fg.deobf("curse.maven:entity-model-features-844662:8063556")
+        afterDependence fg.deobf("curse.maven:entity-texture-features-fabric-568563:7818911")
 
         coreConf {
             version = "@core_version@"

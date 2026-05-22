@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.ModelPart;
 public interface IArmModelRendererBase<M extends IArmModelManager<?, ?>> extends IArmModelRenderer<M> {
     default void renderDefault(IModelRenderContext context, Bone bone, ModelPart arm) {
         bone.injectTo(arm);
-        arm.xRot = 0.0F;
+//        arm.xRot = 0.0F;
         boolean s = arm.skipDraw;
         boolean v = arm.visible;
         arm.skipDraw = false;
