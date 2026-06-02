@@ -96,11 +96,18 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         this.azBone.arm = arm;
         this.azBone.side = side;
         this.azBone.stack = pPoseStack;
-        bone.injectTo(this.azBone);
 
         boolean h = arm.isHidden();
         arm.setHidden(false);
+
+        PoseStack poseStack = context.poseStack();
+        poseStack.pushPose();
+        poseStack.translate(0.0F, 1.5F, 0.0F);
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        bone.injectTo(this.azBone);
         Reflector.invokeMethod(this.renderRecursively, this.renderer, context, arm, false);  // dark magic!
+        poseStack.popPose();
+
         arm.setHidden(h);
     }
 }

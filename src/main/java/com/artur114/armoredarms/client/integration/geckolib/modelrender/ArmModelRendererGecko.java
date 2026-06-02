@@ -2,7 +2,6 @@ package com.artur114.armoredarms.client.integration.geckolib.modelrender;
 
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
@@ -12,7 +11,6 @@ import com.artur114.armoredarms.core.util.Bone;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -21,8 +19,6 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-
-import java.util.Arrays;
 
 public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerArmor> {
     private final PSGeoBone geoBone = new PSGeoBone();
@@ -62,11 +58,17 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
         this.geoBone.arm = arm;
         this.geoBone.side = side;
         this.geoBone.stack = pPoseStack;
-        bone.injectTo(this.geoBone);
 
         boolean h = arm.isHidden();
         arm.setHidden(false);
+
+        pPoseStack.pushPose();
+        pPoseStack.translate(0.0F, 1.5F, 0.0F);
+        pPoseStack.scale(-1.0F, -1.0F, 1.0F);
+        bone.injectTo(this.geoBone);
         model.renderRecursively(pPoseStack, t, arm, renderType, multiBuffer, buffer, false, Minecraft.getInstance().getPartialTick(), pPackedLight, pPackedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        pPoseStack.popPose();
+
         arm.setHidden(h);
     }
 }

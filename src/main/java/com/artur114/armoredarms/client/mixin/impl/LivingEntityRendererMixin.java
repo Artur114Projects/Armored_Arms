@@ -1,19 +1,13 @@
 package com.artur114.armoredarms.client.mixin.impl;
 
-import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextPlayer;
+import com.artur114.armoredarms.client.mixin.MixinHandler;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
-import dev.kosmx.playerAnim.core.impl.AnimationProcessor;
-import dev.kosmx.playerAnim.core.util.SetableSupplier;
 import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
-import dev.kosmx.playerAnim.impl.IMutableModel;
 import dev.kosmx.playerAnim.impl.animation.AnimationApplier;
-import dev.kosmx.playerAnim.impl.animation.IBendHelper;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -35,21 +29,10 @@ public class LivingEntityRendererMixin<T extends LivingEntity> {
             )}
     )
     public void render(T pEntity, float pEntityYaw, float pPartialTicks, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, CallbackInfo ci) {
-        if (EnumMods.PLAYER_ANIMATOR.isLoaded() && !pEntity.isSpectator() && pEntity instanceof LocalPlayer player) {
-            if (FirstPersonMode.isFirstPersonPass()) {
-                if (pEntity instanceof IAnimatedPlayer animPlayer) {
-                    AnimationApplier animationApplier = animPlayer.playerAnimator_getAnimation();
-                    FirstPersonConfiguration config = animationApplier.getFirstPersonConfiguration();
-                    PlayerRenderer renderer = AAUtils.playerRenderer(player);
-
-                    if (config.isShowRightArm()) {
-                        renderer.renderRightHand(pPoseStack, pBuffer, pPackedLight, player);
-                    }
-                    if (config.isShowLeftArm()) {
-                        renderer.renderLeftHand(pPoseStack, pBuffer, pPackedLight, player);
-                    }
-                }
+        try {
+            if (EnumMods.PLAYER_ANIMATOR.isLoaded() && !pEntity.isSpectator() && pEntity instanceof LocalPlayer player) {
+                MixinHandler.renderPlayerAnim(player, pEntity, pEntityYaw, pPartialTicks, pPoseStack, pBuffer, pPackedLight);
             }
-        }
+        } catch (Exception ignored) {}
     }
 }

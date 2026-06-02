@@ -37,6 +37,9 @@ public class BoneAdapterGeoBonePunchy extends BoneAdapterGeoBone {
         to.arm.setScaleY(1.0F);
         to.arm.setScaleZ(1.0F);
 
+        to.stack.translate(0.0F, 1.5F, 0.0F);
+        to.stack.scale(-1.0F, -1.0F, 1.0F);
+
         Matrix4f explicit = new Matrix4f(data.readObject(Matrix4f.class));
         Vector3f translation = explicit.getTranslation(new Vector3f());
         translation.div(16.0F);

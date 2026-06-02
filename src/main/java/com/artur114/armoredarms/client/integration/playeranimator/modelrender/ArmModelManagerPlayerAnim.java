@@ -40,6 +40,8 @@ public class ArmModelManagerPlayerAnim extends ArmModelManagerPlayer {
                 }
             }
             model.setupAnim(this.mc.player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+            model.rightArm.xRot = 0.0F;
+            model.leftArm.xRot = 0.0F;
         }
 
         this.layer.engine().mainBones().updateBones(model.rightArm, model.leftArm);

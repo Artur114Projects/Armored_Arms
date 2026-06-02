@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.client.mixin.impl;
 
+import com.artur114.armoredarms.client.mixin.MixinHandler;
 import com.artur114.armoredarms.client.mixin.RenderArmMixinEvent;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
@@ -50,13 +51,10 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
             )}
     )
     private void hideBonesInFirstPerson(AbstractClientPlayer entity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
-        if (EnumMods.PLAYER_ANIMATOR.isLoaded() && FirstPersonMode.isFirstPersonPass()) {
-            if (entity == Minecraft.getInstance().getCameraEntity()) {
-                this.model.rightArm.visible = false;
-                this.model.rightSleeve.visible = false;
-                this.model.leftArm.visible = false;
-                this.model.leftSleeve.visible = false;
+        try {
+            if (EnumMods.PLAYER_ANIMATOR.isLoaded()) {
+                MixinHandler.cancelPlayerAnimRender(entity, this.model);
             }
-        }
+        } catch (Exception ignored) {}
     }
 }
