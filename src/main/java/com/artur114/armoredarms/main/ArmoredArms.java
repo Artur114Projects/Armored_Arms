@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.main;
 
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
+import com.artur114.armoredarms.client.engines.ArmRenderEngineASM;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
 import com.artur114.armoredarms.client.integration.alfheim.EventHandlerAL;
 import com.artur114.armoredarms.client.integration.backhand.EventHandlerBH;
@@ -18,6 +19,7 @@ import com.artur114.armoredarms.client.integration.smartmoving.EventHandlerSM;
 import com.artur114.armoredarms.client.integration.thaumicconcilium.EventHandlerTC;
 import com.artur114.armoredarms.client.integration.theaether.EventHandlerTA;
 import com.artur114.armoredarms.client.integration.wawelauth.EventHandlerWA;
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineASM;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.util.IPreInitListener;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -32,10 +34,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Mod(modid = ArmoredArms.MODID, guiFactory = ArmoredArms.GUI_FACTORY, useMetadata = true)
 public class ArmoredArms implements IAAModContainer {
@@ -56,10 +55,6 @@ public class ArmoredArms implements IAAModContainer {
         for (IPreInitListener listener : listeners) {
             listener.fMLPreInitializationEvent(e);
         }
-
-        try {
-            LOGGER.logDragonBlockC(this);
-        } catch (Exception ignored) {}
     }
 
     @Mod.EventHandler
@@ -81,12 +76,12 @@ public class ArmoredArms implements IAAModContainer {
 
     @Override
     public Collection<IArmRenderPipeline<?>> defaultPipelines() {
-        return Collections.singletonList(new ArmRenderPipelineForge());
+        return Arrays.asList(new ArmRenderPipelineForge(), new ArmRenderPipelineASM());
     }
 
     @Override
     public Collection<IArmRenderEngine<?>> defaultEngines() {
-        return Collections.singletonList(new ArmRenderEngineForge());
+        return Arrays.asList(new ArmRenderEngineForge(), new ArmRenderEngineASM());
     }
 
     @Override

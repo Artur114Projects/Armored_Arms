@@ -40,7 +40,14 @@ repositories {
 coreBuildConf {
     jarConf {
         atFile = "aa_at.cfg"
-        return
+        overrideManifest(
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Implementation-Vendor": "${author}",
+                "Implementation-Version": "${project.version}",
+                "Core-Version": "${coreVersion}",
+                "FMLCorePlugin": "com.artur114.armoredarms.main.ArmoredArmsCoreMod",
+                "FMLCorePluginContainsFMLMod": "true"
+        )
     }
 }
 

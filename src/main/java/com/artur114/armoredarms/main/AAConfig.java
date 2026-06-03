@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.main;
 
 
+import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineASM;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.client.util.GenericPriority;
 import com.artur114.armoredarms.client.util.IPreInitListener;
@@ -39,7 +40,7 @@ public class AAConfig implements IPreInitListener {
         vanillaArmorModelSize = config.get("base", "vanillaArmorModelSize", 0.4D, "Vanilla armor model size").getDouble();
         useCheckByItem = config.get("base", "useCheckByItem", false, "Use check by item").getBoolean();
 
-        renderSourcesPriority = config.get("base", "renderSourcesPriority", new String[] {"event"}, "Render sources priority").getStringList();
+        renderSourcesPriority = config.get("base", "renderSourcesPriorityNew", new String[] {"asm", "event"}, "Render sources priority").getStringList();
         noRenderArmWearList = config.get("base", "noRenderArmWearList", new String[0], "List of armors that require disable arm wear render").getStringList();
         renderArmWearList = config.get("base", "renderArmWearList", new String[0], "List of armors that require arm wear render. Works with the mod installed that ports new skins.").getStringList();
         enableArmWearWithVanillaM = config.get("base", "enableArmWearWithVanillaM", true, "Enable rendering arm wear for vanilla armor model. Works with the mod installed that ports new skins.").getBoolean();
@@ -95,6 +96,7 @@ public class AAConfig implements IPreInitListener {
         private static Class<? extends IArmRenderPipeline<?>> classFromId(String id) {
             switch (id) {
                 case "event": return ArmRenderPipelineForge.class;
+                case "asm": return ArmRenderPipelineASM.class;
                 default: return null;
             }
         }

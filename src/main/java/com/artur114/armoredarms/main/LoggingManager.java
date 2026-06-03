@@ -62,14 +62,6 @@ public class LoggingManager extends AbstractLoggingManager {
         return map;
     }
 
-    public void logDragonBlockC(IAAModContainer mod) { // Best function on mod!
-        String[] fuckYouJinGames = new String[] {"Jin Games... fuck you", "Fuck you Jin Games", "Jin Games иди нахуй", "Пошел нахуй Jin Games"};
-        if (mod.isModLoaded("jinryuudragonblockc")) {
-            AA_LOG.warn("Dragon Block C detected");
-            AA_LOG.warn(fuckYouJinGames[new Random().nextInt(fuckYouJinGames.length)]);
-        }
-    }
-
     private static class TextMessage implements ITextMessage {
         private final IChatComponent component;
 

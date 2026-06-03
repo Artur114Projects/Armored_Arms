@@ -1,12 +1,11 @@
 package com.artur114.armoredarms.client.pipelines;
 
-import com.artur114.armoredarms.asm.ASMHooksOut;
+import com.artur114.armoredarms.asm.out.RenderArmEvent;
 import com.artur114.armoredarms.core.api.IPriority;
-import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
-import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.EnumExceptionType;
+import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.RenderException;
 import com.artur114.armoredarms.main.AAConfig;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -18,14 +17,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipelineForge> {
+public class ArmRenderPipelineASM extends AbstractRenderPipeline<ArmRenderPipelineASM> {
     public final Minecraft mc = Minecraft.getMinecraft();
     public TickEvent.ClientTickEvent tickContext = null;
-    public RenderHandEvent renderContext = null;
+    public RenderArmEvent renderContext = null;
 
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public void renderHand(RenderHandEvent e) {
+    public void renderHand(RenderArmEvent e) {
         if (this.deactivated) {
             return;
         }
@@ -74,23 +73,23 @@ public class ArmRenderPipelineForge extends AbstractRenderPipeline<ArmRenderPipe
     }
 
     @Override
-    protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineForge> engine) {
+    protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineASM> engine) {
         FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public boolean canWork(IAAModContainer mod) {
-        return AAConfig.Baked.pipelinesPriority.containsKey(ArmRenderPipelineForge.class) && ASMHooksOut.isRenderFirstPersonArmHookAvailable();
+        return AAConfig.Baked.pipelinesPriority.containsKey(ArmRenderPipelineASM.class);
     }
 
     @Override
-    public Class<ArmRenderPipelineForge> clazz() {
-        return ArmRenderPipelineForge.class;
+    public Class<ArmRenderPipelineASM> clazz() {
+        return ArmRenderPipelineASM.class;
     }
 
     @Override
     public IPriority priority() {
-        return AAConfig.Baked.pipelinesPriority.get(ArmRenderPipelineForge.class);
+        return AAConfig.Baked.pipelinesPriority.get(ArmRenderPipelineASM.class);
     }
 }

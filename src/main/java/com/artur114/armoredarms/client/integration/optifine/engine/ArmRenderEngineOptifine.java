@@ -182,7 +182,6 @@ public class ArmRenderEngineOptifine extends ArmRenderEngineForge {
         logger.info("---end---");
     }
 
-
     @Override
     public IPriority priority() {
         return Priority.HIGH;

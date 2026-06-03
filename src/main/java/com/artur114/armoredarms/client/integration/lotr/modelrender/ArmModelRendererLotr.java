@@ -27,7 +27,13 @@ public class ArmModelRendererLotr extends ArmModelRendererArmor {
             Constructor<?> constructor = clazz.getConstructor(float.class);
             return (ModelBiped) constructor.newInstance(((float) AAConfig.vanillaArmorModelSize));
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            try {
+                Class<?> clazz = Class.forName("lotr.client.model.armor.LOTRModelSwanChestplate");
+                Constructor<?> constructor = clazz.getConstructor(float.class);
+                return (ModelBiped) constructor.newInstance(((float) AAConfig.vanillaArmorModelSize));
+            } catch (Exception ex) {
+                e.printStackTrace(System.err);
+            }
         }
 
         return mb;
