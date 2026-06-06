@@ -3,6 +3,7 @@ package com.artur114.armoredarms.main;
 import com.artur114.armoredarms.api.events.InitRenderPipelineEvent;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineASM;
 import com.artur114.armoredarms.client.engines.ArmRenderEngineForge;
+import com.artur114.armoredarms.client.integration.battlegear2.EventHandlerBG;
 import com.artur114.armoredarms.client.integration.alfheim.EventHandlerAL;
 import com.artur114.armoredarms.client.integration.backhand.EventHandlerBH;
 import com.artur114.armoredarms.client.integration.botania.EventHandlerBO;
@@ -126,5 +127,6 @@ public class ArmoredArms implements IAAModContainer {
         listeners.add(new EventHandlerLT());
         listeners.add(new EventHandlerOP());
         listeners.add(new EventHandlerDR());
+        listeners.add(new EventHandlerBG());
     }
 }

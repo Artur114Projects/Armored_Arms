@@ -9,6 +9,7 @@ public enum EnumMods {
     COSMETIC_ARMOR("cosmeticarmorreworked"),
     THAUMCRAFT("Thaumcraft"),
     GADOMANCY("gadomancy"),
+    BATTLE_GEAR_2("battlegear2"),
     BACKHAND("backhand");
 
     private AtomicBoolean loaded = null;
