@@ -109,7 +109,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
         for (String source : config.sources) {
             FileTree tree = project.fileTree(dir: source, includes: ["*-deobf.jar"])
 
-            project.dependencies.add("implementation", tree)
+            project.dependencies.add(config.configurationName, tree)
 
             tree.each {
                 println("Loaded file dependency: [${it}]")
@@ -139,7 +139,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
                 tree.each {
                     String lib = "blank:" + it.name.replaceAll(".jar", "") + ":0"
 
-                    project.dependencies.add("implementation", config.deObfHook(lib))
+                    project.dependencies.add(config.configurationName, config.deObfHook(lib))
                     println("Loaded flat dir dependency: [${lib}]")
                 }
             }
@@ -160,10 +160,10 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
                 String lib = "blank:" + it.name.replaceAll(".jar", "") + ":0"
 
                 if (!lib.contains("-deobf")) {
-                    project.dependencies.add("implementation", config.deObfHook(lib))
+                    project.dependencies.add(config.configurationName, config.deObfHook(lib))
                     println("Loaded flat dir dependency: [${lib}]")
                 } else {
-                    project.dependencies.add("implementation", lib)
+                    project.dependencies.add(config.configurationName, lib)
                     println("Loaded flat dir dependency: [${lib}]")
                 }
             }
@@ -174,7 +174,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
         for (String source : config.sources) {
             FileTree tree = project.fileTree(dir: source, includes: ["*.jar"])
 
-            project.dependencies.add("implementation", tree)
+            project.dependencies.add(config.configurationName, tree)
 
             tree.each {
                 println("Loaded file dependency: [${it}]")

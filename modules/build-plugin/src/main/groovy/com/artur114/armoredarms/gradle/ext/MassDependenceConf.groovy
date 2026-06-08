@@ -3,10 +3,12 @@ package com.artur114.armoredarms.gradle.ext
 class MassDependenceConf {
     public static final List<String> DEPENDENCE_LOAD_TYPES  = ["SEPARATED", "ALL_FLAT_DIR", "ALL_FILE_TREE"]
     private Closure<Object> deObfHook
+    private String dependenceLoadType
     private Set<String> sources
-    String dependenceLoadType
+    String configurationName
 
     MassDependenceConf() {
+        this.configurationName = "implementation"
         this.dependenceLoadType = "SEPARATED"
         this.sources = new HashSet<>()
         this.deObfHook = {it}
