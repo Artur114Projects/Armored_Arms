@@ -15,7 +15,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath ('com.artur114.armoredarms.gradle:core-build:1.2.+')
+        classpath ('com.artur114.armoredarms.gradle:core-build:1.2.2')
         classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.+')
     }
 }

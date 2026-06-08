@@ -108,8 +108,8 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
 
         List<ITexture> textures = this.newTextureList();
         if (overlay != null) {
-            textures.add(new TextureRL(overlay, Priority.HIGH));
-            textures.add(new TextureRLRGB(armor, stack.item().getColor(stack.stack())));
+            textures.add(new TextureRL(overlay));
+            textures.add(new TextureRLRGB(armor, Priority.HIGH, stack.item().getColor(stack.stack())));
         } else {
             textures.add(new TextureRL(armor));
         }

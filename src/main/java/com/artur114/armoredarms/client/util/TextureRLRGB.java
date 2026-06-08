@@ -22,12 +22,12 @@ public class TextureRLRGB extends TextureRL {
         float r = (float) (this.color >> 16 & 255) / 255.0F;
         float g = (float) (this.color >> 8 & 255) / 255.0F;
         float b = (float) (this.color & 255) / 255.0F;
-        GL11.glColor4f(r, g, b, 1.0F);
+        GL11.glColor3f(r, g, b);
         super.bind();
     }
 
     @Override
     public void postBind() {
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glColor3f(1.0F, 1.0F, 1.0F);
     }
 }
