@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 
 public class ArmModelRendererRoots implements IArmModelRenderer<ArmModelManagerArmor> {
-    private final ModelRenderer[] playerArms = AAUtils.playerArms();
     private final ModelRenderer[] armsB;
     private final ModelRenderer[] arms;
     private final IMultiTexture texture;
@@ -39,7 +38,7 @@ public class ArmModelRendererRoots implements IArmModelRenderer<ArmModelManagerA
             armB.rotationPointX = -5.0F * side.delta();
             armB.rotationPointY = 2.0F;
             armB.rotationPointZ = 0.0F;
-            AAUtils.setPlayerArmDataToArm(armB, this.playerArms[side.ordinal()]);
+            context.bone(side).injectTo(armB);
             this.mb.setChestRotation(context.player);
             boolean h = arm.isHidden;
             boolean s = arm.showModel;

@@ -11,6 +11,7 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITexture;
 import com.artur114.armoredarms.core.util.MultiTexture;
@@ -29,8 +30,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     private ModelBiped defaultModel = new ModelBiped((float) AAConfig.vanillaArmorModelSize);
     private double modelSize = AAConfig.vanillaArmorModelSize;
     private boolean deactivated = false;
-
-
+    private ArmRenderLayerArmor layer;
     public AbstractClientPlayer player = null;
     public LayerBipedArmor armorLayer = null;
     public IMultiTexture texture = null;
@@ -57,10 +57,22 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     }
 
     @Override
-    public void load(ArmRenderLayerArmor layer) {}
+    public void load(ArmRenderLayerArmor layer) {
+        this.layer = layer;
+    }
 
     @Override
     public void unload(ArmRenderLayerArmor layer) {}
+
+    @Override
+    public ArmRenderLayerArmor layer() {
+        return this.layer;
+    }
+
+    @Override
+    public Bone bone(EnumHandSideAA side) {
+        return this.layer.engine().mainBones().bySide(side);
+    }
 
     @Override
     public IArmModelRenderer<ArmModelManagerArmor> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> container) {

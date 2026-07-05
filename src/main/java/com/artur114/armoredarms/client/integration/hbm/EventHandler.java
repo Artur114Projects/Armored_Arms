@@ -1,7 +1,9 @@
 package com.artur114.armoredarms.client.integration.hbm;
 
+import com.artur114.armoredarms.api.events.InitBoneAdaptersEvent;
 import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.integration.hbm.modelrender.ArmModelContainerHBM;
+import com.artur114.armoredarms.client.integration.hbm.modelrender.BoneAdapterModelRendererObj;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -9,6 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class EventHandler {
     @SubscribeEvent
     public static void initRenderContainersEvent(InitRenderContainersEvent e) {
+        e.registerContainerIfModLoaded("hbm", "ncrpa_plate", new ArmModelContainerHBM("ncrpa_arm"));
         e.registerContainerIfModLoaded("hbm", "t45_plate", new ArmModelContainerHBM("rightarm", "leftarm", "item"));
         e.registerContainerIfModLoaded("hbm", "ajr_plate", new ArmModelContainerHBM("ajr_arm"));
         e.registerContainerIfModLoaded("hbm", "ajro_plate", new ArmModelContainerHBM("ajro_arm"));
@@ -23,7 +26,12 @@ public class EventHandler {
         e.registerContainerIfModLoaded("hbm", "taurun_plate", new ArmModelContainerHBM("taurun_arm"));
         e.registerContainerIfModLoaded("hbm", "dieselsuit_plate", new ArmModelContainerHBM("dieselsuit_arm"));
         e.registerContainerIfModLoaded("hbm", "envsuit_plate", new ArmModelContainerHBM("envsuit_arm"));
-        e.registerContainerIfModLoaded("hbm", "bismuth_plate", new ArmModelContainerHBM("bismuth_arm"));
+        e.registerContainerIfModLoaded("hbm", "bismuth_plate", new ArmModelContainerHBM("armor_bismuth_tex"));
         e.registerContainerIfModLoaded("hbm", "t51_plate", new ArmModelContainerHBM("t51_arm"));
+    }
+
+    @SubscribeEvent
+    public static void initBoneAdaptersEvent(InitBoneAdaptersEvent e) {
+        e.registerAdapter(new BoneAdapterModelRendererObj());
     }
 }

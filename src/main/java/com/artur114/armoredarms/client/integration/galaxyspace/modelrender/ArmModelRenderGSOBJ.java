@@ -8,12 +8,15 @@ import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITextureIterator;
 import galaxyspace.systems.SolarSystem.planets.overworld.render.item.ItemSpaceSuitModel;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.EnumHandSide;
 
 public class ArmModelRenderGSOBJ implements IArmModelRenderer<ArmModelManagerArmor> {
-    public final ModelRenderer[] playerArms = AAUtils.playerArms();
+    public final ModelRenderer[] playerArms = playerArms();
     public final IMultiTexture texture;
     public final float[] color;
     public final int[] arms;
@@ -50,5 +53,10 @@ public class ArmModelRenderGSOBJ implements IArmModelRenderer<ArmModelManagerArm
 
             iterator.postBind();
         }
+    }
+
+    public static ModelRenderer[] playerArms() {
+        ModelPlayer player = ((RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(Minecraft.getMinecraft().player)).getMainModel();
+        return new ModelRenderer[] {player.bipedLeftArm, player.bipedRightArm};
     }
 }

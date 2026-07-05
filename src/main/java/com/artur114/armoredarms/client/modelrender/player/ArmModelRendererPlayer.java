@@ -24,28 +24,26 @@ public class ArmModelRendererPlayer implements IArmModelRendererBase<ArmModelMan
     @Override
     public void renderArm(ArmModelManagerPlayer context, EnumHandSideAA side) {
         this.renderPlayer.bindTexture(context.playerSkin);
-        this.renderArm(this.mc.player, side, context.shouldRenderWear);
+        this.renderArm(context, this.mc.player, side, context.shouldRenderWear);
     }
 
-    public void renderArm(AbstractClientPlayer player, EnumHandSideAA side, boolean renderWear) {
+    public void renderArm(ArmModelManagerPlayer context, AbstractClientPlayer player, EnumHandSideAA side, boolean renderWear) {
         switch (side) {
             case RIGHT:
-                this.renderRightArmMC(player, renderWear);
+                this.renderRightArmMC(context, player, renderWear);
             break;
             case LEFT:
-                this.renderLeftArmMC(player, renderWear);
+                this.renderLeftArmMC(context, player, renderWear);
             break;
         }
     }
 
-    public void renderRightArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
+    public void renderRightArmMC(ArmModelManagerPlayer context, AbstractClientPlayer clientPlayer, boolean renderWear) {
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         ModelPlayer modelplayer = this.renderPlayer.getMainModel();
         this.setModelVisibilitiesMC(clientPlayer);
         GlStateManager.enableBlend();
-        modelplayer.swingProgress = 0.0F;
-        modelplayer.isSneak = false;
-        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
+        context.prepareModel(modelplayer);
         modelplayer.bipedRightArm.rotateAngleX = 0.0F;
         modelplayer.bipedRightArm.render(0.0625F);
         if (renderWear) {
@@ -55,14 +53,12 @@ public class ArmModelRendererPlayer implements IArmModelRendererBase<ArmModelMan
         GlStateManager.disableBlend();
     }
 
-    public void renderLeftArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
+    public void renderLeftArmMC(ArmModelManagerPlayer context, AbstractClientPlayer clientPlayer, boolean renderWear) {
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         ModelPlayer modelplayer = this.renderPlayer.getMainModel();
         this.setModelVisibilitiesMC(clientPlayer);
         GlStateManager.enableBlend();
-        modelplayer.isSneak = false;
-        modelplayer.swingProgress = 0.0F;
-        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
+        context.prepareModel(modelplayer);
         modelplayer.bipedLeftArm.rotateAngleX = 0.0F;
         modelplayer.bipedLeftArm.render(0.0625F);
         if (renderWear) {

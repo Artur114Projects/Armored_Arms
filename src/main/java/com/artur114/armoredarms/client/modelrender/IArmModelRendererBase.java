@@ -1,17 +1,13 @@
 package com.artur114.armoredarms.client.modelrender;
 
-import com.artur114.armoredarms.client.util.AAUtils;
-import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import net.minecraft.client.model.ModelRenderer;
 
 public interface IArmModelRendererBase<M extends IArmModelManager<?, ?>> extends IArmModelRenderer<M> {
-    default void defaultRenderModel(ModelRenderer arm, ModelRenderer playerArm, EnumHandSideAA side) {
-        arm.rotationPointX = -5.0F * side.delta();
-        arm.rotationPointY = 2.0F;
-        arm.rotationPointZ = 0.0F;
-        AAUtils.setPlayerArmDataToArm(arm, playerArm);
+    default void defaultRenderModel(Bone bone, ModelRenderer arm) {
+        bone.injectTo(arm);
         arm.rotateAngleX = 0.0F;
         boolean h = arm.isHidden;
         boolean s = arm.showModel;

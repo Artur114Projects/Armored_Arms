@@ -21,14 +21,14 @@ import techguns.client.models.armor.ModelGloves;
 import techguns.items.armors.GenericArmor;
 
 public class ArmRenderLayerTechGuns implements IArmRenderLayer<AbstractRenderEngineForge<?, ?>> {
-    private final ModelRenderer[] playerArms = AAUtils.playerArms();
+    private AbstractRenderEngineForge<?, ?> engine;
     private boolean deactivate = false;
     private boolean render = false;
 
-    private ModelBiped model = new ModelGloves((float) AAConfig.vanillaArmorModelSize - 0.01F, false);
-    private ModelBiped model_slim = new ModelGloves((float) AAConfig.vanillaArmorModelSize - 0.01F, true);
-    private ResourceLocation texture = new ResourceLocation("techguns:textures/models/armor/working_gloves.png");
-    private ResourceLocation texture_slim = new ResourceLocation("techguns:textures/models/armor/working_gloves_slim.png");
+    private final ModelBiped model = new ModelGloves((float) AAConfig.vanillaArmorModelSize - 0.01F, false);
+    private final ModelBiped model_slim = new ModelGloves((float) AAConfig.vanillaArmorModelSize - 0.01F, true);
+    private final ResourceLocation texture = new ResourceLocation("techguns:textures/models/armor/working_gloves.png");
+    private final ResourceLocation texture_slim = new ResourceLocation("techguns:textures/models/armor/working_gloves_slim.png");
 
     @Override
     public void update(AbstractRenderEngineForge<?, ?> engine) {
@@ -57,10 +57,7 @@ public class ArmRenderLayerTechGuns implements IArmRenderLayer<AbstractRenderEng
             Minecraft.getMinecraft().getTextureManager().bindTexture(slim ? this.texture_slim : this.texture);
 
             ModelRenderer arm = AAUtils.handFromModelBiped(m, handSide);
-            arm.rotationPointX = -5.0F * handSide.delta();
-            arm.rotationPointY = 2.0F;
-            arm.rotationPointZ = 0.0F;
-            AAUtils.setPlayerArmDataToArm(arm, this.playerArms[handSide.ordinal()]);
+            engine.mainBones().bySide(handSide).injectTo(arm);
             arm.rotateAngleX = 0.0F;
             boolean h = arm.isHidden;
             boolean s = arm.showModel;
@@ -83,7 +80,14 @@ public class ArmRenderLayerTechGuns implements IArmRenderLayer<AbstractRenderEng
     }
 
     @Override
-    public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {}
+    public AbstractRenderEngineForge<?, ?> engine() {
+        return this.engine;
+    }
+
+    @Override
+    public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
+        this.engine = engine;
+    }
 
     protected boolean isGlovesVisible(EntityPlayer ply) {
         ItemStack b = ply.inventory.armorInventory.get(2);

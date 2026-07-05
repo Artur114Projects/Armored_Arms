@@ -31,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 public class ArmRenderLayerThermalPadding implements IArmRenderLayer<AbstractRenderEngineForge<?, ?>> {
     private final ResourceLocation texture_t3 = new ResourceLocation("galaxyspace", "textures/model/armor/thermal_padding_t3_1.png");
     private final ResourceLocation texture_t4 = new ResourceLocation("galaxyspace", "textures/model/armor/thermal_padding_t4_1.png");
+    private AbstractRenderEngineForge<?, ?> engine;
     private LayerThermalPadding renderTermal;
     private RenderPlayer renderPlayer;
     private boolean deactivate = false;
@@ -76,10 +77,7 @@ public class ArmRenderLayerThermalPadding implements IArmRenderLayer<AbstractRen
                 }
             }
 
-            renderer.rotationPointX = -5.0F * handSide.delta();
-            renderer.rotationPointY = 2.0F;
-            renderer.rotationPointZ = 0.0F;
-            AAUtils.setPlayerArmDataToArm(renderer, AAUtils.handFromModelBiped(this.renderPlayer.getMainModel(), handSide));
+            engine.mainBones().bySide(handSide).injectTo(renderer);
 
             boolean h = renderer.isHidden;
             boolean s = renderer.showModel;
@@ -160,6 +158,7 @@ public class ArmRenderLayerThermalPadding implements IArmRenderLayer<AbstractRen
     public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
         this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(engine.mc.player);
         this.renderTermal = new LayerThermalPadding(this.renderPlayer);
+        this.engine = engine;
     }
 
     @Override
@@ -171,6 +170,11 @@ public class ArmRenderLayerThermalPadding implements IArmRenderLayer<AbstractRen
     @SuppressWarnings("unchecked")
     public Class<AbstractRenderEngineForge<?, ?>> targetEngine() {
         return (Class<AbstractRenderEngineForge<?, ?>>) (Class<?>) AbstractRenderEngineForge.class;
+    }
+
+    @Override
+    public AbstractRenderEngineForge<?, ?> engine() {
+        return this.engine;
     }
 
     @Override

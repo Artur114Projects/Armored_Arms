@@ -13,7 +13,6 @@ import net.minecraft.client.model.ModelRenderer;
 @Immutable
 public class ArmModelRendererArmor implements IArmModelRendererBase<ArmModelManagerArmor> {
     public final Minecraft mc = Minecraft.getMinecraft();
-    public final ModelRenderer[] playerArms = AAUtils.playerArms();
     public final IMultiTexture texture;
     public final ModelRenderer[] arms;
     public final ModelBiped mb;
@@ -36,7 +35,7 @@ public class ArmModelRendererArmor implements IArmModelRendererBase<ArmModelMana
 
         while (iterator.hasNext()) {
             iterator.bindNext();
-            this.defaultRenderModel(this.arms[side.ordinal()], this.playerArms[side.ordinal()], side);
+            this.defaultRenderModel(context.bone(side), this.arms[side.ordinal()]);
             iterator.postBind();
         }
     }

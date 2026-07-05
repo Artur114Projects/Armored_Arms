@@ -22,10 +22,7 @@ public class ArmModelRendererEP extends ArmModelRendererArmor {
     public void renderArm(ArmModelManagerArmor context, EnumHandSideAA side) {
         ArmorCustomModel model = (ArmorCustomModel) this.mb;
         ModelRenderer arm = this.arms[side.ordinal()];
-        arm.rotationPointX = -5.0F * side.delta();
-        arm.rotationPointY = 2.0F;
-        arm.rotationPointZ = 0.0F;
-        AAUtils.setPlayerArmDataToArm(arm, this.playerArms[side.ordinal()]);
+        context.bone(side).injectTo(arm);
         arm.rotateAngleX = 0.0F;
         model.isSneak = false;
         model.isChild = false;

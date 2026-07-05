@@ -31,6 +31,7 @@ public class ArmRenderLayerArtifacts implements IArmRenderLayer<AbstractRenderEn
     private ResourceLocation fireGauntletTextures;
     private ResourceLocation fireGauntletOverlayTextures;
     private ResourceLocation pocketPistonTextures;
+    private AbstractRenderEngineForge<? ,?> engine;
     private RenderPlayer renderPlayer;
     private ModelPlayer defaultModel;
     private boolean deactivate = false;
@@ -75,7 +76,13 @@ public class ArmRenderLayerArtifacts implements IArmRenderLayer<AbstractRenderEn
     }
 
     @Override
+    public AbstractRenderEngineForge<?, ?> engine() {
+        return this.engine;
+    }
+
+    @Override
     public void init(AbstractRenderEngineForge<? ,?> engine, IAAModContainer mod) {
+        this.engine = engine;
         this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(engine.mc.player);
         boolean smallArms = engine.mc.player.getSkinType().equals("slim");
         this.defaultModel = new ModelPlayer(0.26F, smallArms);
@@ -89,18 +96,13 @@ public class ArmRenderLayerArtifacts implements IArmRenderLayer<AbstractRenderEn
 
     private void renderArm(EnumHandSideAA hand, EntityPlayer player, boolean overlay) {
         if (this.setTextures(player, hand, overlay, false)) {
-            ModelRenderer playerArm = AAUtils.handFromModelBiped(this.renderPlayer.getMainModel(), hand);
-
-            this.render(hand, AAUtils.handFromModelPlayer(this.defaultModel, hand, false), playerArm);
-            this.render(hand, AAUtils.handFromModelPlayer(this.defaultModel, hand, true), playerArm);
+            this.render(hand, AAUtils.handFromModelPlayer(this.defaultModel, hand, false));
+            this.render(hand, AAUtils.handFromModelPlayer(this.defaultModel, hand, true));
         }
     }
 
-    private void render(EnumHandSideAA side, ModelRenderer arm, ModelRenderer playerArm) {
-        arm.rotationPointX = -5.0F * side.delta();
-        arm.rotationPointY = 2.0F;
-        arm.rotationPointZ = 0.0F;
-        AAUtils.setPlayerArmDataToArm(arm, playerArm);
+    private void render(EnumHandSideAA side, ModelRenderer arm) {
+        this.engine.mainBones().bySide(side).injectTo(arm);
         arm.rotateAngleX = 0.0F;
         boolean h = arm.isHidden;
         boolean s = arm.showModel;

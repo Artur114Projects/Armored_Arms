@@ -54,20 +54,20 @@ public class ArmModelRendererCyberware implements IArmModelRenderer<ArmModelMana
         boolean flag = context.shouldRenderWear;
         switch (side) {
             case RIGHT:
-                this.renderRightArm(player, flag);
+                this.renderRightArm(context, player, flag);
                 break;
             case LEFT:
-                this.renderLeftArm(player, flag);
+                this.renderLeftArm(context, player, flag);
                 break;
         }
     }
 
-    public void renderRightArm(AbstractClientPlayer clientPlayer, boolean renderWear) {
+    public void renderRightArm(ArmModelManagerPlayer context, AbstractClientPlayer clientPlayer, boolean renderWear) {
         if (EventHandler.HANDLER.hasRoboRight) {
             this.mc.getTextureManager().bindTexture(EventHandler.HANDLER.robo);
-            this.renderRightArmMC(clientPlayer, renderWear);
+            this.renderRightArmMC(context, clientPlayer, renderWear);
         } else {
-            this.renderRightArmMC(clientPlayer, renderWear);
+            this.renderRightArmMC(context, clientPlayer, renderWear);
             return;
         }
         this.mc.getTextureManager().bindTexture(EventHandler.HANDLER.robo);
@@ -92,12 +92,12 @@ public class ArmModelRendererCyberware implements IArmModelRenderer<ArmModelMana
         }
     }
 
-    public void renderLeftArm(AbstractClientPlayer clientPlayer, boolean renderWear) {
+    public void renderLeftArm(ArmModelManagerPlayer context, AbstractClientPlayer clientPlayer, boolean renderWear) {
         if (EventHandler.HANDLER.hasRoboLeft) {
             this.mc.getTextureManager().bindTexture(EventHandler.HANDLER.robo);
-            this.renderLeftArmMC(clientPlayer, renderWear);
+            this.renderLeftArmMC(context, clientPlayer, renderWear);
         } else {
-            this.renderLeftArmMC(clientPlayer, renderWear);
+            this.renderLeftArmMC(context, clientPlayer, renderWear);
             return;
         }
         this.mc.getTextureManager().bindTexture(EventHandler.HANDLER.robo);
@@ -123,14 +123,12 @@ public class ArmModelRendererCyberware implements IArmModelRenderer<ArmModelMana
     }
 
 
-    public void renderRightArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
+    public void renderRightArmMC(ArmModelManagerPlayer context, AbstractClientPlayer clientPlayer, boolean renderWear) {
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         ModelPlayer modelplayer = this.renderPlayer.getMainModel();
         this.setModelVisibilitiesMC(clientPlayer);
         GlStateManager.enableBlend();
-        modelplayer.swingProgress = 0.0F;
-        modelplayer.isSneak = false;
-        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
+        context.prepareModel(modelplayer);
         modelplayer.bipedRightArm.rotateAngleX = 0.0F;
         modelplayer.bipedRightArm.render(0.0625F);
         if (renderWear) {
@@ -141,14 +139,12 @@ public class ArmModelRendererCyberware implements IArmModelRenderer<ArmModelMana
         GlStateManager.disableBlend();
     }
 
-    public void renderLeftArmMC(AbstractClientPlayer clientPlayer, boolean renderWear) {
+    public void renderLeftArmMC(ArmModelManagerPlayer context, AbstractClientPlayer clientPlayer, boolean renderWear) {
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         ModelPlayer modelplayer = this.renderPlayer.getMainModel();
         this.setModelVisibilitiesMC(clientPlayer);
         GlStateManager.enableBlend();
-        modelplayer.isSneak = false;
-        modelplayer.swingProgress = 0.0F;
-        modelplayer.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, clientPlayer);
+        context.prepareModel(modelplayer);
         modelplayer.bipedLeftArm.rotateAngleX = 0.0F;
         modelplayer.bipedLeftArm.render(0.0625F);
         if (renderWear) {

@@ -4,10 +4,7 @@ import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
-import com.artur114.armoredarms.core.util.EnumExceptionType;
-import com.artur114.armoredarms.core.util.IAAModContainer;
-import com.artur114.armoredarms.core.util.Reflector;
-import com.artur114.armoredarms.core.util.RenderException;
+import com.artur114.armoredarms.core.util.*;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderArmEvent;
@@ -18,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ArmRenderPipelineCleanRoom extends AbstractRenderPipeline<ArmRenderPipelineCleanRoom> {
+    private final ObjectBuff renderArgs = new ObjectBuff();
     public final Minecraft mc = Minecraft.getMinecraft();
     public TickEvent.ClientTickEvent tickContext = null;
     public RenderArmEvent renderContext = null;
@@ -87,6 +85,11 @@ public class ArmRenderPipelineCleanRoom extends AbstractRenderPipeline<ArmRender
     @Override
     public boolean canWork(IAAModContainer mod) {
         return AAConfig.Baked.pipelinesPriority.containsKey(this.clazz()) && Reflector.isClassExists("net.minecraftforge.client.event.RenderArmEvent");
+    }
+
+    @Override
+    public ObjectBuff renderArgs() {
+        return this.renderArgs;
     }
 
     @Override

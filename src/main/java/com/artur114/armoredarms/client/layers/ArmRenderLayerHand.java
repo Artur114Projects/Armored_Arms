@@ -26,20 +26,19 @@ import java.util.Collections;
 import java.util.List;
 
 public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHand, ItemStackAA, AbstractRenderEngineForge<?, ?>> {
-    private final ModelRenderer[] actualPlayerHands = new ModelRenderer[2];
     public final Minecraft mc = Minecraft.getMinecraft();
     public RenderPlayer renderPlayer = null;
 
     @Override
     public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
-        this.updatePlayerRenderData();
+        this.renderPlayer = this.renderPlayer();
         super.init(engine, mod);
     }
 
     @Override
     public void tryRender(AbstractRenderEngineForge<?, ?> engine, EnumHandSideAA handSide) {
         if (this.mc.player.isInvisible()) return;
-        this.updatePlayerRenderData();
+        this.renderPlayer = this.renderPlayer();
         super.tryRender(engine, handSide);
     }
 
@@ -79,17 +78,8 @@ public class ArmRenderLayerHand extends AbstractHandRenderLayer<ArmRenderLayerHa
         return event.containers();
     }
 
-    public ModelRenderer[] actualPlayerHands() {
-        return this.actualPlayerHands;
-    }
-
-    private void updatePlayerRenderData() {
-        RenderPlayer renderPlayer = ((RenderPlayer) this.mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(this.mc.player));
-        if (renderPlayer == null) return;
-        ModelPlayer player = renderPlayer.getMainModel();
-        this.actualPlayerHands[0] = player.bipedLeftArm;
-        this.actualPlayerHands[1] = player.bipedRightArm;
-        this.renderPlayer = renderPlayer;
+    private RenderPlayer renderPlayer() {
+        return ((RenderPlayer) this.mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(this.mc.player));
     }
 
     @Override

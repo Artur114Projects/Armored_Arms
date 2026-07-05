@@ -25,6 +25,6 @@ public class ArmoredArmsApi {
     }
 
     public static IArmRenderPipeline<?> currentPipeline() {
-        return ArmoredArms.pipeline();
+        return ArmoredArms.ARMORED_ARMS.pipeline();
     }
 }

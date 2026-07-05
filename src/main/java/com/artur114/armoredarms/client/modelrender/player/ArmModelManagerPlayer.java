@@ -8,8 +8,10 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.ResourceLocation;
 
@@ -18,6 +20,7 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     public final Minecraft mc = Minecraft.getMinecraft();
     public ItemStackAA chestPlate = ItemStackAA.EMPTY;
     public ResourceLocation playerSkin;
+    private ArmRenderLayerHand layer;
     public RenderPlayer renderPlayer;
     public boolean shouldRenderWear;
 
@@ -45,10 +48,30 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
     }
 
     @Override
-    public void load(ArmRenderLayerHand layer) {}
+    public void load(ArmRenderLayerHand layer) {
+        this.layer = layer;
+    }
 
     @Override
     public void unload(ArmRenderLayerHand layer) {}
+
+    @Override
+    public ArmRenderLayerHand layer() {
+        return this.layer;
+    }
+
+    @Override
+    public Bone bone(EnumHandSideAA side) {
+        return this.layer.engine().mainBones().bySide(side);
+    }
+
+    public void prepareModel(ModelBiped model) {
+        model.swingProgress = 0.0F;
+        model.isRiding = false;
+        model.isSneak = false;
+        model.setRotationAngles(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F, this.mc.player);
+        this.layer.engine().mainBones().updateBones(model.bipedRightArm, model.bipedLeftArm);
+    }
 
     @Override
     public IArmModelRenderer<ArmModelManagerPlayer> cacheRenderer(ArmRenderLayerHand layer, IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> container) {

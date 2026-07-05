@@ -19,7 +19,7 @@ public class LoggingManager extends AbstractLoggingManager {
 
     @Override
     protected IArmRenderPipeline<?> pipeline() {
-        return ArmoredArms.pipeline;
+        return ArmoredArms.ARMORED_ARMS.pipeline;
     }
 
     @Override

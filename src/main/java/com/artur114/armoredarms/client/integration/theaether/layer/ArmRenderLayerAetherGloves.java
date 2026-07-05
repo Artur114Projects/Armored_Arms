@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ArmRenderLayerAetherGloves implements IArmRenderLayer<AbstractRenderEngineForge<?, ?>> {
+    private AbstractRenderEngineForge<?, ?> engine;
     private RenderPlayer renderPlayer;
     public ModelBiped modelMisc = null;
     private boolean shouldRenderGloves;
@@ -77,11 +78,8 @@ public class ArmRenderLayerAetherGloves implements IArmRenderLayer<AbstractRende
                 GlStateManager.color(red, green, red);
             }
 
-            renderer.rotationPointX = -5.0F * handSide.delta();
-            renderer.rotationPointY = 2.0F;
-            renderer.rotationPointZ = 0.0F;
-            AAUtils.setPlayerArmDataToArm(renderer, AAUtils.handFromModelBiped(this.renderPlayer.getMainModel(), handSide));
-
+            engine.mainBones().bySide(handSide).injectTo(renderer);
+            renderer.rotateAngleX = 0.0F;
             boolean h = renderer.isHidden;
             boolean s = renderer.showModel;
             renderer.isHidden = false;
@@ -100,11 +98,8 @@ public class ArmRenderLayerAetherGloves implements IArmRenderLayer<AbstractRende
             red = (float) (j & 255) / 255.0F;
             GlStateManager.color(red, green, red);
 
-            renderer.rotationPointX = -5.0F * handSide.delta();
-            renderer.rotationPointY = 2.0F;
-            renderer.rotationPointZ = 0.0F;
-            AAUtils.setPlayerArmDataToArm(renderer, AAUtils.handFromModelBiped(this.renderPlayer.getMainModel(), handSide));
-
+            engine.mainBones().bySide(handSide).injectTo(renderer);
+            renderer.rotateAngleX = 0.0F;
             boolean h = renderer.isHidden;
             boolean s = renderer.showModel;
             renderer.isHidden = false;
@@ -123,6 +118,7 @@ public class ArmRenderLayerAetherGloves implements IArmRenderLayer<AbstractRende
     public void init(AbstractRenderEngineForge<?, ?> engine, IAAModContainer mod) {
         this.renderPlayer = (RenderPlayer) Minecraft.getMinecraft().getRenderManager().<AbstractClientPlayer>getEntityRenderObject(engine.mc.player);
         MinecraftForge.EVENT_BUS.register(this);
+        this.engine = engine;
     }
 
     @Override
@@ -133,6 +129,11 @@ public class ArmRenderLayerAetherGloves implements IArmRenderLayer<AbstractRende
     @Override
     public Class<AbstractRenderEngineForge<?, ?>> targetEngine() {
         return AbstractRenderEngineForge.clazz();
+    }
+
+    @Override
+    public AbstractRenderEngineForge<?, ?> engine() {
+        return this.engine;
     }
 
     @Override

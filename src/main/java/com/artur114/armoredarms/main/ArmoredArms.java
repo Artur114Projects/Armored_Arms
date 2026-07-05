@@ -22,19 +22,10 @@ import java.util.*;
 public class ArmoredArms implements IAAModContainer {
     public static final LoggingManager LOGGER = new LoggingManager();
     public static final String MODID = "armoredarms";
-
-    protected static IArmRenderPipeline<?> pipeline = null;
+    protected IArmRenderPipeline<?> pipeline = null;
 
     @Mod.Instance
     public static ArmoredArms ARMORED_ARMS;
-
-    public static IArmRenderPipeline<?> pipeline() {
-        return pipeline;
-    }
-
-    public static boolean isPipelineLoaded() {
-        return pipeline != null;
-    }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
@@ -45,7 +36,7 @@ public class ArmoredArms implements IAAModContainer {
                 pipeline = RenderPipelines.pickUpAndRegister(this);
             }
 
-            if (isPipelineLoaded()) {
+            if (this.isPipelineLoaded()) {
                 LOGGER.AA_LOG.info("Rendering pipeline successfully loaded");
                 LOGGER.AA_LOG.info("   Pipeline: {}", pipeline.getClass());
             } else {
@@ -59,6 +50,16 @@ public class ArmoredArms implements IAAModContainer {
         } catch (Exception ex) {
             LogManager.getLogger("ARMOREDARMS").fatal("An error occurred during initialization", ex);
         }
+    }
+
+    @Override
+    public IArmRenderPipeline<?> pipeline() {
+        return this.pipeline;
+    }
+
+    @Override
+    public boolean isPipelineLoaded() {
+        return this.pipeline != null;
     }
 
     @Override

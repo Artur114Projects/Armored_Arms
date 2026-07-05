@@ -21,7 +21,6 @@ import pl.pabilo8.immersiveintelligence.common.IIContent;
 import pl.pabilo8.immersiveintelligence.common.util.IIColor;
 
 public class ArmModelRendererTurbo implements IArmModelRenderer<ArmModelManagerArmor> {
-    public final ModelRenderer[] playerArms = AAUtils.playerArms();
     private final ModelRendererTurbo[][] plates;
     private final ModelRendererTurbo[][] hand;
     private final ResourceLocation plateTex;
@@ -47,7 +46,7 @@ public class ArmModelRendererTurbo implements IArmModelRenderer<ArmModelManagerA
             biped.rotationPointX = -5.0F * side.delta();
             biped.rotationPointY = 2.0F;
             biped.rotationPointZ = 0.0F;
-            AAUtils.setPlayerArmDataToArm(biped, this.playerArms[side.ordinal()]);
+            context.bone(side).injectTo(biped);
 
             GlStateManager.pushMatrix();
             GlStateManager.translate(biped.rotationPointX * scale, biped.rotationPointY * scale, biped.rotationPointZ * scale);
