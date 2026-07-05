@@ -28,6 +28,10 @@ public class AAUtils {
         return ShapelessLocation.location(location.getNamespace(), location.getPath());
     }
 
+    public static MultiBufferSource buffer() {
+        return Minecraft.getInstance().renderBuffers().bufferSource();
+    }
+
     public static PlayerRenderer playerRenderer(AbstractClientPlayer player) {
         return (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
     }

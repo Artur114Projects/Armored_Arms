@@ -66,6 +66,7 @@ coreBuildConf {
         afterDependence fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
         afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
         afterDependence fg.deobf("curse.maven:mm-modern-mayhem-1328893:7703251")
+        afterDependence fg.deobf("curse.maven:vics-point-blank-961053:7664533")
         afterDependence fg.deobf("curse.maven:scorched-guns-802940:7232063")
         afterDependence fg.deobf("curse.maven:aether-255308:6134920")
         afterDependence fg.deobf("curse.maven:punchy-1374153:8029969")
