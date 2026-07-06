@@ -32,6 +32,6 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void initBoneAdaptersEvent(InitBoneAdaptersEvent e) {
-        e.registerAdapter(new BoneAdapterModelRendererObj());
+        e.registerAdapterIfModLoaded(BoneAdapterModelRendererObj.class, "hbm");
     }
 }
