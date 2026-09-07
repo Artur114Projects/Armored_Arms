@@ -12,9 +12,11 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITexture;
 import com.artur114.armoredarms.core.util.MultiTexture;
+import com.artur114.armoredarms.core.util.Reflector;
 import net.minecraft.util.ResourceLocation;
 import pl.pabilo8.immersiveintelligence.client.model.armor.ModelLightEngineerArmor;
 import pl.pabilo8.immersiveintelligence.common.IIContent;
+import pl.pabilo8.immersiveintelligence.common.items.armor.ItemIILightEngineerChestplate;
 import pl.pabilo8.immersiveintelligence.common.util.IISkinHandler;
 
 import java.util.List;
@@ -24,20 +26,38 @@ public class ArmModelContainerII implements IArmModelRenderContainer<ArmRenderLa
     public IArmModelRenderer<ArmModelManagerArmor> create(ArmModelManagerArmor manager) {
 
         if (manager.model instanceof ModelLightEngineerArmor) {
-            return new ArmModelRendererTurbo((ModelLightEngineerArmor) manager.model, this.textures(manager, manager.stack));
+            if (this.isNewMod()) {
+                return new ArmModelRendererTurboNew((ModelLightEngineerArmor) manager.model, this.textures(manager, manager.stack));
+            } else {
+                return new ArmModelRendererTurboOld((ModelLightEngineerArmor) manager.model, this.textures(manager, manager.stack));
+            }
         }
 
         return new ArmModelRendererArmor(manager.model, manager.texture);
     }
 
     public IMultiTexture textures(ArmModelManagerArmor manager, ItemStackAA stack) {
-        String s = IISkinHandler.getCurrentSkin(stack.stack());
         List<ITexture> textures = manager.newTextureList();
-        boolean flag = false;
 
+        if (this.isNewMod()) {
+            this.computeTexturesNew(textures, stack);
+        } else {
+            this.computeTexturesOld(textures, stack);
+        }
+
+        return new MultiTexture(textures);
+    }
+
+    private void computeTexturesOld(List<ITexture> textures, ItemStackAA stack) {
+        textures.add(new TextureRL(new ResourceLocation("immersiveintelligence:textures/armor/engineer_light.png")));
+    }
+
+    private void computeTexturesNew(List<ITexture> textures, ItemStackAA stack) {
+        boolean flag = false;
+        String s = IISkinHandler.getCurrentSkin(stack.stack());
         if (IISkinHandler.isValidSkin(s)) {
             IISkinHandler.IISpecialSkin skin = IISkinHandler.getSkin(s);
-            if (skin.doesApply(IIContent.itemLightEngineerChestplate.getSkinnableName())) {
+            if (skin.doesApply(Reflector.invokeMethod(ItemIILightEngineerChestplate.class, IIContent.itemLightEngineerChestplate, "getSkinnableName", new Class<?>[0], new Object[0]))) {
                 textures.add(this.getSkin(s));
                 flag = true;
             }
@@ -46,8 +66,10 @@ public class ArmModelContainerII implements IArmModelRenderContainer<ArmRenderLa
         if (!flag) {
             textures.add(this.getSkin(""));
         }
+    }
 
-        return new MultiTexture(textures);
+    private boolean isNewMod() {
+        return Reflector.isClassExists("pl.pabilo8.immersiveintelligence.common.util.IISkinHandler");
     }
 
     private ITexture getSkin(String skin) {
