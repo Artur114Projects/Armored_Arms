@@ -27,14 +27,9 @@ public class ArmModelRendererElvorium implements IArmModelRenderer<ArmModelManag
 
         while (iterator.hasNext()) {
             iterator.bindNext();
-            float parTicks = 1.0F / 16.0F;
-            Bone arm = context.layer.engine().mainBones().bySide(side);
+            Bone arm = context.bone(side);
             GL11.glPushMatrix();
-            GL11.glTranslatef(arm.rotationPointX * parTicks, arm.rotationPointY * parTicks, arm.rotationPointZ * parTicks);
-            GL11.glRotatef((float) (arm.rotateAngleZ * (180.0F / Math.PI)), 0.0F, 0.0F, 1.0F);
-            GL11.glRotatef((float) (arm.rotateAngleY * (180.0F / Math.PI)), 0.0F, 1.0F, 0.0F);
-            GL11.glRotatef((float) (arm.rotateAngleX * (180.0F / Math.PI)), 1.0F, 0.0F, 0.0F);
-            GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
+            arm.injectTo(AlfheimGLCont.INSTANCE);
             double s = 0.01;
             if (side == EnumHandSideAA.RIGHT) {
                 GL11.glTranslated(0.31, -0.55, 0.0);

@@ -1,17 +1,24 @@
 package com.artur114.armoredarms.client.engines;
 
+import com.artur114.armoredarms.api.events.ArmLayerRenderingEvent;
+import com.artur114.armoredarms.api.events.InitBoneAdaptersEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.asm.ASMHooksOut;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
+import com.artur114.armoredarms.client.modelrender.BoneAdapterModelRenderer;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineASM;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.IBoneAdapter;
+import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class ArmRenderEngineASM extends AbstractRenderEngineForge<ArmRenderEngineASM, ArmRenderPipelineASM>{
@@ -22,6 +29,19 @@ public class ArmRenderEngineASM extends AbstractRenderEngineForge<ArmRenderEngin
         event.registerLayer(ArmRenderLayerHand.class);
         this.mod.post(event);
         return event.result();
+    }
+
+    @Override
+    protected List<IBoneAdapter<?>> initBoneAdapters() {
+        InitBoneAdaptersEvent event = new InitBoneAdaptersEvent(this.mod);
+        event.registerAdapter(new BoneAdapterModelRenderer());
+        this.mod.post(event);
+        return event.adaptersList();
+    }
+
+    @Override
+    public boolean onLayerRendering(IArmRenderLayer<ArmRenderEngineASM> layer, EnumHandSideAA side) {
+        return !MinecraftForge.EVENT_BUS.post(new ArmLayerRenderingEvent(layer, side));
     }
 
     @Override

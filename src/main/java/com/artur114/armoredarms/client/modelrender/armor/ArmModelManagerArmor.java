@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
+import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.TextureEnchant;
 import com.artur114.armoredarms.client.util.TextureRL;
@@ -11,6 +12,7 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.ITexture;
 import com.artur114.armoredarms.core.util.MultiTexture;
@@ -62,6 +64,16 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
 
     @Override
     public void unload(ArmRenderLayerArmor layer) {}
+
+    @Override
+    public ArmRenderLayerArmor layer() {
+        return this.layer;
+    }
+
+    @Override
+    public Bone bone(EnumHandSideAA side) {
+        return this.layer.engine().mainBones().bySide(side);
+    }
 
     @Override
     public IArmModelRenderer<ArmModelManagerArmor> cacheRenderer(ArmRenderLayerArmor layer, IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> container) {

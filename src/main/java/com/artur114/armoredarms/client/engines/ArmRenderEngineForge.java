@@ -1,14 +1,18 @@
 package com.artur114.armoredarms.client.engines;
 
+import com.artur114.armoredarms.api.events.ArmLayerRenderingEvent;
+import com.artur114.armoredarms.api.events.InitBoneAdaptersEvent;
 import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
+import com.artur114.armoredarms.client.modelrender.BoneAdapterModelRenderer;
 import com.artur114.armoredarms.client.pipelines.ArmRenderPipelineForge;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
+import com.artur114.armoredarms.core.util.IBoneAdapter;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -24,9 +28,11 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
+import java.util.List;
 import java.util.Map;
 
 public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEngineForge, ArmRenderPipelineForge> {
@@ -37,6 +43,19 @@ public class ArmRenderEngineForge extends AbstractRenderEngineForge<ArmRenderEng
         event.registerLayer(ArmRenderLayerHand.class);
         this.mod.post(event);
         return event.result();
+    }
+
+    @Override
+    protected List<IBoneAdapter<?>> initBoneAdapters() {
+        InitBoneAdaptersEvent event = new InitBoneAdaptersEvent(this.mod);
+        event.registerAdapter(new BoneAdapterModelRenderer());
+        this.mod.post(event);
+        return event.adaptersList();
+    }
+
+    @Override
+    public boolean onLayerRendering(IArmRenderLayer<ArmRenderEngineForge> layer, EnumHandSideAA side) {
+        return !MinecraftForge.EVENT_BUS.post(new ArmLayerRenderingEvent(layer, side));
     }
 
     @Override

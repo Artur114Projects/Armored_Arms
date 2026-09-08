@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.integration.dragonblockc.modelrender;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.core.util.IMultiTexture;
 import com.artur114.armoredarms.core.util.Reflector;
 import net.minecraft.client.model.ModelBiped;
@@ -14,7 +15,7 @@ public class ArmModelRendererDragonShitC extends ArmModelRendererArmor {
     }
 
     @Override
-    public void defaultRenderModel(IArmRenderEngine<?> engine, ModelRenderer arm, EnumHandSideAA side) {
+    public void defaultRenderModel(Bone bone, ModelRenderer arm) {
         boolean h = arm.isHidden;
         boolean s = arm.showModel;
         arm.isHidden = false;

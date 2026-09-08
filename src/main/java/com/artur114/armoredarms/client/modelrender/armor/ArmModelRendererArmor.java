@@ -35,7 +35,7 @@ public class ArmModelRendererArmor implements IArmModelRendererBase<ArmModelMana
 
         while (iterator.hasNext()) {
             iterator.bindNext();
-            this.defaultRenderModel(context.layer.engine(), this.arms[side.ordinal()], side);
+            this.defaultRenderModel(context.bone(side), this.arms[side.ordinal()]);
             iterator.postBind();
         }
     }

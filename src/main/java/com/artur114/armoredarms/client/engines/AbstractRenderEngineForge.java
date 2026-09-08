@@ -24,7 +24,6 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     public final Minecraft mc = Minecraft.getMinecraft();
     public EntityRenderer entityRenderer = null;
     public ItemRenderer itemRenderer = null;
-    public ArmsBone bones = null;
 
     @Override
     public void tryTick(P context) {
@@ -35,59 +34,11 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     public void init(P context, IAAModContainer mod) {
         this.entityRenderer = this.mc.entityRenderer;
         this.itemRenderer = this.entityRenderer.itemRenderer;
-        this.bones = new ArmsBone(mod);
-
-        Bone.register(new BoneAdapterModelRender());
-
         super.init(context, mod);
-    }
-
-    @Override
-    public ArmsBone mainBones() {
-        return this.bones;
     }
 
     @SuppressWarnings("unchecked")
     public static Class<AbstractRenderEngineForge<?, ?>> clazz() {
         return (Class<AbstractRenderEngineForge<?, ?>>) (Class<?>) AbstractRenderEngineForge.class;
-    }
-
-    private static class BoneAdapterModelRender implements Bone.IBoneAdapter<ModelRenderer> {
-
-        @Override
-        public void inject(Bone bone, ModelRenderer to) {
-            to.rotationPointX = bone.rotationPointX;
-            to.rotationPointY = bone.rotationPointY;
-            to.rotationPointZ = bone.rotationPointZ;
-            to.rotateAngleX = bone.rotateAngleX;
-            to.rotateAngleY = bone.rotateAngleY;
-            to.rotateAngleZ = bone.rotateAngleZ;
-            to.offsetX = bone.offsetX;
-            to.offsetY = bone.offsetY;
-            to.offsetZ = bone.offsetZ;
-        }
-
-        @Override
-        public void set(Bone bone, ModelRenderer from) {
-            bone.rotationPointX = from.rotationPointX;
-            bone.rotationPointY = from.rotationPointY;
-            bone.rotationPointZ = from.rotationPointZ;
-            bone.rotateAngleX = from.rotateAngleX;
-            bone.rotateAngleY = from.rotateAngleY;
-            bone.rotateAngleZ = from.rotateAngleZ;
-            bone.offsetX = from.offsetX;
-            bone.offsetY = from.offsetY;
-            bone.offsetZ = from.offsetZ;
-        }
-
-        @Override
-        public Class<ModelRenderer> targetObjectClass() {
-            return ModelRenderer.class;
-        }
-
-        @Override
-        public IPriority priority() {
-            return Priority.NORMAL;
-        }
     }
 }

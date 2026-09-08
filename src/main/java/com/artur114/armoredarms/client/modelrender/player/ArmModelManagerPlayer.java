@@ -8,6 +8,7 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
+import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -54,6 +55,16 @@ public class ArmModelManagerPlayer implements IArmModelManager<ArmModelManagerPl
 
     @Override
     public void unload(ArmRenderLayerHand layer) {}
+
+    @Override
+    public ArmRenderLayerHand layer() {
+        return this.layer;
+    }
+
+    @Override
+    public Bone bone(EnumHandSideAA side) {
+        return this.layer.engine().mainBones().bySide(side);
+    }
 
     @Override
     public IArmModelRenderer<ArmModelManagerPlayer> cacheRenderer(ArmRenderLayerHand layer, IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> container) {

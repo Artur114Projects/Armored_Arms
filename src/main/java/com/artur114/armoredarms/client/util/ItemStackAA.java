@@ -106,7 +106,7 @@ public class ItemStackAA implements IItemStack {
     @Override
     public boolean isNew(IItemStack stack) {
         if (AAConfig.useCheckByItem) {
-            return this.stack.getItem() != ((ItemStackAA) stack).stack.getItem();
+            return this.stack != null && stack != null && this.stack.getItem() != ((ItemStackAA) stack).stack.getItem();
         } else {
             return this.stack != ((ItemStackAA) stack).stack;
         }

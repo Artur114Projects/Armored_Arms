@@ -26,16 +26,7 @@ public class ArmModelRendererHBM implements IArmModelRenderer<ArmModelManagerArm
         while (iterator.hasNext()) {
             iterator.bindNext();
             ModelRendererObj arm = this.arms[side.ordinal()];
-            Bone bone = context.layer.engine().mainBones().bySide(side);
-            arm.rotationPointX = bone.rotationPointX;
-            arm.rotationPointY = bone.rotationPointY;
-            arm.rotationPointZ = bone.rotationPointZ;
-            arm.rotateAngleX = bone.rotateAngleX;
-            arm.rotateAngleY = bone.rotateAngleY;
-            arm.rotateAngleZ = bone.rotateAngleZ;
-            arm.offsetX = bone.offsetX;
-            arm.offsetY = bone.offsetY;
-            arm.offsetZ = bone.offsetZ;
+            context.bone(side).injectTo(arm);
             arm.render(1.0F / 16.0F);
             iterator.postBind();
         }
