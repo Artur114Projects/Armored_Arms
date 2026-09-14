@@ -3,6 +3,7 @@ package com.artur114.armoredarms.client.util;
 import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
+import com.artur114.armoredarms.core.util.ObjectBuff;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
 import com.artur114.armoredarms.main.ArmoredArms;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,6 +16,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
+
+import java.util.Objects;
 
 public class AAUtils {
     public static EnumHandSideAA fromMc(HumanoidArm arm) {
@@ -46,5 +49,18 @@ public class AAUtils {
         } else {
             playerRenderer(pPlayer).renderLeftHand(pPoseStack, pBuffer, pCombinedLight, pPlayer);
         }
+    }
+
+    public static boolean objBuffContains(ObjectBuff buff, Object value) {
+        if (buff.size() == 0) {
+            return false;
+        }
+        buff.reset();
+        for (int i = 0; i != buff.size(); i++) {
+            if (Objects.equals(buff.readObject(), value)) {
+                buff.reset(); return true;
+            }
+        }
+        buff.reset(); return false;
     }
 }

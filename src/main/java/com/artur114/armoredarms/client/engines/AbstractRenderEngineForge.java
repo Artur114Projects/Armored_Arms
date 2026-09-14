@@ -2,6 +2,7 @@ package com.artur114.armoredarms.client.engines;
 
 import com.artur114.armoredarms.api.events.InitBoneAdaptersEvent;
 import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
+import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
@@ -66,7 +67,7 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
 
     @Override
     public void tryRender(P context) {
-        this.forcedRender = this.readForcedRender(context.renderArgs());
+        this.forcedRender = AAUtils.objBuffContains(context.renderArgs(), "FORCED_RENDER");
         this.renderContext = context.renderContext;
         super.tryRender(context);
     }
@@ -92,14 +93,6 @@ public abstract class AbstractRenderEngineForge<E extends AbstractRenderEngine<?
     @Override
     public boolean updateAllLayers() {
         return super.updateAllLayers() || this.forcedRender;
-    }
-
-    protected boolean readForcedRender(ObjectBuff buff) {
-        if (buff.size() > 0) {
-            Object obj = buff.readObject(); buff.reset();
-            return "FORCED_RENDER".equals(obj);
-        }
-        return false;
     }
 
     private static class BoneAdepterModelPart implements IBoneAdapter<ModelPart> {

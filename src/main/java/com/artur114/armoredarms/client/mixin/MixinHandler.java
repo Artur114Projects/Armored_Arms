@@ -1,5 +1,6 @@
 package com.artur114.armoredarms.client.mixin;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
 import com.artur114.armoredarms.client.util.AAUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;
@@ -21,6 +22,7 @@ public class MixinHandler {
                 AnimationApplier animationApplier = animPlayer.playerAnimator_getAnimation();
                 FirstPersonConfiguration config = animationApplier.getFirstPersonConfiguration();
                 PlayerRenderer renderer = AAUtils.playerRenderer(player);
+                ArmoredArmsApi.renderArgs().writeObject("NO_FORCE_ROTATIONS");
 
                 if (config.isShowRightArm()) {
                     renderer.renderRightHand(pPoseStack, pBuffer, pPackedLight, player);

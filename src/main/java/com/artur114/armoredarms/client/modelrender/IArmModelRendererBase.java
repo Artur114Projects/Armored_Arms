@@ -1,5 +1,7 @@
 package com.artur114.armoredarms.client.modelrender;
 
+import com.artur114.armoredarms.api.ArmoredArmsApi;
+import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
@@ -11,7 +13,9 @@ import net.minecraft.client.model.geom.ModelPart;
 public interface IArmModelRendererBase<M extends IArmModelManager<?, ?>> extends IArmModelRenderer<M> {
     default void renderDefault(IModelRenderContext context, Bone bone, ModelPart arm) {
         bone.injectTo(arm);
-//        arm.xRot = 0.0F;
+        if (!AAUtils.objBuffContains(ArmoredArmsApi.renderArgs(), "NO_FORCE_ROTATIONS")) {
+            arm.xRot = 0.0F;
+        }
         boolean s = arm.skipDraw;
         boolean v = arm.visible;
         arm.skipDraw = false;
