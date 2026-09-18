@@ -36,7 +36,7 @@ public abstract class GunItemRendererMixin {
     private void applyArmRefTransforms(PoseStack poseStack, GeoBone refBone, GeoBone leftArmBone) {}
 
     @Inject(method = "renderLeftArm", at = @At("HEAD"), cancellable = true)
-    private void aa$renderLeftArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+    private void renderLeftArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
         try {
             this.armoredarms$renderArm(poseStack, bone, packedLight, EnumHandSideAA.LEFT);
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public abstract class GunItemRendererMixin {
     }
 
     @Inject(method = "renderRightArm", at = @At("HEAD"), cancellable = true)
-    private void aa$renderRightArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+    private void renderRightArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
         try {
             this.armoredarms$renderArm(poseStack, bone, packedLight, EnumHandSideAA.RIGHT);
         } catch (Exception e) {
@@ -57,8 +57,7 @@ public abstract class GunItemRendererMixin {
 
     @Unique
     private void armoredarms$renderArm(PoseStack poseStack, GeoBone refBone, int packedLight, EnumHandSideAA side) {
-        Minecraft mc = Minecraft.getInstance();
-        AbstractClientPlayer player = mc.player;
+        AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
         }
@@ -82,7 +81,6 @@ public abstract class GunItemRendererMixin {
         float cgx = side.sided(0.83124995F, -0.85625005F);
         float cgy = 0.83124995F;
         float cgz = -0.037499994F;
-
         float cvx = ((side.sided(-3.0F, -1.0F) + side.sided(1.0F, 3.0F)) * 0.5F) / 16.0F;
         float cvy = ((-2.0F + 10.0F) * 0.5F) / 16.0F;
         float cvz = ((2.0F + 2.0F) * 0.5F) / 16.0F;

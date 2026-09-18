@@ -6,7 +6,7 @@ import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
-import forge.net.mca.MCAClient;
+import forge.net.conczin.mca.MCAClient;
 
 public class ArmModelContainerMCA implements IArmModelRenderContainer<ArmRenderLayerHand, ArmModelManagerPlayer> {
     @Override

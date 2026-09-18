@@ -12,12 +12,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
 import dev.kosmx.playerAnim.impl.IPlayerModel;
-import forge.net.mca.MCAClient;
-import forge.net.mca.client.model.CommonVillagerModel;
-import forge.net.mca.client.model.PlayerEntityExtendedModel;
-import forge.net.mca.client.render.layer.ClothingLayer;
-import forge.net.mca.client.render.layer.SkinLayer;
-import forge.net.mca.client.render.layer.VillagerLayer;
+import forge.net.conczin.mca.MCAClient;
+import forge.net.conczin.mca.client.model.CommonVillagerModel;
+import forge.net.conczin.mca.client.model.PlayerEntityExtendedModel;
+import forge.net.conczin.mca.client.render.layer.ClothingLayer;
+import forge.net.conczin.mca.client.render.layer.SkinLayer;
+import forge.net.conczin.mca.client.render.layer.VillagerLayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -61,16 +61,15 @@ public class ArmModelRendererMCA implements IArmModelRenderer<ArmModelManagerPla
         if (layer.canUse(skin)) {
             VertexConsumer buffer = vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(skin));
             float[] color = layer.getColor(player, 0.0F);
+            context.armWear(side).copyFrom(sleeve);
+            context.arm(side).copyFrom(arm);
+
             arm.xRot = 0.0F;
             arm.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
             if (context.shouldRenderWear) {
                 sleeve.xRot = 0.0F;
                 sleeve.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
-
-                context.armWear(side).copyFrom(sleeve);
             }
-
-            context.arm(side).copyFrom(arm);
         }
     }
 
