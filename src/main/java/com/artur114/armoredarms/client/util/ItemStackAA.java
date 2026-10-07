@@ -96,7 +96,7 @@ public class ItemStackAA implements IItemStack {
 
     @Override
     public int hashCode() {
-        if (this.isArmor) {
+        if (!this.isArmor) {
             return 0;
         }
         return this.stack.getItem().hashCode();
