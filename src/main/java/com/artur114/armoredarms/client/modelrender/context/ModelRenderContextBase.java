@@ -7,7 +7,6 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeableLeatherItem;
 
 public class ModelRenderContextBase extends AbsModelRenderContext {
     private float r = 1.0F, g = 1.0F, b = 1.0F;

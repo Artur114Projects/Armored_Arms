@@ -22,14 +22,14 @@ import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.armortrim.ArmorTrim;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.neoforged.neoforge.client.ClientHooks;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -87,15 +87,15 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     }
 
     public Model initModel(ArmRenderLayerArmor layer) {
-        return ForgeHooksClient.getArmorModel(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, layer.engine.actualHumanoidModel());
+        return ClientHooks.getArmorModel(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, layer.engine.actualHumanoidModel());
     }
 
     public MultiModelRenderContext compileContext(ArmRenderLayerArmor layer) {
         ArrayList<IModelRenderContext> context = new ArrayList<>();
 
-        context.add(new ModelRenderContextBase(this.fmlGetArmorResource(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, null), layer.chestPlate, Priority.HIGH));
+        context.add(new ModelRenderContextBase(ClientHooks.getArmorTexture(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, null), layer.chestPlate, Priority.HIGH));
 
-        if (layer.chestPlate.item() instanceof DyeableLeatherItem) {
+        if (layer.chestPlate.stack().has(DataComponents.DYED_COLOR)) {
             context.add(new ModelRenderContextOverlay(this.fmlGetArmorResource(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, "overlay")));
         }
         if (layer.mc.player != null && ArmorTrim.getTrim(layer.mc.player.level().registryAccess(), layer.chestPlate.stack()).isPresent()) {

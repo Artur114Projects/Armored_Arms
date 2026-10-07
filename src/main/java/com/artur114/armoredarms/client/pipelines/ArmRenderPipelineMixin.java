@@ -10,11 +10,11 @@ import com.artur114.armoredarms.core.util.RenderException;
 import com.artur114.armoredarms.main.AAConfig;
 import com.artur114.armoredarms.main.ArmoredArms;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRenderPipelineMixin> {
     public int noRenderingTicks = 0;
@@ -43,8 +43,8 @@ public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRende
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public void clientTick(TickEvent.ClientTickEvent e) {
-        if (this.deactivated || e.phase != TickEvent.Phase.START || this.mc.player == null || this.mc.isPaused()) {
+    public void clientTick(ClientTickEvent.Pre e) {
+        if (this.deactivated || this.mc.player == null || this.mc.isPaused()) {
             return;
         }
 
@@ -95,7 +95,7 @@ public class ArmRenderPipelineMixin extends AbstractRenderPipelineForge<ArmRende
 
     @Override
     protected void register(IAAModContainer mod, IArmRenderEngine<ArmRenderPipelineMixin> engine) {
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
     }
 
     @Override

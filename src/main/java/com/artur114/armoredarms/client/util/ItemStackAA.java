@@ -10,11 +10,11 @@ import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.ClientHooks;
 
 public class ItemStackAA implements IItemStack {
     private static final Int2ObjBoundedCache<ItemStackAA> cache = new Int2ObjBoundedCache<>(512);
@@ -63,7 +63,10 @@ public class ItemStackAA implements IItemStack {
         if (this.isEmpty()) {
             return false;
         }
-        return ForgeHooksClient.getArmorModel(Minecraft.getInstance().player, this.stack, EquipmentSlot.CHEST, engine.actualHumanoidModel()).getClass() == HumanoidArmorModel.class;
+        if (Minecraft.getInstance().player == null) {
+            return false;
+        }
+        return ClientHooks.getArmorModel(Minecraft.getInstance().player, this.stack, EquipmentSlot.CHEST, engine.actualHumanoidModel()).getClass() == HumanoidArmorModel.class;
     }
 
     public ArmorItem item() {
@@ -86,7 +89,7 @@ public class ItemStackAA implements IItemStack {
 
     @Override
     public ShapelessLocation location() {
-        return AAUtils.fromMc(ForgeRegistries.ITEMS.getKey(this.stack.getItem()));
+        return AAUtils.fromMc(BuiltInRegistries.ITEM.getKey(this.stack.getItem()));
     }
 
     @Override

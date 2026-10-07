@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.FastColor;
 
 public interface IModelRenderContext extends IPrioritised {
     void prepare(MultiBufferSource buffer, PoseStack poseStack, int packedLight);
@@ -20,7 +21,7 @@ public interface IModelRenderContext extends IPrioritised {
 
     default void renderPart(ModelPart part) {
         if (this.poseStack() != null && this.vertexConsumer() != null) {
-            part.render(this.poseStack(), this.vertexConsumer(), this.packedLight(), this.packedOverlay(), this.red(), this.green(), this.blue(), this.alpha());
+            part.render(this.poseStack(), this.vertexConsumer(), this.packedLight(), this.packedOverlay(), FastColor.ARGB32.colorFromFloat(this.alpha(), this.red(), this.green(), this.blue()));
         }
     }
 }

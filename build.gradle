@@ -1,10 +1,9 @@
 plugins {
-    id 'idea'
+    id 'java-library'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'net.neoforged.moddev' version '2.0.148'
     id 'core-build' version '1.2.1'
+    id 'idea'
 }
 
 base {
@@ -13,42 +12,14 @@ base {
     archivesName = archives_name
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-minecraft {
-    mappings channel: mapping_channel, version: mapping_version
-    copyIdeResources = true
-    runs {
-        configureEach {
-            workingDirectory this.project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
+neoForge {
+    version = neo_version
 
-            mods {
-                "${mod_id}" {
-                    source this.sourceSets.main
-                }
-            }
-        }
-
-        client {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        data {
-            workingDirectory this.project.file('run-data')
-
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-        }
+    parchment {
+        mappingsVersion = parchment_mappings_version
+        minecraftVersion = parchment_minecraft_version
     }
 }
 
@@ -62,21 +33,7 @@ coreBuildConf {
     doLoadProjectData = false
 
     dependenciesConf {
-        afterDependence fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:8900572")
-        afterDependence fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
-        afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
-        afterDependence fg.deobf("curse.maven:satsu-iron-man-addon-1189482:8858946")
-        afterDependence fg.deobf("curse.maven:threetag-palladium-963363:8716074")
-        afterDependence fg.deobf("curse.maven:mm-modern-mayhem-1328893:7703251")
-        afterDependence fg.deobf("curse.maven:vics-point-blank-961053:7664533")
-        afterDependence fg.deobf("curse.maven:fracture-point-1207137:8673148")
-        afterDependence fg.deobf("curse.maven:scorched-guns-802940:7232063")
-        afterDependence fg.deobf("curse.maven:aether-255308:6134920")
-        afterDependence fg.deobf("curse.maven:punchy-1374153:8029969")
-        afterDependence fg.deobf("curse.maven:curios-309927:6418456")
-
-        afterDependence fg.deobf("curse.maven:entity-model-features-844662:8063556")
-        afterDependence fg.deobf("curse.maven:entity-texture-features-fabric-568563:7818911")
+        afterDependence "curse.maven:cosmetic-armor-reworked-237307:5610814"
 
         coreConf {
             version = "@core_version@"
@@ -94,11 +51,16 @@ coreBuildConf {
 
     resourcesConf {
         replaceProperties([
-                minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-                forge_version: forge_version, forge_version_range: forge_version_range,
-                loader_version_range: loader_version_range,
-                mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-                mod_authors: mod_authors, mod_description: mod_description,
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
         ])
 
         includeFiles 'META-INF/mods.toml', 'pack.mcmeta'
@@ -112,19 +74,11 @@ coreBuildConf {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
     core.massDependencies {
         source "libs"
 
-        deObfHook {fg.deobf(it)}
+//        deObfHook {fg.deobf(it)}
     }
-}
-
-mixin {
-    add sourceSets.main, 'mixins.armoredarms.refmap.json'
-    config 'mixins.armoredarms.json'
 }
 
 tasks.withType(JavaCompile).configureEach {

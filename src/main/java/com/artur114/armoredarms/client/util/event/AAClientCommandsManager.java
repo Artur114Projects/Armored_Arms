@@ -5,20 +5,19 @@ import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
-import com.artur114.armoredarms.client.util.MappingsProcessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientChatEvent;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -30,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class AAClientCommandsManager {
     public static final AAClientCommandsManager INSTANCE = new AAClientCommandsManager();
     private final Set<IAACommand> commands = new HashSet<>();
@@ -130,7 +129,7 @@ public class AAClientCommandsManager {
             if (stack.isEmpty()) {
                 return;
             }
-            ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(stack.getItem());
+            ResourceLocation registryName = BuiltInRegistries.ITEM.getKey(stack.getItem());
             if (registryName == null) {
                 return;
             }
@@ -254,7 +253,7 @@ public class AAClientCommandsManager {
                         Object obj = field.get(Modifier.isStatic(field.getModifiers()) ? null : mb);
                         field.setAccessible(isAcc);
 
-                        String fieldName = MappingsProcessor.getDeObfuscatedFieldName(field.getName());
+                        String fieldName = field.getName();
 
                         if (mr && obj instanceof ModelPart mp) {
                             res.append(fieldName).append(" - ").append("xRot:").append(mp.xRot).append("\n");

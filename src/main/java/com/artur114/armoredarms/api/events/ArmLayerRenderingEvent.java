@@ -4,7 +4,7 @@ import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.api.event.IAbstractLayerRenderEvent;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 public class ArmLayerRenderingEvent extends Event implements IAbstractLayerRenderEvent<IArmRenderEngine<?>> {
     private final IArmRenderLayer<? extends IArmRenderEngine<?>> layer;

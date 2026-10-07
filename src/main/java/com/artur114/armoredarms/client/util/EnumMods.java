@@ -2,7 +2,8 @@ package com.artur114.armoredarms.client.util;
 
 
 
-import net.minecraftforge.fml.ModList;
+
+import net.neoforged.fml.ModList;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;

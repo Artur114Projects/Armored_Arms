@@ -4,12 +4,10 @@ import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
 
-@Cancelable
-public class RenderArmMixinEvent extends Event {
+public class RenderArmMixinEvent extends Event implements ICancellableEvent {
     private final MultiBufferSource multiBufferSource;
     private final AbstractClientPlayer player;
     private final PoseStack poseStack;

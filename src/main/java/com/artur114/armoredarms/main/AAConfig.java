@@ -6,51 +6,51 @@ import com.artur114.armoredarms.client.util.GenericPriority;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.pipeline.IArmRenderPipeline;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.*;
 
-@Mod.EventBusSubscriber(modid = ArmoredArms.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ArmoredArms.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class AAConfig {
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    private static final ForgeConfigSpec.BooleanValue DISABLE_ARM_WEAR = BUILDER
+    private static final ModConfigSpec.BooleanValue DISABLE_ARM_WEAR = BUILDER
             .comment("Disable rendering of arm wear with armor equipped")
             .define("disableArmWear", true);
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_ARM_WEAR_WITH_VANILLA_M = BUILDER
+    private static final ModConfigSpec.BooleanValue ENABLE_ARM_WEAR_WITH_VANILLA_M = BUILDER
             .comment("Enable rendering arm wear for vanilla armor model")
             .define("enableArmWearWithVanillaM", true);
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> RENDER_BLACK_LIST = BUILDER
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> RENDER_BLACK_LIST = BUILDER
             .comment("Blacklist of armor for rendering")
             .defineListAllowEmpty("renderBlackList", List.of(), AAConfig::validateItemName);
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> RENDER_ARM_WEAR_LIST = BUILDER
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> RENDER_ARM_WEAR_LIST = BUILDER
             .comment("List of armors that require arm wear render")
             .defineListAllowEmpty("renderArmWearList", List.of("iceandfire:*", "botania:*"), AAConfig::validateItemName);
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> NO_RENDER_ARM_WEAR_LIST = BUILDER
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> NO_RENDER_ARM_WEAR_LIST = BUILDER
             .comment("List of armors that no require arm wear render, takes precedence over renderArmWearList")
             .defineListAllowEmpty("noRenderArmWearList", List.of("create:netherite_backtank"), AAConfig::validateItemName);
 
-    private static final ForgeConfigSpec.ConfigValue<Double> VANILLA_ARMOR_MODEL_SIZE = BUILDER
+    private static final ModConfigSpec.ConfigValue<Double> VANILLA_ARMOR_MODEL_SIZE = BUILDER
             .comment("Vanilla armor model size")
             .define("vanillaArmorModelSize", 0.4D);
 
-    private static final ForgeConfigSpec.BooleanValue USE_CHECK_BY_ITEM = BUILDER
+    private static final ModConfigSpec.BooleanValue USE_CHECK_BY_ITEM = BUILDER
             .comment("Use check by item")
             .define("useCheckByItem", false);
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> RENDER_SOURCES_PRIORITY = BUILDER
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> RENDER_SOURCES_PRIORITY = BUILDER
             .comment("Different sources can work differently, choose the one that works better", "The higher the source is on the list, the higher its priority", "Deleting a render source will prevent it from working", "Changes are applied after restarting the game", "[event] - Standard rendering source, сan always work", "[mixin] - Additional rendering source, can work if mixins loader is installed")
             .defineListAllowEmpty("renderSourcesPriority", List.of("event", "mixin"), Baked::validateSourceName);
 
 
-    public static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean disableArmWear = false;
     public static boolean enableArmWearWithVanillaM = false;

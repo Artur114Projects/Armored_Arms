@@ -5,7 +5,7 @@ import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.SLContainer;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 import java.util.ArrayList;
 import java.util.List;

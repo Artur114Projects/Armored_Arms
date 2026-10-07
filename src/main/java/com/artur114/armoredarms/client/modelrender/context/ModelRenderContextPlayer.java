@@ -26,9 +26,9 @@ public class ModelRenderContextPlayer extends AbsModelRenderContext {
     public VertexConsumer vertexConsumer() {
         if (this.mc.player == null) return null;
         if (this.wear) {
-            return this.buffer.getBuffer(RenderType.entityTranslucent(this.mc.player.getSkinTextureLocation()));
+            return this.buffer.getBuffer(RenderType.entityTranslucent(this.mc.player.getSkin().texture()));
         } else {
-            return this.buffer.getBuffer(RenderType.entitySolid(this.mc.player.getSkinTextureLocation()));
+            return this.buffer.getBuffer(RenderType.entitySolid(this.mc.player.getSkin().texture()));
         }
     }
 

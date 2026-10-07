@@ -3,7 +3,7 @@ package com.artur114.armoredarms.api.events;
 import com.artur114.armoredarms.core.api.event.IAbstractGrabBoneAdaptersEvent;
 import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.IBoneAdapter;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;

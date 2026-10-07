@@ -5,14 +5,11 @@ import com.artur114.armoredarms.api.events.InitRenderLayersEvent;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
-import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
-import com.artur114.armoredarms.core.util.ArmsBone;
 import com.artur114.armoredarms.core.util.IAAModContainer;
-import net.minecraftforge.event.TickEvent;
 
 import java.util.Map;
 
