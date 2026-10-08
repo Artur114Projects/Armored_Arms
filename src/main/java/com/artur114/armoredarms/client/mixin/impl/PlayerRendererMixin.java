@@ -17,8 +17,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,16 +33,16 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 
     @Inject(method = "renderRightHand", at = @At("HEAD"), cancellable = true)
     private void mixinRenderRightHand(PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight, AbstractClientPlayer pPlayer, CallbackInfo ci) {
-        if (MinecraftForge.EVENT_BUS.post(new RenderArmMixinEvent(pPoseStack, pBuffer,pCombinedLight, pPlayer, EnumHandSideAA.RIGHT))) {
-            ForgeHooksClient.renderSpecificFirstPersonArm(pPoseStack, pBuffer, pCombinedLight, pPlayer, HumanoidArm.RIGHT);
+        if (NeoForge.EVENT_BUS.post(new RenderArmMixinEvent(pPoseStack, pBuffer,pCombinedLight, pPlayer, EnumHandSideAA.RIGHT)).isCanceled()) {
+            ClientHooks.renderSpecificFirstPersonArm(pPoseStack, pBuffer, pCombinedLight, pPlayer, HumanoidArm.RIGHT);
             ci.cancel();
         }
     }
 
     @Inject(method = "renderLeftHand", at = @At("HEAD"), cancellable = true)
     private void mixinRenderLeftHand(PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight, AbstractClientPlayer pPlayer, CallbackInfo ci) {
-        if (MinecraftForge.EVENT_BUS.post(new RenderArmMixinEvent(pPoseStack, pBuffer,pCombinedLight, pPlayer, EnumHandSideAA.LEFT))) {
-            ForgeHooksClient.renderSpecificFirstPersonArm(pPoseStack, pBuffer, pCombinedLight, pPlayer, HumanoidArm.LEFT);
+        if (NeoForge.EVENT_BUS.post(new RenderArmMixinEvent(pPoseStack, pBuffer,pCombinedLight, pPlayer, EnumHandSideAA.LEFT)).isCanceled()) {
+            ClientHooks.renderSpecificFirstPersonArm(pPoseStack, pBuffer, pCombinedLight, pPlayer, HumanoidArm.LEFT);
             ci.cancel();
         }
     }

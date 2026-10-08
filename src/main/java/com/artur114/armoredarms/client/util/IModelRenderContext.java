@@ -14,14 +14,11 @@ public interface IModelRenderContext extends IPrioritised {
     PoseStack poseStack();
     int packedOverlay();
     int packedLight();
-    float alpha();
-    float blue();
-    float green();
-    float red();
+    int rgba();
 
     default void renderPart(ModelPart part) {
         if (this.poseStack() != null && this.vertexConsumer() != null) {
-            part.render(this.poseStack(), this.vertexConsumer(), this.packedLight(), this.packedOverlay(), FastColor.ARGB32.colorFromFloat(this.alpha(), this.red(), this.green(), this.blue()));
+            part.render(this.poseStack(), this.vertexConsumer(), this.packedLight(), this.packedOverlay(), this.rgba());
         }
     }
 }

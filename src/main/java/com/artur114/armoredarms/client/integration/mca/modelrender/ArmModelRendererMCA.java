@@ -10,14 +10,12 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.Reflector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
-import dev.kosmx.playerAnim.impl.IPlayerModel;
-import forge.net.conczin.mca.MCAClient;
-import forge.net.conczin.mca.client.model.CommonVillagerModel;
-import forge.net.conczin.mca.client.model.PlayerEntityExtendedModel;
-import forge.net.conczin.mca.client.render.layer.ClothingLayer;
-import forge.net.conczin.mca.client.render.layer.SkinLayer;
-import forge.net.conczin.mca.client.render.layer.VillagerLayer;
+import net.conczin.mca.MCAClient;
+import net.conczin.mca.client.model.CommonVillagerModel;
+import net.conczin.mca.client.model.PlayerEntityExtendedModel;
+import net.conczin.mca.client.render.layer.ClothingLayer;
+import net.conczin.mca.client.render.layer.SkinLayer;
+import net.conczin.mca.client.render.layer.VillagerLayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -56,19 +54,19 @@ public class ArmModelRendererMCA implements IArmModelRenderer<ArmModelManagerPla
     private void mca$renderCustomArm(ArmModelManagerPlayer context, EnumHandSideAA side, PoseStack matrices, MultiBufferSource vertexConsumers, int light, AbstractClientPlayer player, ModelPart arm, ModelPart sleeve, VillagerLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> layer) {
         PlayerEntityExtendedModel<AbstractClientPlayer> model = (PlayerEntityExtendedModel<AbstractClientPlayer>) layer.model;
         context.prepareModel(model);
-        model.applyVillagerDimensions(CommonVillagerModel.getVillager(player), player.isCrouching());
+        model.applyVillagerDimensions(CommonVillagerModel.getVillager(player));
         ResourceLocation skin = layer.getSkin(player);
         if (layer.canUse(skin)) {
             VertexConsumer buffer = vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(skin));
-            float[] color = layer.getColor(player, 0.0F);
+            int color = layer.getColor(player, 0.0F);
             context.armWear(side).copyFrom(sleeve);
             context.arm(side).copyFrom(arm);
 
             arm.xRot = 0.0F;
-            arm.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
+            arm.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color);
             if (context.shouldRenderWear) {
                 sleeve.xRot = 0.0F;
-                sleeve.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F);
+                sleeve.render(matrices, buffer, light, OverlayTexture.NO_OVERLAY, color);
             }
         }
     }

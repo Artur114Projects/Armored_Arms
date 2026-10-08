@@ -11,10 +11,10 @@ import com.artur114.armoredarms.client.integration.punchy.modelrender.BoneAdapte
 import com.artur114.armoredarms.client.integration.punchy.modelrender.BoneAdapterModelPartPunchy;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.main.AAConfig;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class EventHandler {
     @SubscribeEvent
     public static void initAdapters(InitBoneAdaptersEvent e) {

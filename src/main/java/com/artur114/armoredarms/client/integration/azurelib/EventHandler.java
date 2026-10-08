@@ -5,10 +5,10 @@ import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.integration.azurelib.modelrender.ArmModelContainerAzure;
 import com.artur114.armoredarms.client.integration.azurelib.modelrender.BoneAdapterAzBone;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class EventHandler {
     @SubscribeEvent
     public static void initAdapters(InitBoneAdaptersEvent e) {

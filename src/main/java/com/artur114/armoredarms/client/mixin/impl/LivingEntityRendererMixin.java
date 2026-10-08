@@ -1,7 +1,6 @@
 package com.artur114.armoredarms.client.mixin.impl;
 
 import com.artur114.armoredarms.client.mixin.MixinHandler;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;

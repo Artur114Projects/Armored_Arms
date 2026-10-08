@@ -1,7 +1,6 @@
 package com.artur114.armoredarms.client.integration.geckolib.modelrender;
 
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
@@ -36,7 +35,6 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
     @Override
     public void renderArm(ArmModelManagerArmor context, EnumHandSideAA side) {
         for (IModelRenderContext contextPart : this.context) {
-            if (contextPart instanceof ModelRenderContextOverlay) continue;
             this.render(context, contextPart.poseStack(), contextPart.multiBuffer(), context.chestPlate, side, contextPart.packedLight(), contextPart.packedOverlay());
         }
     }
@@ -45,10 +43,11 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
     public <T extends Item & GeoItem> void render(ArmModelManagerArmor manager, PoseStack pPoseStack, MultiBufferSource multiBuffer, ItemStackAA stack, EnumHandSideAA side, int pPackedLight, int pPackedOverlay) {
         if (stack.isEmpty()) return;
         T t = (T) stack.item();
+        float pct = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
         GeoArmorRenderer<T> model = (GeoArmorRenderer<T>) this.mg;
         BakedGeoModel baked = model.getGeoModel().getBakedModel(model.getGeoModel().getModelResource(t, model));
-        RenderType renderType = model.getRenderType(t, model.getTextureLocation(t), multiBuffer, Minecraft.getInstance().getPartialTick());
-        VertexConsumer buffer = ItemRenderer.getArmorFoilBuffer(multiBuffer, renderType, false, stack.stack().hasFoil());
+        RenderType renderType = model.getRenderType(t, model.getTextureLocation(t), multiBuffer, pct);
+        VertexConsumer buffer = ItemRenderer.getArmorFoilBuffer(multiBuffer, renderType, stack.stack().hasFoil());
 
         Bone bone = manager.bone(side);
         GeoBone arm = baked.getBone(this.arms[side.ordinal()]).get();
@@ -66,7 +65,7 @@ public class ArmModelRendererGecko implements IArmModelRenderer<ArmModelManagerA
         pPoseStack.translate(0.0F, 1.5F, 0.0F);
         pPoseStack.scale(-1.0F, -1.0F, 1.0F);
         bone.injectTo(this.geoBone);
-        model.renderRecursively(pPoseStack, t, arm, renderType, multiBuffer, buffer, false, Minecraft.getInstance().getPartialTick(), pPackedLight, pPackedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.renderRecursively(pPoseStack, t, arm, renderType, multiBuffer, buffer, false, pct, pPackedLight, pPackedOverlay, 0xFFFFFFFF);
         pPoseStack.popPose();
 
         arm.setHidden(h);

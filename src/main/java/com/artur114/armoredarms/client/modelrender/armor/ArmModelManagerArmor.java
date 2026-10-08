@@ -1,15 +1,10 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
-import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextBase;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextGlint;
-import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextTrim;
-import com.artur114.armoredarms.client.util.ArmRenderContext;
-import com.artur114.armoredarms.client.util.IModelRenderContext;
-import com.artur114.armoredarms.client.util.ItemStackAA;
-import com.artur114.armoredarms.client.util.MultiModelRenderContext;
+import com.artur114.armoredarms.client.util.*;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
@@ -17,26 +12,18 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.Bone;
-import com.google.common.collect.Maps;
-import net.minecraft.client.model.HumanoidArmorModel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.item.ArmorMaterial;
 import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArmor, ArmRenderLayerArmor> {
-    private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
     public MultiModelRenderContext context = null;
     public ArmRenderContext rawContext = null;
     public ArmRenderLayerArmor layer = null;
@@ -93,12 +80,21 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
     public MultiModelRenderContext compileContext(ArmRenderLayerArmor layer) {
         ArrayList<IModelRenderContext> context = new ArrayList<>();
 
-        context.add(new ModelRenderContextBase(ClientHooks.getArmorTexture(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, null), layer.chestPlate, Priority.HIGH));
+        if (layer.mc.player != null) {
+            ArmorMaterial armormaterial = layer.chestPlate.item().getMaterial().value();
+            IClientItemExtensions extensions = IClientItemExtensions.of(layer.chestPlate.stack());
+            int fallbackColor = extensions.getDefaultDyeColor(layer.chestPlate.stack());
 
-        if (layer.chestPlate.stack().has(DataComponents.DYED_COLOR)) {
-            context.add(new ModelRenderContextOverlay(this.fmlGetArmorResource(layer.mc.player, layer.chestPlate.stack(), EquipmentSlot.CHEST, "overlay")));
+            for (int layerIdx = 0; layerIdx < armormaterial.layers().size(); layerIdx++) {
+                ArmorMaterial.Layer aLayer = armormaterial.layers().get(layerIdx);
+                int j = extensions.getArmorLayerTintColor(layer.chestPlate.stack(), layer.mc.player, aLayer, layerIdx, fallbackColor);
+                if (j != 0) {
+                    ResourceLocation texture = ClientHooks.getArmorTexture(layer.mc.player, layer.chestPlate.stack(), aLayer, false, EquipmentSlot.CHEST);
+                    context.add(new ModelRenderContextBase(texture, j, new GenericPriority((armormaterial.layers().size() - layerIdx) + 2)));
+                }
+            }
         }
-        if (layer.mc.player != null && ArmorTrim.getTrim(layer.mc.player.level().registryAccess(), layer.chestPlate.stack()).isPresent()) {
+        if (layer.mc.player != null && layer.chestPlate.stack().has(DataComponents.TRIM)) {
             context.add(new ModelRenderContextTrim(layer.chestPlate, Priority.LOW));
         }
         if (layer.chestPlate.stack().hasFoil()) {
@@ -106,28 +102,6 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         }
 
         return new MultiModelRenderContext(context);
-    }
-
-    public ResourceLocation fmlGetArmorResource(net.minecraft.world.entity.Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
-        ArmorItem item = (ArmorItem) stack.getItem();
-        String texture = item.getMaterial().getName();
-        String domain = "minecraft";
-        int idx = texture.indexOf(':');
-        if (idx != -1) {
-            domain = texture.substring(0, idx);
-            texture = texture.substring(idx + 1);
-        }
-        String s1 = String.format(java.util.Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, 1, type == null ? "" : String.format(java.util.Locale.ROOT, "_%s", type));
-
-        s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
-        ResourceLocation resourcelocation = ARMOR_LOCATION_CACHE.get(s1);
-
-        if (resourcelocation == null) {
-            resourcelocation = new ResourceLocation(s1);
-            ARMOR_LOCATION_CACHE.put(s1, resourcelocation);
-        }
-
-        return resourcelocation;
     }
 
     @Override

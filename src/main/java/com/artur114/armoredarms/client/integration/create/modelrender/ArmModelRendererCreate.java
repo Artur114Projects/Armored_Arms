@@ -20,11 +20,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class ArmModelRendererCreate implements IArmModelRendererBase<ArmModelManagerArmor> {
-    private final ResourceLocation tex = new ResourceLocation("create", "textures/models/armor/netherite_diving_arm.png");
+    private final ResourceLocation tex = ResourceLocation.fromNamespaceAndPath("create", "textures/models/armor/netherite_diving_arm.png");
     protected final MultiModelRenderContext context;
     protected HumanoidModel<?> hm;
     protected ModelPart[] arms;
-
 
     public ArmModelRendererCreate(MultiModelRenderContext context, HumanoidModel<?> hm) {
         this.context = context;

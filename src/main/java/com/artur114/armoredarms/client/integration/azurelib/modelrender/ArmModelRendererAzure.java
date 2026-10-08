@@ -1,9 +1,6 @@
 package com.artur114.armoredarms.client.integration.azurelib.modelrender;
 
-import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
@@ -13,17 +10,16 @@ import com.artur114.armoredarms.core.util.Bone;
 import com.artur114.armoredarms.core.util.Reflector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mod.azure.azurelib.model.AzBakedModel;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.AzModelRenderer;
-import mod.azure.azurelib.render.AzRendererPipeline;
-import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.render.armor.AzArmorModel;
-import mod.azure.azurelib.render.armor.AzArmorRendererConfig;
-import mod.azure.azurelib.render.armor.AzArmorRendererPipeline;
-import mod.azure.azurelib.render.armor.AzArmorRendererPipelineContext;
+import mod.azure.azurelib.common.model.AzBakedModel;
+import mod.azure.azurelib.common.model.AzBone;
+import mod.azure.azurelib.common.render.AzModelRenderer;
+import mod.azure.azurelib.common.render.AzRendererPipeline;
+import mod.azure.azurelib.common.render.AzRendererPipelineContext;
+import mod.azure.azurelib.common.render.armor.AzArmorModel;
+import mod.azure.azurelib.common.render.armor.AzArmorRendererConfig;
+import mod.azure.azurelib.common.render.armor.AzArmorRendererPipeline;
+import mod.azure.azurelib.common.render.armor.AzArmorRendererPipelineContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -60,7 +56,6 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
     @Override
     public void renderArm(ArmModelManagerArmor context, EnumHandSideAA side) {
         for (IModelRenderContext contextPart : this.context) {
-            if (contextPart instanceof ModelRenderContextOverlay) continue;
             this.render(context, contextPart.poseStack(), contextPart.multiBuffer(), context.chestPlate, side, contextPart.packedLight());
         }
     }
@@ -70,12 +65,12 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         AbstractClientPlayer player = mc.player;
         AzArmorRendererPipelineContext context = this.pipeline.context();
         context.prepare(player, stack.stack(), EquipmentSlot.CHEST, this.ma);
-        float partialTick = mc.getPartialTick();
+        float partialTick = mc.getTimer().getGameTimeDeltaTicks();
         AzArmorRendererConfig config = this.pipeline.config();
         ItemStack anim = Optional.ofNullable(context.animatable()).orElse(stack.stack());
         ResourceLocation textureLocation = config.textureLocation(player, anim);
         RenderType renderType = context.getDefaultRenderType(anim, textureLocation, multiBuffer, partialTick, config.getRenderType(context.currentEntity(), anim), config.alpha(anim));
-        VertexConsumer buffer = ItemRenderer.getArmorFoilBuffer(multiBuffer, renderType, false, stack.stack().hasFoil());
+        VertexConsumer buffer = ItemRenderer.getArmorFoilBuffer(multiBuffer, renderType, stack.stack().hasFoil());
         AzBakedModel model = this.pipeline.renderer().provider().provideBakedModel(player, anim);
         context.populate(stack.stack(), model, multiBuffer, pPackedLight, partialTick, pPoseStack, renderType, buffer);
 

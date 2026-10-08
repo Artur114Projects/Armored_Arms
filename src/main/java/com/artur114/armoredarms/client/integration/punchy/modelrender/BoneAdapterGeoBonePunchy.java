@@ -46,7 +46,7 @@ public class BoneAdapterGeoBonePunchy extends BoneAdapterGeoBone {
         explicit.setTranslation(translation);
         Matrix4f vanilla = (new Matrix4f());//.translate(posX / 16.0F, posY / 16.0F, posZ / 16.0F).rotateZ(rotZ).rotateY(rotY).rotateX(rotX).scale(1.0F, 1.0F, 1.0F);
         Matrix4f correction = vanilla.invert(new Matrix4f()).mul(explicit);
-        to.stack.mulPoseMatrix(correction);
+        to.stack.mulPose(correction);
     }
 
     @Override

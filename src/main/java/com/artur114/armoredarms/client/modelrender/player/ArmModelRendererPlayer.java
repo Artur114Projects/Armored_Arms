@@ -39,6 +39,7 @@ public class ArmModelRendererPlayer implements IArmModelRendererBase<ArmModelMan
                 continue;
             }
 
+            System.out.println();
             this.renderDefault(part, context.bone(side), modelPart);
         }
     }

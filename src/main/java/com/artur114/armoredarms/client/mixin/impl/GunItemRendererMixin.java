@@ -22,7 +22,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import software.bernie.geckolib.cache.object.*;
-import software.bernie.geckolib.util.RenderUtils;
+import software.bernie.geckolib.util.RenderUtil;
+
 
 @Mixin(value = GunItemRenderer.class, remap = false)
 public abstract class GunItemRendererMixin {
@@ -36,7 +37,7 @@ public abstract class GunItemRendererMixin {
     private void applyArmRefTransforms(PoseStack poseStack, GeoBone refBone, GeoBone leftArmBone) {}
 
     @Inject(method = "renderLeftArm", at = @At("HEAD"), cancellable = true)
-    private void renderLeftArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+    private void renderLeftArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, int color, CallbackInfo ci) {
         try {
             this.armoredarms$renderArm(poseStack, bone, packedLight, EnumHandSideAA.LEFT);
         } catch (Exception e) {
@@ -46,7 +47,7 @@ public abstract class GunItemRendererMixin {
     }
 
     @Inject(method = "renderRightArm", at = @At("HEAD"), cancellable = true)
-    private void renderRightArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+    private void renderRightArm(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, int color, CallbackInfo ci) {
         try {
             this.armoredarms$renderArm(poseStack, bone, packedLight, EnumHandSideAA.RIGHT);
         } catch (Exception e) {
@@ -87,9 +88,9 @@ public abstract class GunItemRendererMixin {
 
         poseStack.pushPose();
         this.applyArmRefTransforms(poseStack, refBone, armBone);
-        RenderUtils.translateToPivotPoint(poseStack, cube);
-        RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-        RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+        RenderUtil.translateToPivotPoint(poseStack, cube);
+        RenderUtil.rotateMatrixAroundCube(poseStack, cube);
+        RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
         poseStack.translate(cgx, cgy, cgz);
         poseStack.scale(2.0F, 2.0F, 2.0F);
         poseStack.scale(-1.0F, -1.0F, 1.0F);

@@ -18,22 +18,7 @@ public class ModelRenderContextGlint extends AbsModelRenderContext {
     }
 
     @Override
-    public float alpha() {
-        return 1.0F;
-    }
-
-    @Override
-    public float blue() {
-        return 1.0F;
-    }
-
-    @Override
-    public float green() {
-        return 1.0F;
-    }
-
-    @Override
-    public float red() {
-        return 1.0F;
+    public int rgba() {
+        return 0xFFFFFFFF;
     }
 }

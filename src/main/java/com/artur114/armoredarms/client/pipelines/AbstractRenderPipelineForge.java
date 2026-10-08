@@ -8,14 +8,11 @@ import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.ObjectBuff;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderArmEvent;
-import net.minecraftforge.event.TickEvent;
 
 public abstract class AbstractRenderPipelineForge<I extends AbstractRenderPipelineForge<?>> extends AbstractRenderPipeline<I> {
     public ArmRenderContext renderContext = new ArmRenderContext();
     public final Minecraft mc = Minecraft.getInstance();
     protected ObjectBuff renderArgs = new ObjectBuff();
-
 
     @Override
     public boolean canWork(IAAModContainer mod) {

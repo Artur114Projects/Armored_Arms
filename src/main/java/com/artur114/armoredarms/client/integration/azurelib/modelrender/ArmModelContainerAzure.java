@@ -6,7 +6,7 @@ import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
-import mod.azure.azurelib.render.armor.AzArmorModel;
+import mod.azure.azurelib.common.render.armor.AzArmorModel;
 
 public class ArmModelContainerAzure implements IArmModelRenderContainer<ArmRenderLayerArmor, ArmModelManagerArmor> {
     @Override

@@ -7,7 +7,7 @@ pluginManagement {
             name = 'GitHubPackages'
             url = 'https://maven.pkg.github.com/Artur114Projects/Armored_Arms'
             credentials {
-                // Replace this with your build data, or add the value data to global gradle.properties
+                // Replace this with your git hub token, or add the git hub token to global gradle.properties
                 username = settings.getProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
                 password = settings.getProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
             }

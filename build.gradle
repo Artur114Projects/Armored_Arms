@@ -27,13 +27,21 @@ repositories {
     mavenLocal()
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 coreBuildConf {
     doLoadProjectData = false
 
     dependenciesConf {
+        afterDependence "curse.maven:entity-texture-features-fabric-568563:9055219"
+        afterDependence "curse.maven:minecraft-comes-alive-reborn-535291:8658484"
         afterDependence "curse.maven:cosmetic-armor-reworked-237307:5610814"
+        afterDependence "curse.maven:entity-model-features-844662:9064965"
+        afterDependence "curse.maven:vics-point-blank-961053:8855569"
+        afterDependence "curse.maven:playeranimator-658587:7389814"
+        afterDependence "curse.maven:azurelib-817423:9095629"
+        afterDependence "curse.maven:geckolib-388172:8893490"
+        afterDependence "curse.maven:punchy-1374153:9004863"
+        afterDependence "curse.maven:create-328085:7963363"
+        afterDependence "curse.maven:curios-309927:6529130"
 
         coreConf {
             version = "@core_version@"
@@ -42,7 +50,7 @@ coreBuildConf {
 
         ghPackages {
             credentials {
-                // Replace this with your build data, or add the value data to global gradle.properties
+                // Replace this with your git hub token, or add the git hub token to global gradle.properties
                 it.password = "@gpr.key@"
                 it.username = "@gpr.user@"
             }
@@ -63,21 +71,13 @@ coreBuildConf {
             mod_description        : mod_description,
         ])
 
-        includeFiles 'META-INF/mods.toml', 'pack.mcmeta'
+        includeFiles 'META-INF/neoforge.mods.toml', 'pack.mcmeta'
     }
 
     jarConf {
         coreVersion = "@core_version@"
         author = "@mod_authors@"
         return
-    }
-}
-
-dependencies {
-    core.massDependencies {
-        source "libs"
-
-//        deObfHook {fg.deobf(it)}
     }
 }
 
