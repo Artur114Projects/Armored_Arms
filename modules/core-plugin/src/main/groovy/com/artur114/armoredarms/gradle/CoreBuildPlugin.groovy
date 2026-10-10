@@ -24,7 +24,7 @@ class CoreBuildPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project target) {
-        if (target.plugins.hasPlugin('core-build')) return
+        if (target.plugins.hasPlugin('core-plugin')) return
 
         this.prepare(target)
         this.configureModules(target)

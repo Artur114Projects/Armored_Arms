@@ -7,6 +7,7 @@ import com.artur114.armoredarms.gradle.IProjectBuildModule
 import com.artur114.armoredarms.gradle.util.IPriority
 import com.artur114.armoredarms.gradle.util.Priority
 import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
 
 class BuildModuleProject implements IProjectBuildModule {
     @Override
@@ -14,10 +15,8 @@ class BuildModuleProject implements IProjectBuildModule {
 
     @Override
     void configureAfter(CoreBuildPlugin plugin, Project project) {
-        if (plugin.pluginConfig.doLoadProjectData) {
-            project.group = CorePluginUtils.findPropertyAndValidate(project, "modGroup")
-            project.version = CorePluginUtils.findPropertyAndValidate(project, "modVersion")
-            project.archivesBaseName = CorePluginUtils.findPropertyAndValidate(project, "modFileName")
+        project.tasks.withType(JavaCompile).configureEach {
+            it.options.encoding = 'UTF-8'
         }
     }
 

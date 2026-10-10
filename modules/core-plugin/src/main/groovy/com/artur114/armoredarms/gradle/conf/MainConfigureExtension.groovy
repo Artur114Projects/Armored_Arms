@@ -7,21 +7,11 @@ class MainConfigureExtension extends AbstractConfig {
     private DependenciesConfigureExtension dependenciesConf
     private ResourcesConfigureExtension resourcesConf
     private JarBuildConfigureExtension jarBuildConf
-    private boolean doLoadProjectData
 
     MainConfigureExtension() {
         this.dependenciesConf = this.createNewConfig(DependenciesConfigureExtension)
         this.resourcesConf = this.createNewConfig(ResourcesConfigureExtension)
         this.jarBuildConf = this.createNewConfig(JarBuildConfigureExtension)
-        doLoadProjectData = true
-    }
-
-    boolean getDoLoadProjectData() {
-        return doLoadProjectData
-    }
-
-    void setDoLoadProjectData(boolean doLoadProjectData) {
-        this.doLoadProjectData = doLoadProjectData
     }
 
     ResourcesConfigureExtension getResourcesConf() {
@@ -32,8 +22,11 @@ class MainConfigureExtension extends AbstractConfig {
         action.execute(this.resourcesConf)
     }
 
-    void resourcesConf(Closure<? extends ResourcesConfigureExtension> c) {
-        this.resourcesConf(ConfigureUtil.configureUsing(c))
+    void resourcesConf(@DelegatesTo(value = ResourcesConfigureExtension, strategy = Closure.DELEGATE_FIRST) Closure c) {
+        c.delegate = this.resourcesConf
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+
+        c.call()
     }
 
     DependenciesConfigureExtension getDependenciesConf() {
@@ -44,8 +37,11 @@ class MainConfigureExtension extends AbstractConfig {
         action.execute(this.dependenciesConf)
     }
 
-    void dependenciesConf(Closure<? extends DependenciesConfigureExtension> c) {
-        this.dependenciesConf(ConfigureUtil.configureUsing(c))
+    void dependenciesConf(@DelegatesTo(value = DependenciesConfigureExtension, strategy = Closure.DELEGATE_FIRST) Closure c) {
+        c.delegate = this.dependenciesConf
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+
+        c.call()
     }
 
     JarBuildConfigureExtension getJarBuildConf() {
@@ -56,7 +52,10 @@ class MainConfigureExtension extends AbstractConfig {
         action.execute(this.jarBuildConf)
     }
 
-    void jarConf(Closure<? extends JarBuildConfigureExtension> c) {
-        this.jarConf(ConfigureUtil.configureUsing(c))
+    void jarConf(@DelegatesTo(value = JarBuildConfigureExtension, strategy = Closure.DELEGATE_FIRST) Closure c) {
+        c.delegate = this.jarBuildConf
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+
+        c.call()
     }
 }

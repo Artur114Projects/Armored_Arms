@@ -7,7 +7,7 @@ class JarBuildConfigureExtension extends AbstractConfig {
     private String atFile
 
     JarBuildConfigureExtension() {
-        this.coreVersion = "@coreVersion@"
+        this.coreVersion = "@core_version@"
         this.author = "@author@"
         this.manifestAttributes = null
         this.atFile = null

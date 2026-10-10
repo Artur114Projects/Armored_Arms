@@ -37,21 +37,19 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
     void configureAfter(CoreBuildPlugin plugin, Project project) {
         this.manageGHRepositories(project)
         this.loadCoreDependence(project)
-
-        this.manageDependencies(project)
     }
 
     private void manageGHRepositories(Project project) {
         project.repositories { RepositoryHandler rep ->
             List<String> repositories = this.config.ghPackagesConf.getRepositories()
             PasswordCredentials credentials = this.config.ghPackagesConf.getCredentials(project)
-            println "GitHub credentials: [${credentials}]"
+            project.logger.lifecycle "GitHub credentials: [${credentials}]"
 
             for (String repo : repositories) {
                 rep.maven { MavenArtifactRepository repository ->
                     repository.name = "GHP: " + repo
                     repository.url = project.uri(repo)
-                    println "Added GitHub repo: [${repository.url}]"
+                    project.logger.lifecycle "Added GitHub repo: [${repository.url}]"
                     repository.credentials {
                         it.username = credentials.username
                         it.password = credentials.password
@@ -65,7 +63,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
         String dep = this.config.coreDependenceConf.build(project)
         project.dependencies.add('include', dep)
 
-        println("Loaded core dependency: [${dep}]")
+        project.logger.lifecycle("Loaded core dependency: [${dep}]")
     }
 
     private void manageCurseMaven(Project project) {
@@ -73,14 +71,6 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
             rep.maven { MavenArtifactRepository repository ->
                 repository.url = project.uri("https://cursemaven.com")
             }
-        }
-    }
-
-    private void manageDependencies(Project project) {
-        for (Object dep : this.config.dependencies) {
-            project.dependencies.add("implementation", dep)
-
-            println("Loaded late dependency: [${dep}]")
         }
     }
 
@@ -112,7 +102,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
             project.dependencies.add(config.configurationName, tree)
 
             tree.each {
-                println("Loaded file dependency: [${it}]")
+                project.logger.lifecycle("Loaded file dependency: [${it}]")
             }
         }
 
@@ -140,7 +130,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
                     String lib = "blank:" + it.name.replaceAll(".jar", "") + ":0"
 
                     project.dependencies.add(config.configurationName, config.deObfHook(lib))
-                    println("Loaded flat dir dependency: [${lib}]")
+                    project.logger.lifecycle("Loaded flat dir dependency: [${lib}]")
                 }
             }
         }
@@ -161,10 +151,10 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
 
                 if (!lib.contains("-deobf")) {
                     project.dependencies.add(config.configurationName, config.deObfHook(lib))
-                    println("Loaded flat dir dependency: [${lib}]")
+                    project.logger.lifecycle("Loaded flat dir dependency: [${lib}]")
                 } else {
                     project.dependencies.add(config.configurationName, lib)
-                    println("Loaded flat dir dependency: [${lib}]")
+                    project.logger.lifecycle("Loaded flat dir dependency: [${lib}]")
                 }
             }
         }
@@ -177,7 +167,7 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
             project.dependencies.add(config.configurationName, tree)
 
             tree.each {
-                println("Loaded file dependency: [${it}]")
+                project.logger.lifecycle("Loaded file dependency: [${it}]")
             }
         }
     }

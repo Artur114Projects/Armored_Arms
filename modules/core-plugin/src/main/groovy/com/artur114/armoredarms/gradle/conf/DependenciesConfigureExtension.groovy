@@ -1,6 +1,7 @@
 package com.artur114.armoredarms.gradle.conf
 
 import com.artur114.armoredarms.gradle.CorePluginUtils
+import com.artur114.armoredarms.gradle.ext.MassDependenceConf
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.PasswordCredentials
@@ -12,16 +13,10 @@ import javax.annotation.Nullable
 class DependenciesConfigureExtension extends AbstractConfig {
     private CoreDependenceConf coreDependenceConf
     private GHPackagesConf ghPackagesConf
-    private Set<Object> dependencies
 
     DependenciesConfigureExtension() {
         this.coreDependenceConf = new CoreDependenceConf()
         this.ghPackagesConf = new GHPackagesConf()
-        this.dependencies = new HashSet<>()
-    }
-
-    Set<Object> getDependencies() {
-        return this.dependencies
     }
 
     GHPackagesConf getGhPackagesConf() {
@@ -36,20 +31,22 @@ class DependenciesConfigureExtension extends AbstractConfig {
         action.execute(this.ghPackagesConf)
     }
 
-    void ghPackages(Closure<? extends GHPackagesConf> c) {
-        this.ghPackages(ConfigureUtil.configureUsing(c))
+    void ghPackages(@DelegatesTo(value = GHPackagesConf, strategy = Closure.DELEGATE_FIRST) Closure c) {
+        c.delegate = this.ghPackagesConf
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+
+        c.call()
     }
 
     void coreConf(Action<? extends CoreDependenceConf> action) {
         action.execute(this.coreDependenceConf)
     }
 
-    void coreConf(Closure<? extends CoreDependenceConf> c) {
-        this.coreConf(ConfigureUtil.configureUsing(c))
-    }
+    void coreConf(@DelegatesTo(value = CoreDependenceConf, strategy = Closure.DELEGATE_FIRST) Closure c) {
+        c.delegate = this.coreDependenceConf
+        c.resolveStrategy = Closure.DELEGATE_FIRST
 
-    void afterDependence(Object... dependence) {
-        this.dependencies.addAll(Arrays.asList(dependence))
+        c.call()
     }
 
     class CoreDependenceConf {
@@ -59,7 +56,7 @@ class DependenciesConfigureExtension extends AbstractConfig {
 
         CoreDependenceConf() {
             this.group = "com.artur114.armoredarms"
-            this.version = "@coreVersion@"
+            this.version = "@core_version@"
             this.artifactId = "core"
         }
 
@@ -103,7 +100,7 @@ class DependenciesConfigureExtension extends AbstractConfig {
         private Set<String> repositories
 
         GHPackagesConf() {
-            this.repositories = new HashSet<>(Collections.singletonList("Artur114Projects:Armored_Arms"))
+            this.repositories = new HashSet<>()
             this.credentials = new GenericPasswordCredentials()
         }
 

@@ -17,8 +17,15 @@ class CoreMethodsExtension {
         this.onMethodInvoked(MassDependenceConf.class, massDependenceConf)
     }
 
-    void massDependencies(Closure<? extends MassDependenceConf> c) {
-        this.massDependencies(ConfigureUtil.configureUsing(c))
+    void massDependencies(@DelegatesTo(value = MassDependenceConf, strategy = Closure.DELEGATE_FIRST) Closure c) {
+        def massDependenceConf = new MassDependenceConf()
+
+        c.delegate = massDependenceConf
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+
+        c.call()
+
+        this.onMethodInvoked(MassDependenceConf.class, massDependenceConf)
     }
 
     private <T> void onMethodInvoked(Class<T> clazz, T obj) {

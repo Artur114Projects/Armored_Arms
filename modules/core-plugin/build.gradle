@@ -17,7 +17,7 @@ gradlePlugin {
     plugins {
         coreBuild {
             implementationClass = 'com.artur114.armoredarms.gradle.CoreBuildPlugin'
-            id = 'core-build'
+            id = 'core-plugin'
         }
     }
 }
@@ -29,14 +29,6 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "Implementation-Vendor"   : author
         ])
-    }
-}
-
-task testAny {
-    FileTree tree = project.fileTree(dir: 'build').include('**/*-deobf.jar') as FileTree
-
-    tree.each { File file ->
-        println file.name
     }
 }
 

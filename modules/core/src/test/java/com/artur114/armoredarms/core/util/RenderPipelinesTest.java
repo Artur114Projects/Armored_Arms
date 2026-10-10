@@ -169,6 +169,11 @@ class RenderPipelinesTest {
         }
 
         @Override
+        public ObjectBuff renderArgs() {
+            return null;
+        }
+
+        @Override
         public void registerPipeline(IAAModContainer mod, IArmRenderEngine<TestPipeline1> engine) {
 
         }
