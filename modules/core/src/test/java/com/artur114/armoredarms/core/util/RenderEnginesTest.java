@@ -159,6 +159,11 @@ class RenderEnginesTest {
         }
 
         @Override
+        public ObjectBuff renderArgs() {
+            return null;
+        }
+
+        @Override
         public Class<TestPipeline> clazz() {
             return TestPipeline.class;
         }
@@ -192,6 +197,11 @@ class RenderEnginesTest {
 
         @Override
         public IArmRenderEngine<TestPipeline1> engine() {
+            return null;
+        }
+
+        @Override
+        public ObjectBuff renderArgs() {
             return null;
         }
 

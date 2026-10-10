@@ -4,3 +4,17 @@ plugins {
 
 group = 'com.artur114.armoredarms'
 version = "0.0.0"
+
+tasks.register("publishAllToMavenLocal") {
+    group = 'publishing'
+    description = 'Publishes all subprojects to Maven Local'
+    dependsOn subprojects.collect {it.tasks.named('clean')}
+    dependsOn subprojects.collect {it.tasks.named('publishToMavenLocal')}
+}
+
+tasks.register("publishAll") {
+    group = 'publishing'
+    description = 'Publishes all subprojects'
+    dependsOn subprojects.collect {it.tasks.named('clean')}
+    dependsOn subprojects.collect {it.tasks.named('publish')}
+}

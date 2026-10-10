@@ -142,6 +142,11 @@ class RenderPipelinesTest {
         }
 
         @Override
+        public ObjectBuff renderArgs() {
+            return null;
+        }
+
+        @Override
         public Class<TestPipeline> clazz() {
             return TestPipeline.class;
         }
