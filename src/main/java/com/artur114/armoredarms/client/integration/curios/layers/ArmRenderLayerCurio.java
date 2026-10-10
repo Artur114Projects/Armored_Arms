@@ -63,7 +63,7 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
                 ItemStack stack = cosmeticStacksHandler.getStackInSlot(i);
                 boolean cosmetic = true;
                 NonNullList<Boolean> renderStates = stacksHandler.getRenders();
-                boolean renderable = renderStates.size() > i && (Boolean)renderStates.get(i);
+                boolean renderable = renderStates.size() > i && (Boolean) renderStates.get(i);
                 if (stack.isEmpty() && renderable) {
                     stack = stackHandler.getStackInSlot(i);
                     cosmetic = false;

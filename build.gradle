@@ -1,11 +1,20 @@
+buildscript {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+        classpath 'com.github.Artur114Projects.Armored_Arms:core-plugin:1.3.0-core'
+    }
+}
 plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'org.spongepowered.mixin' version '0.7.+'
-    id 'core-build' version '1.2.1'
 }
+
+apply plugin: 'core-plugin'
 
 base {
     version = 'v' + mod_version
@@ -18,80 +27,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
     copyIdeResources = true
-    runs {
-        configureEach {
-            workingDirectory this.project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                "${mod_id}" {
-                    source this.sourceSets.main
-                }
-            }
-        }
-
-        client {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        data {
-            workingDirectory this.project.file('run-data')
-
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-        }
-    }
 }
-
-repositories {
-    mavenLocal()
-}
-
-sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 coreBuildConf {
-    doLoadProjectData = false
-
-    dependenciesConf {
-        afterDependence fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:8900572")
-        afterDependence fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
-        afterDependence fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
-        afterDependence fg.deobf("curse.maven:satsu-iron-man-addon-1189482:8858946")
-        afterDependence fg.deobf("curse.maven:threetag-palladium-963363:8716074")
-        afterDependence fg.deobf("curse.maven:mm-modern-mayhem-1328893:7703251")
-        afterDependence fg.deobf("curse.maven:vics-point-blank-961053:7664533")
-        afterDependence fg.deobf("curse.maven:fracture-point-1207137:8673148")
-        afterDependence fg.deobf("curse.maven:scorched-guns-802940:7232063")
-        afterDependence fg.deobf("curse.maven:aether-255308:6134920")
-        afterDependence fg.deobf("curse.maven:punchy-1374153:8029969")
-        afterDependence fg.deobf("curse.maven:curios-309927:6418456")
-
-        afterDependence fg.deobf("curse.maven:entity-model-features-844662:8063556")
-        afterDependence fg.deobf("curse.maven:entity-texture-features-fabric-568563:7818911")
-
-        coreConf {
-            version = "@core_version@"
-            return
-        }
-
-        ghPackages {
-            credentials {
-                // Replace this with your build data, or add the value data to global gradle.properties
-                it.password = "@gpr.key@"
-                it.username = "@gpr.user@"
-            }
-        }
-    }
-
     resourcesConf {
         replaceProperties([
                 minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
@@ -105,13 +43,28 @@ coreBuildConf {
     }
 
     jarConf {
-        coreVersion = "@core_version@"
         author = "@mod_authors@"
         return
     }
 }
 
 dependencies {
+    implementation fg.deobf("curse.maven:minecraft-comes-alive-reborn-535291:8900572")
+    implementation fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
+    implementation fg.deobf("curse.maven:cosmetic-armor-reworked-237307:4600191")
+    implementation fg.deobf("curse.maven:satsu-iron-man-addon-1189482:8858946")
+    implementation fg.deobf("curse.maven:threetag-palladium-963363:8716074")
+    implementation fg.deobf("curse.maven:mm-modern-mayhem-1328893:7703251")
+    implementation fg.deobf("curse.maven:vics-point-blank-961053:7664533")
+    implementation fg.deobf("curse.maven:fracture-point-1207137:8673148")
+    implementation fg.deobf("curse.maven:scorched-guns-802940:7232063")
+    implementation fg.deobf("curse.maven:aether-255308:6134920")
+    implementation fg.deobf("curse.maven:punchy-1374153:8029969")
+    implementation fg.deobf("curse.maven:curios-309927:6418456")
+
+    implementation fg.deobf("curse.maven:entity-model-features-844662:8063556")
+    implementation fg.deobf("curse.maven:entity-texture-features-fabric-568563:7818911")
+
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
@@ -125,8 +78,4 @@ dependencies {
 mixin {
     add sourceSets.main, 'mixins.armoredarms.refmap.json'
     config 'mixins.armoredarms.json'
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
 }
