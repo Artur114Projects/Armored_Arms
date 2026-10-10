@@ -30,33 +30,12 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
             this.manageMassDependencies(it, project)
         }
 
-        this.manageCurseMaven(project)
+        this.manageRepositories(project)
     }
 
     @Override
     void configureAfter(CoreBuildPlugin plugin, Project project) {
-        this.manageGHRepositories(project)
         this.loadCoreDependence(project)
-    }
-
-    private void manageGHRepositories(Project project) {
-        project.repositories { RepositoryHandler rep ->
-            List<String> repositories = this.config.ghPackagesConf.getRepositories()
-            PasswordCredentials credentials = this.config.ghPackagesConf.getCredentials(project)
-            project.logger.lifecycle "GitHub credentials: [${credentials}]"
-
-            for (String repo : repositories) {
-                rep.maven { MavenArtifactRepository repository ->
-                    repository.name = "GHP: " + repo
-                    repository.url = project.uri(repo)
-                    project.logger.lifecycle "Added GitHub repo: [${repository.url}]"
-                    repository.credentials {
-                        it.username = credentials.username
-                        it.password = credentials.password
-                    }
-                }
-            }
-        }
     }
 
     private void loadCoreDependence(Project project) {
@@ -66,11 +45,16 @@ class BuildModuleDependencies implements IProjectBuildModule, IConfiguredBuildMo
         project.logger.lifecycle("Loaded core dependency: [${dep}]")
     }
 
-    private void manageCurseMaven(Project project) {
+    private void manageRepositories(Project project) {
         project.repositories { RepositoryHandler rep ->
+            rep.maven { MavenArtifactRepository repository ->
+                repository.url = project.uri("https://jitpack.io")
+            }
             rep.maven { MavenArtifactRepository repository ->
                 repository.url = project.uri("https://cursemaven.com")
             }
+            rep.mavenLocal()
+            rep.mavenCentral()
         }
     }
 
