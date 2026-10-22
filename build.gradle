@@ -27,22 +27,24 @@ repositories {
     mavenLocal()
 }
 
+dependencies {
+    implementation "curse.maven:fracture-point-1207137:8866397"
+    implementation "curse.maven:geckolib-388172:8893490"
+    implementation "curse.maven:curios-309927:6529130"
+
+    compileOnly "curse.maven:minecraft-comes-alive-reborn-535291:8658484"
+    compileOnly "curse.maven:cosmetic-armor-reworked-237307:5610814"
+    compileOnly "curse.maven:vics-point-blank-961053:8855569"
+    compileOnly "curse.maven:playeranimator-658587:7389814"
+    compileOnly "curse.maven:azurelib-817423:9095629"
+    compileOnly "curse.maven:punchy-1374153:9004863"
+    compileOnly "curse.maven:create-328085:7963363"
+}
+
 coreBuildConf {
     doLoadProjectData = false
 
     dependenciesConf {
-        afterDependence "curse.maven:entity-texture-features-fabric-568563:9055219"
-        afterDependence "curse.maven:minecraft-comes-alive-reborn-535291:8658484"
-        afterDependence "curse.maven:cosmetic-armor-reworked-237307:5610814"
-        afterDependence "curse.maven:entity-model-features-844662:9064965"
-        afterDependence "curse.maven:vics-point-blank-961053:8855569"
-        afterDependence "curse.maven:playeranimator-658587:7389814"
-        afterDependence "curse.maven:azurelib-817423:9095629"
-        afterDependence "curse.maven:geckolib-388172:8893490"
-        afterDependence "curse.maven:punchy-1374153:9004863"
-        afterDependence "curse.maven:create-328085:7963363"
-        afterDependence "curse.maven:curios-309927:6529130"
-
         coreConf {
             version = "@core_version@"
             return
