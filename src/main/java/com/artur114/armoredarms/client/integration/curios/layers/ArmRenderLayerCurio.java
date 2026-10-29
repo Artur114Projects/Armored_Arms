@@ -12,6 +12,7 @@ import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -41,7 +42,7 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
 
     @Override
     public void render(AbstractRenderEngineForge<?, ?> engine, EnumHandSideAA handSide) {
-        if (this.mc.player == null || !EnumMods.GECKO_LIB.isLoaded()) return;
+        if (this.mc.player == null) return;
 
         ArmRenderContext renderContext = engine.renderContext;
         PoseStack poseStack = renderContext.poseStack;
@@ -67,13 +68,19 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
 
                 Model model = ClientHooks.getArmorModel(this.mc.player, stack, EquipmentSlot.CHEST, engine.actualHumanoidModel());
 
-                if (model instanceof GeoArmorRenderer<?> geoModel) {
+                if (EnumMods.GECKO_LIB.isLoaded() && model instanceof GeoArmorRenderer<?> geoModel) {
                     this.renderGeo(geoModel, renderContext, handSide, stack);
+                } else if (model instanceof HumanoidModel<?> humModel) {
+                    this.renderHum(humModel, renderContext, handSide, stack);
                 }
             }
         }));
 
         poseStack.popPose();
+    }
+
+    private void renderHum(HumanoidModel<?> model, ArmRenderContext renderContext, EnumHandSideAA side, ItemStack stack) {
+        // Not defined
     }
 
     @SuppressWarnings("unchecked")
@@ -116,11 +123,11 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
 
     @Override
     public boolean needRender(AbstractRenderEngineForge<?, ?> engine, boolean renderEngineState) {
-        if (this.mc.player == null || !EnumMods.GECKO_LIB.isLoaded()) return false;
+        if (this.mc.player == null) {
+            return false;
+        }
 
-        return CuriosApi.getCuriosInventory(this.mc.player)
-                .map((handler) -> handler.getCurios().values().stream().anyMatch(this::hasArmor))
-                .orElse(false);
+        return CuriosApi.getCuriosInventory(this.mc.player).map((handler) -> handler.getCurios().values().stream().anyMatch(this::hasArmor)).orElse(false);
     }
 
     private boolean hasArmor(ICurioStacksHandler stacksHandler) {
