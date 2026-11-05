@@ -1,61 +1,35 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
-        maven {
-            url = uri("https://maven.pkg.github.com/Artur114Projects/Armored_Arms")
-            credentials {
-                // Replace this with your git hub token, or add the git hub token to global gradle.properties
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
+        maven { url 'https://jitpack.io' }
         mavenCentral()
     }
     dependencies {
+        classpath 'com.github.Artur114Projects.Armored_Arms:core-plugin:1.3.0-core'
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-        classpath 'com.artur114.armoredarms.gradle:core-build:1.2.1'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'core-build'
+apply plugin: 'core-plugin'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+archivesBaseName = archives_name
+version = mod_version
+group = mod_group_id
 
 minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
-    if (atfile != "null") {
-        accessTransformer = file('src/main/resources/META-INF/' + atfile)
-    }
-    runs {
-        client {
-            workingDirectory this.project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            if (this.project.findProperty("coreModClass") != "null") {
-                jvmArg '-Dfml.coreMods.load=' + this.project.findProperty("coreModClass")
-            }
-        }
-
-        server {
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            if (this.project.findProperty("coreModClass") != "null") {
-                jvmArg '-Dfml.coreMods.load=' + this.project.findProperty("coreModClass")
-            }
-        }
-    }
+    accessTransformer = file('src/main/resources/META-INF/' + atfile)
 }
 
 coreBuildConf {
-    dependenciesConf {
-        ghPackages {
-            credentials {
-                // Replace this with your git hub token, or add the git hub token to global gradle.properties
-                it.password = "@gpr.key@"
-                it.username = "@gpr.user@"
-            }
-        }
+    resourcesConf {
+        replaceProperties([
+            "version": mod_version,
+            "description": core_version
+        ])
+
+        includeFiles 'META-INF/mods.toml', 'pack.mcmeta'
     }
 
     jarConf {
@@ -79,10 +53,10 @@ sourceSets {
 
 dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
-
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
     compileOnly sourceSets.api.output
 
+    implementation fg.deobf("curse.maven:fantasy-armor-1083998:9427175")
     core.massDependencies {
         source "libs"
 
