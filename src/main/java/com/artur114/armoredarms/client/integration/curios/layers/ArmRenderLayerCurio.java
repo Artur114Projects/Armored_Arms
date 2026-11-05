@@ -89,6 +89,9 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
         T item = (T) stack.getItem();
         BakedGeoModel baked = model.getGeoModel().getBakedModel(model.getGeoModel().getModelResource(item, model));
         GeoBone arm = baked.getBone(side.sided("armorRightArm", "armorLeftArm")).orElse(null);
+        model.attackTime = 0.0F;
+        model.crouching = false;
+        model.swimAmount = 0.0F;
 
         if (arm == null) return;
 
