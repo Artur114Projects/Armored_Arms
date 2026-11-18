@@ -17,9 +17,9 @@ public class BoneAdapterAzBonePunchy extends BoneAdapterAzBone {
         float rotY = data.readFloat();
         float rotZ = data.readFloat();
 
-        float posX = data.readFloat();
-        float posY = data.readFloat();
-        float posZ = data.readFloat();
+        data.readFloat();
+        data.readFloat();
+        data.readFloat();
 
         to.arm.setRotX(rotX);
         to.arm.setRotY(rotY);

@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class ArmModelRendererCreate implements IArmModelRendererBase<ArmModelManagerArmor> {
+    @SuppressWarnings("removal")
     private final ResourceLocation tex = new ResourceLocation("create", "textures/models/armor/netherite_diving_arm.png");
     protected final MultiModelRenderContext context;
     protected HumanoidModel<?> hm;

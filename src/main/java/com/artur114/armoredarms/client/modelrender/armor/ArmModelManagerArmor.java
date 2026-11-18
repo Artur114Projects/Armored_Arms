@@ -103,6 +103,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         return new MultiModelRenderContext(context);
     }
 
+    @SuppressWarnings("removal")
     public ResourceLocation fmlGetArmorResource(net.minecraft.world.entity.Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
         ArmorItem item = (ArmorItem) stack.getItem();
         String texture = item.getMaterial().getName();

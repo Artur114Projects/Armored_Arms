@@ -28,6 +28,7 @@ final class CuriosGeoRenderer {
         renderGeo(engine, (GeoArmorRenderer<?>) rawModel, matrixStack, side, stack);
     }
 
+    @SuppressWarnings("unchecked")
     private static <T extends Item & GeoItem> void renderGeo(AbstractRenderEngineForge<?, ?> engine, GeoArmorRenderer<?> rawModel, PoseStack matrixStack, EnumHandSideAA side, ItemStack stack) {
         GeoArmorRenderer<T> model = (GeoArmorRenderer<T>) rawModel;
         T item = (T) stack.getItem();
