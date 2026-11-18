@@ -30,6 +30,7 @@ public class ArmoredArms implements IAAModContainer {
     public static final String MODID = "armoredarms";
     public static ArmoredArms ARMORED_ARMS;
 
+    @SuppressWarnings("removal")
     public ArmoredArms() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, AAConfig.SPEC);
         ARMORED_ARMS = this;
