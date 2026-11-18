@@ -53,6 +53,7 @@ abstract class EMFHandContext implements AutoCloseable {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static final class Legacy extends EMFHandContext {
         private Legacy(EMFEntityRenderState state) {
             EMFAnimationEntityContext.setCurrentEntityIteration(state);

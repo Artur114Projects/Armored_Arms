@@ -2,12 +2,10 @@ package com.artur114.armoredarms.client.integration.punchy.modelrender;
 
 import com.artur114.armoredarms.client.integration.azurelib.modelrender.BoneAdapterAzBone;
 import com.artur114.armoredarms.client.integration.azurelib.modelrender.PSAzBone;
-import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.util.Bone;
-import com.artur114.armoredarms.core.util.IBoneAdapter;
 import com.artur114.armoredarms.core.util.ObjectBuff;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -44,7 +42,7 @@ public class BoneAdapterAzBonePunchy extends BoneAdapterAzBone {
         Vector3f translation = explicit.getTranslation(new Vector3f());
         translation.div(16.0F);
         explicit.setTranslation(translation);
-        Matrix4f vanilla = (new Matrix4f());//.translate(posX / 16.0F, posY / 16.0F, posZ / 16.0F).rotateZ(rotZ).rotateY(rotY).rotateX(rotX).scale(1.0F, 1.0F, 1.0F);
+        Matrix4f vanilla = (new Matrix4f());
         Matrix4f correction = vanilla.invert(new Matrix4f()).mul(explicit);
         to.stack.mulPoseMatrix(correction);
     }

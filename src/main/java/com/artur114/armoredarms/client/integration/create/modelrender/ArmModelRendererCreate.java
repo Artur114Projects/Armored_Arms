@@ -2,8 +2,6 @@ package com.artur114.armoredarms.client.integration.create.modelrender;
 
 import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;

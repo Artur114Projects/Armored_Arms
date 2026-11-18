@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.pipelines;
 
-import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.pipeline.AbstractRenderPipeline;
@@ -8,8 +7,6 @@ import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.ObjectBuff;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderArmEvent;
-import net.minecraftforge.event.TickEvent;
 
 public abstract class AbstractRenderPipelineForge<I extends AbstractRenderPipelineForge<?>> extends AbstractRenderPipeline<I> {
     public ArmRenderContext renderContext = new ArmRenderContext();

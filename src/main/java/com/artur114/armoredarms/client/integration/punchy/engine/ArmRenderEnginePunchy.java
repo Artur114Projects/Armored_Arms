@@ -8,7 +8,6 @@ import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
 import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.mixin.IPunchyArmRenderProvider;
 import com.artur114.armoredarms.client.pipelines.AbstractRenderPipelineForge;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;

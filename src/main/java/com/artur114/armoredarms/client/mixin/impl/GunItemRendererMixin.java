@@ -77,7 +77,6 @@ public abstract class GunItemRendererMixin {
         if (mgr instanceof ArmModelManagerPlayer mp) mp.prepareModel(model);
         ModelPart arm = side.sided(model.rightArm, model.leftArm);
 
-        // Dark magic values
         float cgx = side.sided(0.83124995F, -0.85625005F);
         float cgy = 0.83124995F;
         float cgz = -0.037499994F;

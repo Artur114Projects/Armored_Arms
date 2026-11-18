@@ -1,24 +1,13 @@
 package com.artur114.armoredarms.client.integration.curios.layers;
 
-import com.artur114.armoredarms.api.events.InitModelManagersEvent;
-import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
-import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.artur114.armoredarms.core.api.layer.AbstractArmorRenderLayer;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
-import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
-import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
-import com.artur114.armoredarms.core.util.SLContainer;
-import com.artur114.armoredarms.core.util.ShapelessLocation;
-import com.artur114.armoredarms.main.AAConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
@@ -40,8 +29,6 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
-
-import java.util.List;
 
 public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngineForge<?, ?>> {
     public final Minecraft mc = Minecraft.getInstance();

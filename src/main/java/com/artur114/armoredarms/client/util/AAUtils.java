@@ -1,16 +1,10 @@
 package com.artur114.armoredarms.client.util;
 
-import com.artur114.armoredarms.api.ArmoredArmsApi;
-import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.util.ObjectBuff;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
-import com.artur114.armoredarms.main.ArmoredArms;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
