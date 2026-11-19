@@ -1,13 +1,11 @@
 package com.artur114.armoredarms.client.util;
 
 import com.artur114.armoredarms.core.util.CoreUtils;
-import com.artur114.armoredarms.core.util.ITexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;

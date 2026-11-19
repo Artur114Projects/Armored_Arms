@@ -1,24 +1,12 @@
 package com.artur114.armoredarms.client.integration.curios.layers;
 
-import com.artur114.armoredarms.api.events.InitModelManagersEvent;
-import com.artur114.armoredarms.api.events.InitRenderContainersEvent;
 import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
-import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelContainerArmor;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
-import com.artur114.armoredarms.client.util.ArmRenderContext;
 import com.artur114.armoredarms.client.util.EnumMods;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.artur114.armoredarms.core.api.layer.AbstractArmorRenderLayer;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
-import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
-import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.util.IAAModContainer;
-import com.artur114.armoredarms.core.util.SLContainer;
-import com.artur114.armoredarms.core.util.ShapelessLocation;
-import com.artur114.armoredarms.main.AAConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
@@ -30,18 +18,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
-
-import java.util.List;
 
 public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngineForge<?, ?>> {
     public final Minecraft mc = Minecraft.getInstance();
@@ -76,8 +58,8 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
                         if (renderer instanceof ICurioRenderer.ModelRender<?> modelRender) {
                             Model rawModel = modelRender.getModel(finalStack, slotContext);
 
-                            if (EnumMods.GECKO_LIB.isLoaded() && rawModel instanceof GeoArmorRenderer<?>) {
-                                this.renderGeo((GeoArmorRenderer<?>) rawModel, matrixStack, handSide, finalStack);
+                            if (EnumMods.GECKO_LIB.isLoaded() && CuriosGeoRenderer.isGeoModel(rawModel)) {
+                                CuriosGeoRenderer.render(engine, rawModel, matrixStack, handSide, finalStack);
                             } else if (rawModel instanceof HumanoidModel<?> model) {
                                 ModelPart arm = handSide.sided(model.rightArm, model.leftArm);
                                 MultiBufferSource renderTypeBuffer = engine.renderContext.multiBufferSource;
@@ -106,30 +88,6 @@ public class ArmRenderLayerCurio implements IArmRenderLayer<AbstractRenderEngine
 
         }));
         matrixStack.popPose();
-    }
-
-    private <T extends Item & GeoItem> void renderGeo(GeoArmorRenderer<?> rawModel, PoseStack matrixStack, EnumHandSideAA side, ItemStack stack) {
-        GeoArmorRenderer<T> model = (GeoArmorRenderer<T>) rawModel;
-        T item = (T) stack.getItem();
-
-        GeoBone arm = side.sided(model.getRightArmBone(), model.getLeftArmBone());
-        MultiBufferSource renderTypeBuffer = engine.renderContext.multiBufferSource;
-
-        RenderType renderType = model.renderType(model.getTextureLocation(item));
-        VertexConsumer vertexConsumer;
-        if (stack.hasFoil()) {
-            vertexConsumer = VertexMultiConsumer.create(renderTypeBuffer.getBuffer(RenderType.entityGlint()), renderTypeBuffer.getBuffer(renderType));
-        } else {
-            vertexConsumer = renderTypeBuffer.getBuffer(renderType);
-        }
-
-        PSGeoBone bone = new PSGeoBone();
-        bone.stack = matrixStack;
-        bone.side = side;
-        bone.arm = arm;
-
-        engine.mainBones().bySide(side).injectTo(bone);
-        model.renderRecursively(matrixStack, item, arm, renderType, renderTypeBuffer, vertexConsumer, false, Minecraft.getInstance().getPartialTick(), engine.renderContext.packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override

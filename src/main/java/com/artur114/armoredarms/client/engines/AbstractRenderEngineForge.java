@@ -11,7 +11,6 @@ import com.artur114.armoredarms.core.api.engine.AbstractRenderEngine;
 import com.artur114.armoredarms.core.api.layer.IArmRenderLayer;
 import com.artur114.armoredarms.core.util.*;
 import com.artur114.armoredarms.main.AAConfig;
-import com.artur114.armoredarms.main.ArmoredArms;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;

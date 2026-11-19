@@ -1,7 +1,6 @@
 package com.artur114.armoredarms.client.modelrender.armor;
 
 import com.artur114.armoredarms.client.layers.ArmRenderLayerArmor;
-import com.artur114.armoredarms.client.layers.ArmRenderLayerHand;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextBase;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextGlint;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
@@ -18,13 +17,9 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.Bone;
 import com.google.common.collect.Maps;
-import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
@@ -108,6 +103,7 @@ public class ArmModelManagerArmor implements IArmModelManager<ArmModelManagerArm
         return new MultiModelRenderContext(context);
     }
 
+    @SuppressWarnings("removal")
     public ResourceLocation fmlGetArmorResource(net.minecraft.world.entity.Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
         ArmorItem item = (ArmorItem) stack.getItem();
         String texture = item.getMaterial().getName();

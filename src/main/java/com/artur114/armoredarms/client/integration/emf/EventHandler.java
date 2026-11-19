@@ -3,7 +3,6 @@ package com.artur114.armoredarms.client.integration.emf;
 import com.artur114.armoredarms.api.events.InitModelManagersEvent;
 import com.artur114.armoredarms.client.integration.emf.modelrender.ArmModelManagerAnimEMF;
 import com.artur114.armoredarms.client.integration.emf.modelrender.ArmModelManagerEMF;
-import com.artur114.armoredarms.client.integration.playeranimator.modelrender.ArmModelManagerPlayerAnim;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;

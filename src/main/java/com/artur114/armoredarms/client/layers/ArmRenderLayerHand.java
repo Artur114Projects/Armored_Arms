@@ -15,14 +15,9 @@ import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.api.layer.AbstractHandRenderLayer;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelManager;
 import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderContainer;
-import com.artur114.armoredarms.core.util.IAAModContainer;
 import com.artur114.armoredarms.core.util.ShapelessLocation;
 import com.artur114.armoredarms.main.AAConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 
 import java.util.List;
 

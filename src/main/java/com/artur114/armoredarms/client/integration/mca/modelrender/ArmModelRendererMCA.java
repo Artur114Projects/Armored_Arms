@@ -1,6 +1,5 @@
 package com.artur114.armoredarms.client.integration.mca.modelrender;
 
-import com.artur114.armoredarms.client.engines.AbstractRenderEngineForge;
 import com.artur114.armoredarms.client.modelrender.INeedRenderProvider;
 import com.artur114.armoredarms.client.modelrender.player.ArmModelManagerPlayer;
 import com.artur114.armoredarms.client.util.EnumMods;
@@ -10,8 +9,6 @@ import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import com.artur114.armoredarms.core.util.Reflector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
-import dev.kosmx.playerAnim.impl.IPlayerModel;
 import forge.net.conczin.mca.MCAClient;
 import forge.net.conczin.mca.client.model.CommonVillagerModel;
 import forge.net.conczin.mca.client.model.PlayerEntityExtendedModel;

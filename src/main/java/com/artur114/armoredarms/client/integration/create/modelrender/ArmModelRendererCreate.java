@@ -2,8 +2,6 @@ package com.artur114.armoredarms.client.integration.create.modelrender;
 
 import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
-import com.artur114.armoredarms.client.modelrender.armor.ArmModelRendererArmor;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
@@ -20,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class ArmModelRendererCreate implements IArmModelRendererBase<ArmModelManagerArmor> {
+    @SuppressWarnings("removal")
     private final ResourceLocation tex = new ResourceLocation("create", "textures/models/armor/netherite_diving_arm.png");
     protected final MultiModelRenderContext context;
     protected HumanoidModel<?> hm;

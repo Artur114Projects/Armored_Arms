@@ -4,7 +4,6 @@ import com.artur114.armoredarms.client.modelrender.IArmModelRendererBase;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
 import com.artur114.armoredarms.core.api.EnumHandSideAA;
-import com.artur114.armoredarms.core.api.modelrender.IArmModelRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 

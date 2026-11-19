@@ -6,9 +6,7 @@ import com.artur114.armoredarms.core.api.EnumHandSideAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
 import com.artur114.armoredarms.core.util.Bone;
-import com.artur114.armoredarms.core.util.IBoneAdapter;
 import com.artur114.armoredarms.core.util.ObjectBuff;
-import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -19,9 +17,9 @@ public class BoneAdapterGeoBonePunchy extends BoneAdapterGeoBone {
         float rotY = data.readFloat();
         float rotZ = data.readFloat();
 
-        float posX = data.readFloat();
-        float posY = data.readFloat();
-        float posZ = data.readFloat();
+        data.readFloat();
+        data.readFloat();
+        data.readFloat();
 
         to.arm.setRotX(rotX);
         to.arm.setRotY(rotY);
@@ -44,7 +42,7 @@ public class BoneAdapterGeoBonePunchy extends BoneAdapterGeoBone {
         Vector3f translation = explicit.getTranslation(new Vector3f());
         translation.div(16.0F);
         explicit.setTranslation(translation);
-        Matrix4f vanilla = (new Matrix4f());//.translate(posX / 16.0F, posY / 16.0F, posZ / 16.0F).rotateZ(rotZ).rotateY(rotY).rotateX(rotX).scale(1.0F, 1.0F, 1.0F);
+        Matrix4f vanilla = (new Matrix4f());
         Matrix4f correction = vanilla.invert(new Matrix4f()).mul(explicit);
         to.stack.mulPoseMatrix(correction);
     }

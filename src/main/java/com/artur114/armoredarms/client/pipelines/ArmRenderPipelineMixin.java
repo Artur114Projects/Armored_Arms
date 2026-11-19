@@ -1,7 +1,6 @@
 package com.artur114.armoredarms.client.pipelines;
 
 import com.artur114.armoredarms.client.mixin.RenderArmMixinEvent;
-import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.engine.IArmRenderEngine;
 import com.artur114.armoredarms.core.util.EnumExceptionType;
 import com.artur114.armoredarms.core.util.IAAModContainer;

@@ -1,12 +1,9 @@
 package com.artur114.armoredarms.client.modelrender.context;
 
 import com.artur114.armoredarms.client.util.AbsModelRenderContext;
-import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.core.api.IPriority;
 import com.artur114.armoredarms.core.api.Priority;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 

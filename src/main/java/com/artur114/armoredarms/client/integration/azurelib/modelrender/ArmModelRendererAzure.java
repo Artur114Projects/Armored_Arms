@@ -1,9 +1,7 @@
 package com.artur114.armoredarms.client.integration.azurelib.modelrender;
 
-import com.artur114.armoredarms.client.integration.geckolib.modelrender.PSGeoBone;
 import com.artur114.armoredarms.client.modelrender.armor.ArmModelManagerArmor;
 import com.artur114.armoredarms.client.modelrender.context.ModelRenderContextOverlay;
-import com.artur114.armoredarms.client.util.AAUtils;
 import com.artur114.armoredarms.client.util.IModelRenderContext;
 import com.artur114.armoredarms.client.util.ItemStackAA;
 import com.artur114.armoredarms.client.util.MultiModelRenderContext;
@@ -23,7 +21,6 @@ import mod.azure.azurelib.render.armor.AzArmorRendererConfig;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipeline;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipelineContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -49,12 +46,12 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         this.context = context;
         this.ma = model;
 
-        this.pipeline = Reflector.getPrivateField(AzArmorModel.class, model, "rendererPipeline"); // dark magic!
-        this.renderer = Reflector.getPrivateField(AzRendererPipeline.class, this.pipeline, "modelRenderer"); // dark magic!
+        this.pipeline = Reflector.getPrivateField(AzArmorModel.class, model, "rendererPipeline");
+        this.renderer = Reflector.getPrivateField(AzRendererPipeline.class, this.pipeline, "modelRenderer");
 
         this.arms = new String[] {"armorLeftArm", "armorRightArm"};
 
-        this.renderRecursively = Reflector.findMethod(AzModelRenderer.class, "renderRecursively", AzRendererPipelineContext.class, AzBone.class, boolean.class);  // dark magic!
+        this.renderRecursively = Reflector.findMethod(AzModelRenderer.class, "renderRecursively", AzRendererPipelineContext.class, AzBone.class, boolean.class);
     }
 
     @Override
@@ -105,7 +102,7 @@ public class ArmModelRendererAzure implements IArmModelRenderer<ArmModelManagerA
         poseStack.translate(0.0F, 1.5F, 0.0F);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         bone.injectTo(this.azBone);
-        Reflector.invokeMethod(this.renderRecursively, this.renderer, context, arm, false);  // dark magic!
+        Reflector.invokeMethod(this.renderRecursively, this.renderer, context, arm, false);
         poseStack.popPose();
 
         arm.setHidden(h);
