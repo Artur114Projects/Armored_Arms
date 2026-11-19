@@ -17,14 +17,12 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
-final class CuriosGeoRenderer {
-    private CuriosGeoRenderer() {}
-
-    static boolean isGeoModel(Model model) {
+public class CuriosGeoRenderer {
+    public static boolean isGeoModel(Model model) {
         return model instanceof GeoArmorRenderer<?>;
     }
 
-    static void render(AbstractRenderEngineForge<?, ?> engine, Model rawModel, PoseStack matrixStack, EnumHandSideAA side, ItemStack stack) {
+    public static void render(AbstractRenderEngineForge<?, ?> engine, Model rawModel, PoseStack matrixStack, EnumHandSideAA side, ItemStack stack) {
         renderGeo(engine, (GeoArmorRenderer<?>) rawModel, matrixStack, side, stack);
     }
 

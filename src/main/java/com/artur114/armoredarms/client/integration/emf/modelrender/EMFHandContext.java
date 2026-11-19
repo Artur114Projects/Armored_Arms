@@ -16,8 +16,7 @@ abstract class EMFHandContext implements AutoCloseable {
     private static final boolean LEGACY = isClassPresent(LEGACY_CONTEXT_CLASS);
 
     static EMFHandContext open() {
-        EMFEntityRenderState state = (EMFEntityRenderState) ETFEntityRenderState
-                .forEntity((ETFEntity) Minecraft.getInstance().player);
+        EMFEntityRenderState state = (EMFEntityRenderState) ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player);
         return LEGACY ? new Legacy(state) : new Modern(state);
     }
 
@@ -68,16 +67,11 @@ abstract class EMFHandContext implements AutoCloseable {
 
     private static final class Modern extends EMFHandContext {
         private static final String EMF_STATE_CLASS = "traben.entity_model_features.models.animation.state.EMFEntityRenderState";
-        private static final MethodHandle CURRENT_STATE = findHandle(ETF_STATE_CLASS, "state",
-                MethodType.methodType(ETFEntityRenderState.class), true);
-        private static final MethodHandle MOUNT = findHandle(ETF_STATE_CLASS, "mount",
-                MethodType.methodType(void.class, ETFEntityRenderState.class), true);
-        private static final MethodHandle UNMOUNT = findHandle(ETF_STATE_CLASS, "unMount",
-                MethodType.methodType(void.class), true);
-        private static final MethodHandle SET_MANUAL_PLAYER_STATE = findHandle(EMF_STATE_CLASS, "setManualPlayerState",
-                MethodType.methodType(void.class, boolean.class), false);
-        private static final MethodHandle SET_FIRST_PERSON_HAND = findHandle(EMF_STATE_CLASS, "setIsFirstPersonHand",
-                MethodType.methodType(void.class, boolean.class), false);
+        private static final MethodHandle CURRENT_STATE = findHandle(ETF_STATE_CLASS, "state", MethodType.methodType(ETFEntityRenderState.class), true);
+        private static final MethodHandle MOUNT = findHandle(ETF_STATE_CLASS, "mount", MethodType.methodType(void.class, ETFEntityRenderState.class), true);
+        private static final MethodHandle UNMOUNT = findHandle(ETF_STATE_CLASS, "unMount", MethodType.methodType(void.class), true);
+        private static final MethodHandle SET_MANUAL_PLAYER_STATE = findHandle(EMF_STATE_CLASS, "setManualPlayerState", MethodType.methodType(void.class, boolean.class), false);
+        private static final MethodHandle SET_FIRST_PERSON_HAND = findHandle(EMF_STATE_CLASS, "setIsFirstPersonHand", MethodType.methodType(void.class, boolean.class), false);
 
         private ETFEntityRenderState mountedByUs;
 
